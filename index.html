@@ -85,6 +85,13 @@
     font-size: 10px; font-weight: 900; box-shadow: 0 2px 8px rgba(0,0,0,0.7);
     cursor: pointer;
   }
+  /* Location metkasi */
+  .location-marker {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #0A84FF; border: 2px solid #FFFFFF;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; box-shadow: 0 2px 8px rgba(0,0,0,0.6); cursor: pointer;
+  }
   /* Restroom metkasi */
   .restroom-marker {
     width: 28px; height: 28px; border-radius: 50%;
@@ -246,6 +253,7 @@
       if (rm) rm.classList.remove('open');
       syncRestroomMarkers(false);
       if (rmWasOpen) fitAll();
+      syncLocationMarkers(isOpen);
     });
     document.querySelectorAll('.location-option').forEach(button => {
       button.addEventListener('click', () => {
@@ -440,6 +448,25 @@
     map.fitBounds(b, { paddingTopLeft: [30, 120], paddingBottomRight: [30, 130] });
   }
 
+  // Locations menyusi ochiq paytda uning metkalari ham ko'rinadi
+  let locationLayer = null;
+  function syncLocationMarkers(show) {
+    if (!map) return;
+    if (!show) {
+      if (locationLayer) { map.removeLayer(locationLayer); locationLayer = null; }
+      return;
+    }
+    if (!locationLayer) locationLayer = L.layerGroup().addTo(map);
+    locationLayer.clearLayers();
+    SAVED_LOCATIONS.forEach(loc => {
+      const icon = L.divIcon({ className: '', html: '<div class="location-marker">📍</div>', iconSize: [28, 28], iconAnchor: [14, 14] });
+      const m = L.marker([loc.lat, loc.lon], { icon: icon });
+      m.bindTooltip('<b>' + loc.name + '</b>', { direction: 'top', offset: [0, -14] });
+      m.on('click', () => openLocationNavigation(loc));
+      locationLayer.addLayer(m);
+    });
+  }
+
   // Menyu ochiq paytda xaritada metkalar ko'rinadi, yopilganda yashiriladi
   let restroomLayer = null;
   function syncRestroomMarkers(show) {
@@ -505,6 +532,7 @@
       const isOpen = menu.classList.toggle('open');
       toggle.setAttribute('aria-expanded', String(isOpen));
       document.getElementById('locationMenu').classList.remove('open');
+      syncLocationMarkers(false);
       if (isOpen) { zoomToUserHalfMile(); maybeRefreshRestrooms(); }
       else { syncRestroomMarkers(false); fitAll(); }
     });

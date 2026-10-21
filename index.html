@@ -47,12 +47,12 @@
   #speedBadge.over { background: #FF3B30; }
   #speedBadge.over .num, #speedBadge.over .unit { color: #fff; }
   #speedBadge.over .warn { display: block; }
-  #recenter, #trafficToggle, #locationMenuToggle {
+  #recenter, #trafficToggle, #locationMenuToggle, #restroomMenuToggle {
     pointer-events: auto; background: rgba(18,18,18,0.88); color: #0A84FF;
     border: 1px solid #0A84FF; border-radius: 16px; padding: 6px 14px;
     font-size: 11px; font-weight: bold; cursor: pointer;
   }
-  #recenter:active, #trafficToggle:active, #locationMenuToggle:active { background: rgba(10,132,255,0.25); }
+  #recenter:active, #trafficToggle:active, #locationMenuToggle:active, #restroomMenuToggle:active { background: rgba(10,132,255,0.25); }
   #btnRow {
     display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
     pointer-events: none;
@@ -93,14 +93,15 @@
   }
 
   /* Lokatsiya menyusi (tugmalar qatorida) */
-  #locationMenuWrap { position: relative; pointer-events: auto; }
-  #locationMenu {
+  #locationMenuWrap, #restroomMenuWrap { position: relative; pointer-events: auto; }
+  #locationMenu, #restroomMenu {
     display: none; position: absolute; top: calc(100% + 8px); left: 50%;
     transform: translateX(-50%); width: 262px; padding: 8px; z-index: 1300;
     background: rgba(18,18,18,0.97); border: 1px solid #3A3A3C;
     border-radius: 16px; box-shadow: 0 8px 22px rgba(0,0,0,0.55);
   }
-  #locationMenu.open { display: block; }
+  #locationMenu.open, #restroomMenu.open { display: block; }
+  #restroomMenu { max-height: 46vh; overflow-y: auto; }
   .location-option {
     display: flex; align-items: center; gap: 8px;
     width: 100%; margin: 4px 0; padding: 8px 10px;
@@ -160,6 +161,10 @@
         <button class="location-option" data-location="5"><span class="loc-main"><span class="loc-name">Go home</span><span class="loc-addr">8973-95 Bay Pkwy, Brooklyn, NY 11214</span></span><span class="loc-badges"><span class="loc-badge"><span class="v" id="locmi-5">--</span><span class="u">mi</span></span><span class="loc-badge min"><span class="v" id="locmin-5">--</span><span class="u">min</span></span></span></button>
       </div>
     </div>
+    <div id="restroomMenuWrap">
+      <button id="restroomMenuToggle" aria-expanded="false" aria-controls="restroomMenu">🚻 RESTROOM</button>
+      <div id="restroomMenu"></div>
+    </div>
   </div>
 </div>
 
@@ -183,6 +188,25 @@
     { id: 5, name: 'Go home', address: '8973-95 Bay Pkwy, Brooklyn, NY 11214', lat: 40.5985, lon: -73.9965 },
   ];
 
+  // Jamoat hojatxonalari (Manhattan park/playground) — menyuda masofa bo'yicha saralanadi.
+  const RESTROOMS = [
+    { id: 1,  name: 'Central Park — Ancient Playground',   address: '85th St & 5th Ave',               lat: 40.78077, lon: -73.96156 },
+    { id: 2,  name: 'Central Park — Heckscher Playground', address: 'Mid-Park, 61st–63rd St',          lat: 40.77002, lon: -73.97795 },
+    { id: 3,  name: 'Central Park — Bendheim Playground',  address: '100th St & 5th Ave',              lat: 40.79041, lon: -73.95288 },
+    { id: 4,  name: 'Central Park — North Meadow',         address: 'Mid-Park at 97th St',             lat: 40.79028, lon: -73.95987 },
+    { id: 5,  name: 'Central Park — Dana Discovery Center', address: '110th St & Fifth Ave',           lat: 40.79711, lon: -73.95149 },
+    { id: 6,  name: 'Washington Square Park',              address: 'Washington Square S & MacDougal St', lat: 40.73104, lon: -73.99960 },
+    { id: 7,  name: 'Battery Park — Playscape',            address: 'State St & Battery Pl',           lat: 40.70451, lon: -74.01425 },
+    { id: 8,  name: 'DeWitt Clinton Park',                 address: '11th Ave & W 52nd St',            lat: 40.76818, lon: -73.99463 },
+    { id: 9,  name: 'St. Nicholas Park',                   address: 'W 133rd St & St. Nicholas Ave',   lat: 40.81570, lon: -73.94867 },
+    { id: 10, name: 'Highbridge — Adventure Playground',   address: 'Edgecombe Ave & W 164th St',      lat: 40.83646, lon: -73.93703 },
+    { id: 11, name: 'Highbridge — Quisqueya Playground',   address: 'W 180th St & Amsterdam Ave',      lat: 40.84743, lon: -73.93139 },
+    { id: 12, name: 'Hudson River Park — Pier 25',         address: 'West St & N Moore St',            lat: 40.72032, lon: -74.01227 },
+    { id: 13, name: 'Hudson River Park — Pier 51',         address: 'West St & Jane St',               lat: 40.73820, lon: -74.01007 },
+    { id: 14, name: 'Tompkins Square Park',                address: 'Ave A & E 7th St',                lat: 40.72605, lon: -73.98353 },
+    { id: 15, name: 'Union Square Park',                   address: '16th St & Broadway',              lat: 40.73710, lon: -73.99032 },
+  ];
+
   function openLocationNavigation(location) {
     const ua = navigator.userAgent || '';
     const isIOS = /iPhone|iPad|iPod/i.test(ua);
@@ -204,6 +228,8 @@
     toggle.addEventListener('click', () => {
       const isOpen = menu.classList.toggle('open');
       toggle.setAttribute('aria-expanded', String(isOpen));
+      const rm = document.getElementById('restroomMenu');
+      if (rm) rm.classList.remove('open');
     });
     document.querySelectorAll('.location-option').forEach(button => {
       button.addEventListener('click', () => {
@@ -223,6 +249,8 @@
   const airportInfo = {};
   const locationInfo = {};
   let lastLocFetch = 0, lastLocLat = null, lastLocLon = null;
+  const restroomInfo = {};
+  let lastRstFetch = 0, lastRstLat = null, lastRstLon = null;
 
   // --- Tirbandlik / talab holati (soatga qarab) ---
   function evaluateTrafficDemand() {
@@ -316,6 +344,72 @@
         if (mn) mn.textContent = res.durationMins;
       }
     }
+  }
+
+  // --- Restroom menyusi: ro'yxat eng yaqinidan boshlab saralanadi ---
+  function straightMiles(aLat, aLon, bLat, bLon) {
+    const dLat = (bLat - aLat) * 111.32;
+    const dLon = (bLon - aLon) * 85.0;
+    return Math.sqrt(dLat * dLat + dLon * dLon) * 0.621371;
+  }
+
+  function renderRestrooms() {
+    const menu = document.getElementById('restroomMenu');
+    if (!menu) return;
+    menu.innerHTML = '';
+    const list = RESTROOMS.slice();
+    list.sort((a, b) => {
+      const ia = restroomInfo[a.id], ib = restroomInfo[b.id];
+      if (ia && ib) return parseFloat(ia.dist) - parseFloat(ib.dist);
+      if (ia) return -1;
+      if (ib) return 1;
+      if (userLat !== null) return straightMiles(userLat, userLon, a.lat, a.lon) - straightMiles(userLat, userLon, b.lat, b.lon);
+      return a.id - b.id;
+    });
+    list.forEach(r => {
+      const info = restroomInfo[r.id];
+      const btn = document.createElement('button');
+      btn.className = 'location-option';
+      btn.innerHTML = `<span class="loc-main"><span class="loc-name">${r.name}</span><span class="loc-addr">${r.address}</span></span>` +
+        `<span class="loc-badges"><span class="loc-badge"><span class="v">${info ? info.dist : '--'}</span><span class="u">mi</span></span>` +
+        `<span class="loc-badge min"><span class="v">${info ? info.mins : '--'}</span><span class="u">min</span></span></span>`;
+      btn.addEventListener('click', () => openLocationNavigation(r));
+      menu.appendChild(btn);
+    });
+  }
+
+  async function refreshRestroomRoutes() {
+    if (userLat === null) return;
+    lastRstFetch = Date.now();
+    lastRstLat = userLat; lastRstLon = userLon;
+    for (const r of RESTROOMS) {
+      const res = await fetchRoute(userLat, userLon, r);
+      if (res) restroomInfo[r.id] = { dist: res.distanceMiles, mins: res.durationMins };
+    }
+    renderRestrooms();
+  }
+
+  function maybeRefreshRestrooms() {
+    if (userLat === null) { renderRestrooms(); return; }
+    let moved = Infinity;
+    if (lastRstLat !== null) {
+      const dLat = (userLat - lastRstLat) * 111320;
+      const dLon = (userLon - lastRstLon) * 85000;
+      moved = Math.sqrt(dLat * dLat + dLon * dLon);
+    }
+    if (Date.now() - lastRstFetch > 120000 || moved > 300) refreshRestroomRoutes();
+    else renderRestrooms();
+  }
+
+  function initRestroomMenu() {
+    const toggle = document.getElementById('restroomMenuToggle');
+    const menu = document.getElementById('restroomMenu');
+    toggle.addEventListener('click', () => {
+      const isOpen = menu.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', String(isOpen));
+      document.getElementById('locationMenu').classList.remove('open');
+      if (isOpen) maybeRefreshRestrooms();
+    });
   }
 
   async function refreshRoutes(force) {
@@ -416,7 +510,10 @@
       if (trafficOn) { trafficLayer.addTo(map); } else { map.removeLayer(trafficLayer); }
       tBtn.textContent = trafficOn ? '🚦 TRAFFIC: ON' : '🚦 TRAFFIC: OFF';
       tBtn.classList.toggle('off', !trafficOn);
+      lastRstFetch = 0;
       refreshRoutes(true);
+      const rm = document.getElementById('restroomMenu');
+      if (rm && rm.classList.contains('open')) refreshRestroomRoutes();
     });
   }
 
@@ -464,6 +561,8 @@
   buildCards();
   initMap();
   initLocationMenu();
+  initRestroomMenu();
+  renderRestrooms();
 
   if ('geolocation' in navigator) {
     navigator.geolocation.watchPosition(onPosition, onPositionError, {

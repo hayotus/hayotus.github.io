@@ -85,6 +85,13 @@
     font-size: 10px; font-weight: 900; box-shadow: 0 2px 8px rgba(0,0,0,0.7);
     cursor: pointer;
   }
+  /* Restroom metkasi */
+  .restroom-marker {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(255,255,255,0.95); border: 2px solid #0A84FF;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.6); cursor: pointer;
+  }
   /* Foydalanuvchi nuqtasi */
   .user-dot {
     width: 20px; height: 20px; border-radius: 50%;
@@ -188,8 +195,8 @@
     { id: 5, name: 'Go home', address: '8973-95 Bay Pkwy, Brooklyn, NY 11214', lat: 40.5985, lon: -73.9965 },
   ];
 
-  // Jamoat hojatxonalari (Manhattan park/playground) — menyuda masofa bo'yicha saralanadi.
-  const RESTROOMS = [
+  // Jamoat hojatxonalari — asosiy ro'yxat NYC Open Data API dan yuklanadi; bu zaxira ro'yxat.
+  const RESTROOMS_FALLBACK = [
     { id: 1,  name: 'Central Park — Ancient Playground',   address: '85th St & 5th Ave',               lat: 40.78077, lon: -73.96156 },
     { id: 2,  name: 'Central Park — Heckscher Playground', address: 'Mid-Park, 61st–63rd St',          lat: 40.77002, lon: -73.97795 },
     { id: 3,  name: 'Central Park — Bendheim Playground',  address: '100th St & 5th Ave',              lat: 40.79041, lon: -73.95288 },
@@ -206,6 +213,11 @@
     { id: 14, name: 'Tompkins Square Park',                address: 'Ave A & E 7th St',                lat: 40.72605, lon: -73.98353 },
     { id: 15, name: 'Union Square Park',                   address: '16th St & Broadway',              lat: 40.73710, lon: -73.99032 },
   ];
+
+  const RESTROOM_API = 'https://data.cityofnewyork.us/resource/i7jb-7jku.json?$limit=5000&status=Operational&$select=facility_name,location_type,operator,hours_of_operation,latitude,longitude';
+  let RESTROOMS = [];
+  let restroomsLoaded = false;
+  const RESTROOM_SHOW = 20;
 
   function openLocationNavigation(location) {
     const ua = navigator.userAgent || '';
@@ -230,6 +242,7 @@
       toggle.setAttribute('aria-expanded', String(isOpen));
       const rm = document.getElementById('restroomMenu');
       if (rm) rm.classList.remove('open');
+      syncRestroomMarkers(false);
     });
     document.querySelectorAll('.location-option').forEach(button => {
       button.addEventListener('click', () => {
@@ -346,25 +359,57 @@
     }
   }
 
-  // --- Restroom menyusi: ro'yxat eng yaqinidan boshlab saralanadi ---
+  // --- Restroom menyusi: NYC Open Data dan jonli ro'yxat, eng yaqinidan saralanadi ---
   function straightMiles(aLat, aLon, bLat, bLon) {
     const dLat = (bLat - aLat) * 111.32;
     const dLon = (bLon - aLon) * 85.0;
     return Math.sqrt(dLat * dLat + dLon * dLon) * 0.621371;
   }
 
+  async function loadRestrooms() {
+    if (restroomsLoaded) return;
+    try {
+      const res = await fetch(RESTROOM_API);
+      const rows = await res.json();
+      const list = [];
+      rows.forEach((row, i) => {
+        const lat = parseFloat(row.latitude), lon = parseFloat(row.longitude);
+        if (!isNaN(lat) && !isNaN(lon) && row.facility_name) {
+          let sub = [row.location_type, row.operator].filter(Boolean).join(' • ');
+          if (row.hours_of_operation && row.hours_of_operation.length <= 24) sub += ' • ' + row.hours_of_operation;
+          list.push({ id: i + 1, name: row.facility_name, address: sub || 'NYC', lat: lat, lon: lon });
+        }
+      });
+      if (list.length > 0) RESTROOMS = list;
+    } catch (e) { console.log('Restroom API error:', e); }
+    if (RESTROOMS.length === 0) RESTROOMS = RESTROOMS_FALLBACK;
+    restroomsLoaded = true;
+  }
+
+  let displayedRestrooms = [];
+  function computeDisplayedRestrooms() {
+    const list = RESTROOMS.slice();
+    if (userLat !== null) {
+      list.sort((a, b) => straightMiles(userLat, userLon, a.lat, a.lon) - straightMiles(userLat, userLon, b.lat, b.lon));
+    }
+    displayedRestrooms = list.slice(0, RESTROOM_SHOW);
+  }
+
   function renderRestrooms() {
     const menu = document.getElementById('restroomMenu');
     if (!menu) return;
     menu.innerHTML = '';
-    const list = RESTROOMS.slice();
+    if (!restroomsLoaded) {
+      menu.innerHTML = '<div class="location-option" style="cursor:default"><span class="loc-main"><span class="loc-name">Yuklanmoqda...</span></span></div>';
+      return;
+    }
+    const list = displayedRestrooms.slice();
     list.sort((a, b) => {
       const ia = restroomInfo[a.id], ib = restroomInfo[b.id];
       if (ia && ib) return parseFloat(ia.dist) - parseFloat(ib.dist);
       if (ia) return -1;
       if (ib) return 1;
-      if (userLat !== null) return straightMiles(userLat, userLon, a.lat, a.lon) - straightMiles(userLat, userLon, b.lat, b.lon);
-      return a.id - b.id;
+      return 0;
     });
     list.forEach(r => {
       const info = restroomInfo[r.id];
@@ -378,19 +423,46 @@
     });
   }
 
+  // Menyu ochiq paytda xaritada metkalar ko'rinadi, yopilganda yashiriladi
+  let restroomLayer = null;
+  function syncRestroomMarkers(show) {
+    if (!map) return;
+    if (!show) {
+      if (restroomLayer) { map.removeLayer(restroomLayer); restroomLayer = null; }
+      return;
+    }
+    if (!restroomLayer) restroomLayer = L.layerGroup().addTo(map);
+    restroomLayer.clearLayers();
+    displayedRestrooms.forEach(r => {
+      const icon = L.divIcon({ className: '', html: '<div class="restroom-marker">🚻</div>', iconSize: [28, 28], iconAnchor: [14, 14] });
+      const m = L.marker([r.lat, r.lon], { icon: icon });
+      m.bindTooltip('<b>' + r.name + '</b>', { direction: 'top', offset: [0, -14] });
+      m.on('click', () => openLocationNavigation(r));
+      restroomLayer.addLayer(m);
+    });
+  }
+
   async function refreshRestroomRoutes() {
     if (userLat === null) return;
     lastRstFetch = Date.now();
     lastRstLat = userLat; lastRstLon = userLon;
-    for (const r of RESTROOMS) {
+    computeDisplayedRestrooms();
+    for (const r of displayedRestrooms) {
       const res = await fetchRoute(userLat, userLon, r);
       if (res) restroomInfo[r.id] = { dist: res.distanceMiles, mins: res.durationMins };
     }
     renderRestrooms();
+    const rm = document.getElementById('restroomMenu');
+    if (rm && rm.classList.contains('open')) syncRestroomMarkers(true);
   }
 
-  function maybeRefreshRestrooms() {
-    if (userLat === null) { renderRestrooms(); return; }
+  async function maybeRefreshRestrooms() {
+    await loadRestrooms();
+    computeDisplayedRestrooms();
+    renderRestrooms();
+    const rm = document.getElementById('restroomMenu');
+    if (rm && rm.classList.contains('open')) syncRestroomMarkers(true);
+    if (userLat === null) return;
     let moved = Infinity;
     if (lastRstLat !== null) {
       const dLat = (userLat - lastRstLat) * 111320;
@@ -398,7 +470,6 @@
       moved = Math.sqrt(dLat * dLat + dLon * dLon);
     }
     if (Date.now() - lastRstFetch > 120000 || moved > 300) refreshRestroomRoutes();
-    else renderRestrooms();
   }
 
   function initRestroomMenu() {
@@ -409,6 +480,7 @@
       toggle.setAttribute('aria-expanded', String(isOpen));
       document.getElementById('locationMenu').classList.remove('open');
       if (isOpen) maybeRefreshRestrooms();
+      else syncRestroomMarkers(false);
     });
   }
 
@@ -439,6 +511,8 @@
     if (force || nowL - lastLocFetch > 120000 || locMoved > 300) {
       refreshLocationRoutes();
     }
+    const rmEl = document.getElementById('restroomMenu');
+    if (rmEl && rmEl.classList.contains('open')) maybeRefreshRestrooms();
   }
 
   function fitAll() {

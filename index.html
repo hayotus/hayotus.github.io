@@ -86,9 +86,50 @@
     background: #0A84FF; border: 3px solid #fff;
     box-shadow: 0 0 0 6px rgba(10,132,255,0.3), 0 2px 8px rgba(0,0,0,0.6);
   }
+
+  /* Chap yuqori lokatsiya menyusi */
+  #locationMenuWrap {
+    position: absolute; top: 12px; left: 12px; z-index: 1200;
+    pointer-events: auto;
+  }
+  #locationMenuToggle {
+    background: rgba(18,18,18,0.96); color: #fff;
+    border: 1px solid #3A3A3C; border-radius: 14px;
+    padding: 10px 13px; font-size: 13px; font-weight: 800;
+    cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.45);
+  }
+  #locationMenu {
+    display: none; margin-top: 8px; width: 220px; padding: 8px;
+    background: rgba(18,18,18,0.97); border: 1px solid #3A3A3C;
+    border-radius: 16px; box-shadow: 0 8px 22px rgba(0,0,0,0.55);
+  }
+  #locationMenu.open { display: block; }
+  .location-option {
+    display: block; width: 100%; margin: 4px 0; padding: 10px;
+    text-align: left; color: #fff; background: #242426;
+    border: 1px solid #3A3A3C; border-radius: 10px;
+    font-size: 12px; font-weight: 800; cursor: pointer;
+  }
+  .location-option:active { background: #0A84FF; }
+  .location-option span {
+    display: block; margin-top: 4px; color: #B8B8BD;
+    font-size: 10px; font-weight: 500; line-height: 1.35;
+  }
+
 </style>
 </head>
 <body>
+
+
+<div id="locationMenuWrap">
+  <button id="locationMenuToggle" aria-expanded="false" aria-controls="locationMenu">☰ LOCATIONS</button>
+  <div id="locationMenu">
+    <button class="location-option" data-location="1">Location 1<span>Times Square, Manhattan, NY</span></button>
+    <button class="location-option" data-location="2">Location 2<span>Times Square, Manhattan, NY</span></button>
+    <button class="location-option" data-location="3">Location 3<span>Times Square, Manhattan, NY</span></button>
+    <button class="location-option" data-location="4">Location 4<span>Times Square, Manhattan, NY</span></button>
+  </div>
+</div>
 
 <div id="map"></div>
 
@@ -120,6 +161,45 @@
     { id: '2', name: 'LaGuardia',       code: 'LGA', lat: 40.7769, lon: -73.8740, color: '#30D158' },
     { id: '3', name: 'Newark Liberty',  code: 'EWR', lat: 40.6895, lon: -74.1745, color: '#BF5AF2' },
   ];
+
+
+  // Hozircha barcha saqlangan lokatsiyalar Times Square manziliga yo'naltiradi.
+  const SAVED_LOCATIONS = [
+    { id: 1, name: 'Location 1', address: 'Times Square, Manhattan, NY', lat: 40.7580, lon: -73.9855 },
+    { id: 2, name: 'Location 2', address: 'Times Square, Manhattan, NY', lat: 40.7580, lon: -73.9855 },
+    { id: 3, name: 'Location 3', address: 'Times Square, Manhattan, NY', lat: 40.7580, lon: -73.9855 },
+    { id: 4, name: 'Location 4', address: 'Times Square, Manhattan, NY', lat: 40.7580, lon: -73.9855 },
+  ];
+
+  function openLocationNavigation(location) {
+    const ua = navigator.userAgent || '';
+    const isIOS = /iPhone|iPad|iPod/i.test(ua);
+    const isAndroid = /Android/i.test(ua);
+    let url;
+    if (isIOS) {
+      url = `maps://?daddr=${location.lat},${location.lon}&dirflg=d`;
+    } else if (isAndroid) {
+      url = `geo:${location.lat},${location.lon}?q=${location.lat},${location.lon}(${encodeURIComponent(location.address)})`;
+    } else {
+      url = `https://www.google.com/maps/dir/?api=1&destination=${location.lat},${location.lon}`;
+    }
+    window.location.href = url;
+  }
+
+  function initLocationMenu() {
+    const toggle = document.getElementById('locationMenuToggle');
+    const menu = document.getElementById('locationMenu');
+    toggle.addEventListener('click', () => {
+      const isOpen = menu.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', String(isOpen));
+    });
+    document.querySelectorAll('.location-option').forEach(button => {
+      button.addEventListener('click', () => {
+        const location = SAVED_LOCATIONS.find(item => item.id === Number(button.dataset.location));
+        if (location) openLocationNavigation(location);
+      });
+    });
+  }
 
   let map, userMarker, autoZoom = true;
   let userLat = null, userLon = null;
@@ -295,6 +375,7 @@
   setInterval(evaluateTrafficDemand, 60000);
   buildCards();
   initMap();
+  initLocationMenu();
 
   if ('geolocation' in navigator) {
     navigator.geolocation.watchPosition(onPosition, onPositionError, {

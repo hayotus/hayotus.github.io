@@ -109,29 +109,30 @@
   /* Lokatsiya menyusi (tugmalar qatorida) */
   #locationMenuWrap, #restroomMenuWrap { position: relative; pointer-events: auto; }
   #locationMenu, #restroomMenu {
-    display: none; position: absolute; top: calc(100% + 8px); left: 50%;
-    transform: translateX(-50%); width: 262px; padding: 8px; z-index: 1300;
+    display: none; position: fixed; top: calc(env(safe-area-inset-top) + 104px); right: 8px;
+    width: 252px; padding: 6px; z-index: 1300;
     background: rgba(18,18,18,0.97); border: 1px solid #3A3A3C;
-    border-radius: 16px; box-shadow: 0 8px 22px rgba(0,0,0,0.55);
+    border-radius: 14px; box-shadow: 0 8px 22px rgba(0,0,0,0.55);
+    max-height: 62vh; overflow-y: auto;
   }
   #locationMenu.open, #restroomMenu.open { display: block; }
-  #restroomMenu { max-height: 46vh; overflow-y: auto; }
   .location-option {
-    display: flex; align-items: center; gap: 8px;
-    width: 100%; margin: 4px 0; padding: 8px 10px;
+    display: flex; align-items: center; gap: 6px;
+    width: 100%; margin: 3px 0; padding: 6px 8px;
     text-align: left; color: #fff; background: #242426;
     border: 1px solid #3A3A3C; border-radius: 10px; cursor: pointer;
   }
   .location-option:active { background: #0A84FF; }
   .location-option .loc-main { flex: 1; min-width: 0; }
-  .location-option .loc-name { display: block; font-size: 12px; font-weight: 800; color: #fff; }
+  .location-option .loc-name { display: block; font-size: 12px; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .location-option .loc-addr {
-    display: block; margin-top: 3px; color: #B8B8BD;
+    display: block; margin-top: 2px; color: #B8B8BD;
     font-size: 10px; font-weight: 500; line-height: 1.35;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
-  .loc-badges { display: flex; gap: 5px; flex: none; }
+  .loc-badges { display: flex; gap: 4px; flex: none; }
   .loc-badge {
-    width: 42px; height: 42px; border-radius: 50%;
+    width: 34px; height: 34px; border-radius: 50%;
     background: #1C1C1E; border: 2px solid #0A84FF;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
   }
@@ -433,6 +434,7 @@
       const info = restroomInfo[r.id];
       const btn = document.createElement('button');
       btn.className = 'location-option';
+      btn.title = r.name;
       btn.innerHTML = `<span class="loc-main"><span class="loc-name">${r.name}</span><span class="loc-addr">${r.address}</span></span>` +
         `<span class="loc-badges"><span class="loc-badge"><span class="v">${info ? info.dist : '--'}</span><span class="u">mi</span></span>` +
         `<span class="loc-badge min"><span class="v">${info ? info.mins : '--'}</span><span class="u">min</span></span></span>`;

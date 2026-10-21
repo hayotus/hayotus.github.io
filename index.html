@@ -148,6 +148,7 @@
     </div>
   </div>
   <div id="btnRow">
+    <button id="recenter">🌐</button>
     <button id="trafficToggle">🚦 TRAFFIC: ON</button>
     <div id="locationMenuWrap">
       <button id="locationMenuToggle" aria-expanded="false" aria-controls="locationMenu">☰ LOCATIONS</button>
@@ -396,6 +397,11 @@
         radius: 4828, color: a.color, weight: 1.5,
         fillColor: a.color, fillOpacity: 0.1,
       }).addTo(map);
+    });
+
+    document.getElementById('recenter').addEventListener('click', () => {
+      autoZoom = true;
+      fitAll();
     });
 
     // --- TomTom jonli tirbandlik qatlami (relative flow) ---

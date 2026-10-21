@@ -47,12 +47,13 @@
   #speedBadge.over { background: #FF3B30; }
   #speedBadge.over .num, #speedBadge.over .unit { color: #fff; }
   #speedBadge.over .warn { display: block; }
-  #recenter {
+  #recenter, #trafficToggle {
     pointer-events: auto; background: rgba(18,18,18,0.88); color: #0A84FF;
     border: 1px solid #0A84FF; border-radius: 16px; padding: 6px 14px;
     font-size: 11px; font-weight: bold; cursor: pointer;
   }
-  #recenter:active { background: rgba(10,132,255,0.25); }
+  #recenter:active, #trafficToggle:active { background: rgba(10,132,255,0.25); }
+  #trafficToggle.off { color: #8E8E93; border-color: #3A3A3C; }
 
   /* Pastki doiralar */
   #bottombar {
@@ -150,6 +151,7 @@
     </div>
   </div>
   <button id="recenter">🌐 RE-CENTER ALL AIRPORTS</button>
+  <button id="trafficToggle">🚦 TRAFFIC: ON</button>
 </div>
 
 <div id="bottombar"></div>
@@ -201,7 +203,10 @@
     });
   }
 
+  const TOMTOM_KEY = '6OihyLXDxuOwymbhmSqC20o8MjjwoCTJ';
+
   let map, userMarker, autoZoom = true;
+  let trafficLayer = null, trafficOn = true;
   let userLat = null, userLon = null;
   let lastRouteFetch = 0, lastFetchLat = null, lastFetchLon = null;
   const routeLines = {};
@@ -329,6 +334,20 @@
     document.getElementById('recenter').addEventListener('click', () => {
       autoZoom = true;
       fitAll();
+    });
+
+    // --- TomTom jonli tirbandlik qatlami (relative flow) ---
+    trafficLayer = L.tileLayer(
+      'https://api.tomtom.com/traffic/map/4/tile/flow/relative0/{z}/{x}/{y}.png?key=' + TOMTOM_KEY,
+      { maxZoom: 22, opacity: 0.95, attribution: '&copy; TomTom' }
+    ).addTo(map);
+
+    const tBtn = document.getElementById('trafficToggle');
+    tBtn.addEventListener('click', () => {
+      trafficOn = !trafficOn;
+      if (trafficOn) { trafficLayer.addTo(map); } else { map.removeLayer(trafficLayer); }
+      tBtn.textContent = trafficOn ? '🚦 TRAFFIC: ON' : '🚦 TRAFFIC: OFF';
+      tBtn.classList.toggle('off', !trafficOn);
     });
   }
 

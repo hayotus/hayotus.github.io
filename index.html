@@ -241,8 +241,10 @@
       const isOpen = menu.classList.toggle('open');
       toggle.setAttribute('aria-expanded', String(isOpen));
       const rm = document.getElementById('restroomMenu');
+      const rmWasOpen = rm && rm.classList.contains('open');
       if (rm) rm.classList.remove('open');
       syncRestroomMarkers(false);
+      if (rmWasOpen) fitAll();
     });
     document.querySelectorAll('.location-option').forEach(button => {
       button.addEventListener('click', () => {
@@ -423,6 +425,13 @@
     });
   }
 
+  // Restroom ochilganda xarita foydalanuvchi atrofida ~0.5 mile radiusga yaqinlashadi
+  function zoomToUserHalfMile() {
+    if (!map || userLat === null) return;
+    const b = L.circle([userLat, userLon], { radius: 805 }).getBounds();
+    map.fitBounds(b, { paddingTopLeft: [30, 120], paddingBottomRight: [30, 130] });
+  }
+
   // Menyu ochiq paytda xaritada metkalar ko'rinadi, yopilganda yashiriladi
   let restroomLayer = null;
   function syncRestroomMarkers(show) {
@@ -479,8 +488,8 @@
       const isOpen = menu.classList.toggle('open');
       toggle.setAttribute('aria-expanded', String(isOpen));
       document.getElementById('locationMenu').classList.remove('open');
-      if (isOpen) maybeRefreshRestrooms();
-      else syncRestroomMarkers(false);
+      if (isOpen) { zoomToUserHalfMile(); maybeRefreshRestrooms(); }
+      else { syncRestroomMarkers(false); fitAll(); }
     });
   }
 

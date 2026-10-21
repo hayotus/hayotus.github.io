@@ -96,22 +96,33 @@
   #locationMenuWrap { position: relative; pointer-events: auto; }
   #locationMenu {
     display: none; position: absolute; top: calc(100% + 8px); left: 50%;
-    transform: translateX(-50%); width: 220px; padding: 8px; z-index: 1300;
+    transform: translateX(-50%); width: 262px; padding: 8px; z-index: 1300;
     background: rgba(18,18,18,0.97); border: 1px solid #3A3A3C;
     border-radius: 16px; box-shadow: 0 8px 22px rgba(0,0,0,0.55);
   }
   #locationMenu.open { display: block; }
   .location-option {
-    display: block; width: 100%; margin: 4px 0; padding: 10px;
+    display: flex; align-items: center; gap: 8px;
+    width: 100%; margin: 4px 0; padding: 8px 10px;
     text-align: left; color: #fff; background: #242426;
-    border: 1px solid #3A3A3C; border-radius: 10px;
-    font-size: 12px; font-weight: 800; cursor: pointer;
+    border: 1px solid #3A3A3C; border-radius: 10px; cursor: pointer;
   }
   .location-option:active { background: #0A84FF; }
-  .location-option span {
-    display: block; margin-top: 4px; color: #B8B8BD;
+  .location-option .loc-main { flex: 1; min-width: 0; }
+  .location-option .loc-name { display: block; font-size: 12px; font-weight: 800; color: #fff; }
+  .location-option .loc-addr {
+    display: block; margin-top: 3px; color: #B8B8BD;
     font-size: 10px; font-weight: 500; line-height: 1.35;
   }
+  .loc-badges { display: flex; gap: 5px; flex: none; }
+  .loc-badge {
+    width: 42px; height: 42px; border-radius: 50%;
+    background: #1C1C1E; border: 2px solid #0A84FF;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .loc-badge.min { border-color: #30D158; }
+  .loc-badge .v { color: #fff; font-size: 11px; font-weight: 800; line-height: 1; }
+  .loc-badge .u { color: #8E8E93; font-size: 8px; font-weight: 600; margin-top: 1px; }
 
 </style>
 </head>
@@ -142,10 +153,10 @@
     <div id="locationMenuWrap">
       <button id="locationMenuToggle" aria-expanded="false" aria-controls="locationMenu">☰ LOCATIONS</button>
       <div id="locationMenu">
-        <button class="location-option" data-location="1">Office 40w St<span>360 W 40th St, New York, NY 10018</span></button>
-        <button class="location-option" data-location="2">Office 10e St<span>277 E 10th St, New York, NY 10009</span></button>
-        <button class="location-option" data-location="3">Virgin Hotel<span>1227 Broadway, New York, NY 10001</span></button>
-        <button class="location-option" data-location="4">Location 4<span>Times Square, Manhattan, NY</span></button>
+        <button class="location-option" data-location="1"><span class="loc-main"><span class="loc-name">Office 40w St</span><span class="loc-addr">360 W 40th St, New York, NY 10018</span></span><span class="loc-badges"><span class="loc-badge"><span class="v" id="locmi-1">--</span><span class="u">mi</span></span><span class="loc-badge min"><span class="v" id="locmin-1">--</span><span class="u">min</span></span></span></button>
+        <button class="location-option" data-location="2"><span class="loc-main"><span class="loc-name">Office 10e St</span><span class="loc-addr">277 E 10th St, New York, NY 10009</span></span><span class="loc-badges"><span class="loc-badge"><span class="v" id="locmi-2">--</span><span class="u">mi</span></span><span class="loc-badge min"><span class="v" id="locmin-2">--</span><span class="u">min</span></span></span></button>
+        <button class="location-option" data-location="3"><span class="loc-main"><span class="loc-name">Virgin Hotel</span><span class="loc-addr">1227 Broadway, New York, NY 10001</span></span><span class="loc-badges"><span class="loc-badge"><span class="v" id="locmi-3">--</span><span class="u">mi</span></span><span class="loc-badge min"><span class="v" id="locmin-3">--</span><span class="u">min</span></span></span></button>
+        <button class="location-option" data-location="4"><span class="loc-main"><span class="loc-name">Location 4</span><span class="loc-addr">Times Square, Manhattan, NY</span></span><span class="loc-badges"><span class="loc-badge"><span class="v" id="locmi-4">--</span><span class="u">mi</span></span><span class="loc-badge min"><span class="v" id="locmin-4">--</span><span class="u">min</span></span></span></button>
       </div>
     </div>
   </div>
@@ -208,6 +219,8 @@
   let lastRouteFetch = 0, lastFetchLat = null, lastFetchLon = null;
   const routeLines = {};
   const airportInfo = {};
+  const locationInfo = {};
+  let lastLocFetch = 0, lastLocLat = null, lastLocLon = null;
 
   // --- Tirbandlik / talab holati (soatga qarab) ---
   function evaluateTrafficDemand() {
@@ -258,7 +271,7 @@
           const m = durationMins % 60;
           durationText = `${h}s ${m}m`;
         }
-        return { points, distanceMiles, durationText };
+        return { points, distanceMiles, durationText, durationMins };
       }
     } catch (e) { console.log('TomTom route error:', e); }
     return fetchRouteOSRM(uLat, uLon, airport);
@@ -281,13 +294,29 @@
           const m = durationMins % 60;
           durationText = `${h}s ${m}m`;
         }
-        return { points, distanceMiles, durationText };
+        return { points, distanceMiles, durationText, durationMins };
       }
     } catch (e) { console.log('Route error:', e); }
     return null;
   }
 
-  async function refreshRoutes() {
+  // --- Saqlangan lokatsiyalarga masofa/vaqt (kruglarda ko'rsatiladi) ---
+  async function refreshLocationRoutes() {
+    lastLocFetch = Date.now();
+    lastLocLat = userLat; lastLocLon = userLon;
+    for (const loc of SAVED_LOCATIONS) {
+      const res = await fetchRoute(userLat, userLon, loc);
+      if (res) {
+        locationInfo[loc.id] = { dist: res.distanceMiles, mins: res.durationMins };
+        const mi = document.getElementById('locmi-' + loc.id);
+        const mn = document.getElementById('locmin-' + loc.id);
+        if (mi) mi.textContent = res.distanceMiles;
+        if (mn) mn.textContent = res.durationMins;
+      }
+    }
+  }
+
+  async function refreshRoutes(force) {
     if (userLat === null) return;
     lastRouteFetch = Date.now();
     lastFetchLat = userLat; lastFetchLon = userLon;
@@ -302,6 +331,17 @@
         }
         updateCard(airport);
       }
+    }
+    // Lokatsiyalar sekinroq yangilanadi: har 2 daqiqada, 300 m harakatda yoki majburan (toggle bosilganda)
+    const nowL = Date.now();
+    let locMoved = Infinity;
+    if (lastLocLat !== null) {
+      const dLatL = (userLat - lastLocLat) * 111320;
+      const dLonL = (userLon - lastLocLon) * 85000;
+      locMoved = Math.sqrt(dLatL * dLatL + dLonL * dLonL);
+    }
+    if (force || nowL - lastLocFetch > 120000 || locMoved > 300) {
+      refreshLocationRoutes();
     }
   }
 
@@ -374,7 +414,7 @@
       if (trafficOn) { trafficLayer.addTo(map); } else { map.removeLayer(trafficLayer); }
       tBtn.textContent = trafficOn ? '🚦 TRAFFIC: ON' : '🚦 TRAFFIC: OFF';
       tBtn.classList.toggle('off', !trafficOn);
-      refreshRoutes();
+      refreshRoutes(true);
     });
   }
 

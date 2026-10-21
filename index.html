@@ -214,6 +214,7 @@
     { id: 15, name: 'Union Square Park',                   address: '16th St & Broadway',              lat: 40.73710, lon: -73.99032 },
   ];
 
+  const RESTROOM_DB = 'restrooms.json';
   const RESTROOM_API = 'https://data.cityofnewyork.us/resource/i7jb-7jku.json?$limit=5000&status=Operational&$select=facility_name,location_type,operator,hours_of_operation,latitude,longitude';
   let RESTROOMS = [];
   let restroomsLoaded = false;
@@ -370,6 +371,13 @@
 
   async function loadRestrooms() {
     if (restroomsLoaded) return;
+    // 1) GitHub dagi tayyor baza — eng tez variant
+    try {
+      const res = await fetch(RESTROOM_DB);
+      const list = await res.json();
+      if (Array.isArray(list) && list.length > 0) { RESTROOMS = list; restroomsLoaded = true; return; }
+    } catch (e) { console.log('Restroom DB error:', e); }
+    // 2) NYC Open Data API (zaxira)
     try {
       const res = await fetch(RESTROOM_API);
       const rows = await res.json();
@@ -456,13 +464,22 @@
     lastRstFetch = Date.now();
     lastRstLat = userLat; lastRstLon = userLon;
     computeDisplayedRestrooms();
-    for (const r of displayedRestrooms) {
-      const res = await fetchRoute(userLat, userLon, r);
-      if (res) restroomInfo[r.id] = { dist: res.distanceMiles, mins: res.durationMins };
-    }
     renderRestrooms();
-    const rm = document.getElementById('restroomMenu');
-    if (rm && rm.classList.contains('open')) syncRestroomMarkers(true);
+    // Marshrutlar parallel (6 tadan) so'raladi; har biri tayyor bo'lishi bilan raqamlar chiqadi
+    const queue = displayedRestrooms.slice();
+    async function worker() {
+      while (queue.length > 0) {
+        const r = queue.shift();
+        const res = await fetchRoute(userLat, userLon, r);
+        if (res) {
+          restroomInfo[r.id] = { dist: res.distanceMiles, mins: res.durationMins };
+          renderRestrooms();
+          const rm = document.getElementById('restroomMenu');
+          if (rm && rm.classList.contains('open')) syncRestroomMarkers(true);
+        }
+      }
+    }
+    await Promise.all([worker(), worker(), worker(), worker(), worker(), worker()]);
   }
 
   async function maybeRefreshRestrooms() {

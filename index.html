@@ -156,7 +156,8 @@
         <button class="location-option" data-location="1"><span class="loc-main"><span class="loc-name">Office 40w St</span><span class="loc-addr">360 W 40th St, New York, NY 10018</span></span><span class="loc-badges"><span class="loc-badge"><span class="v" id="locmi-1">--</span><span class="u">mi</span></span><span class="loc-badge min"><span class="v" id="locmin-1">--</span><span class="u">min</span></span></span></button>
         <button class="location-option" data-location="2"><span class="loc-main"><span class="loc-name">Office 10e St</span><span class="loc-addr">277 E 10th St, New York, NY 10009</span></span><span class="loc-badges"><span class="loc-badge"><span class="v" id="locmi-2">--</span><span class="u">mi</span></span><span class="loc-badge min"><span class="v" id="locmin-2">--</span><span class="u">min</span></span></span></button>
         <button class="location-option" data-location="3"><span class="loc-main"><span class="loc-name">Virgin Hotel</span><span class="loc-addr">1227 Broadway, New York, NY 10001</span></span><span class="loc-badges"><span class="loc-badge"><span class="v" id="locmi-3">--</span><span class="u">mi</span></span><span class="loc-badge min"><span class="v" id="locmin-3">--</span><span class="u">min</span></span></span></button>
-        <button class="location-option" data-location="4"><span class="loc-main"><span class="loc-name">Location 4</span><span class="loc-addr">Times Square, Manhattan, NY</span></span><span class="loc-badges"><span class="loc-badge"><span class="v" id="locmi-4">--</span><span class="u">mi</span></span><span class="loc-badge min"><span class="v" id="locmin-4">--</span><span class="u">min</span></span></span></button>
+        <button class="location-option" data-location="4"><span class="loc-main"><span class="loc-name">Times square</span><span class="loc-addr">Times Square, Manhattan, NY</span></span><span class="loc-badges"><span class="loc-badge"><span class="v" id="locmi-4">--</span><span class="u">mi</span></span><span class="loc-badge min"><span class="v" id="locmin-4">--</span><span class="u">min</span></span></span></button>
+        <button class="location-option" data-location="5"><span class="loc-main"><span class="loc-name">Go home</span><span class="loc-addr">8973-95 Bay Pkwy, Brooklyn, NY 11214</span></span><span class="loc-badges"><span class="loc-badge"><span class="v" id="locmi-5">--</span><span class="u">mi</span></span><span class="loc-badge min"><span class="v" id="locmin-5">--</span><span class="u">min</span></span></span></button>
       </div>
     </div>
   </div>
@@ -173,12 +174,13 @@
   ];
 
 
-  // Saqlangan lokatsiyalar (Location 4 hozircha Times Square).
+  // Saqlangan lokatsiyalar.
   const SAVED_LOCATIONS = [
     { id: 1, name: 'Office 40w St', address: '360 W 40th St, New York, NY 10018', lat: 40.75696, lon: -73.99338 },
     { id: 2, name: 'Office 10e St', address: '277 E 10th St, New York, NY 10009', lat: 40.72818, lon: -73.98279 },
     { id: 3, name: 'Virgin Hotel', address: '1227 Broadway, New York, NY 10001', lat: 40.74674, lon: -73.98865 },
-    { id: 4, name: 'Location 4', address: 'Times Square, Manhattan, NY', lat: 40.7580, lon: -73.9855 },
+    { id: 4, name: 'Times square', address: 'Times Square, Manhattan, NY', lat: 40.7580, lon: -73.9855 },
+    { id: 5, name: 'Go home', address: '8973-95 Bay Pkwy, Brooklyn, NY 11214', lat: 40.5985, lon: -73.9965 },
   ];
 
   function openLocationNavigation(location) {

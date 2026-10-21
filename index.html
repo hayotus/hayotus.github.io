@@ -238,8 +238,37 @@
     window.location.href = url;
   }
 
-  // --- OSRM orqali marshrut ---
+  // --- TomTom orqali marshrut (TRAFFIC tugmasiga qarab: on = tirbandlik bilan, off = trafficsiz) ---
   async function fetchRoute(uLat, uLon, airport) {
+    try {
+      const url = `https://api.tomtom.com/routing/1/calculateRoute/${uLat},${uLon}:${airport.lat},${airport.lon}/json?key=${TOMTOM_KEY}&traffic=${trafficOn}&routeRepresentation=polyline&travelMode=car`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.routes && data.routes.length > 0) {
+        const route = data.routes[0];
+        const points = route.legs[0].points.map(p => [p.latitude, p.longitude]);
+        const distanceMiles = (route.summary.lengthInMeters * 0.000621371).toFixed(1);
+        // traffic=false da TomTom baribir tirbandlik kechikishini qo'shib yuborishi mumkin —
+        // shuning uchun OFF rejimda kechikishni ayirib, sof (trafficsiz) vaqtni olamiz
+        let travelSecs = route.summary.travelTimeInSeconds;
+        if (!trafficOn && route.summary.trafficDelayInSeconds) {
+          travelSecs = Math.max(0, travelSecs - route.summary.trafficDelayInSeconds);
+        }
+        const durationMins = Math.round(travelSecs / 60);
+        let durationText = `${durationMins} min`;
+        if (durationMins >= 60) {
+          const h = Math.floor(durationMins / 60);
+          const m = durationMins % 60;
+          durationText = `${h}s ${m}m`;
+        }
+        return { points, distanceMiles, durationText };
+      }
+    } catch (e) { console.log('TomTom route error:', e); }
+    return fetchRouteOSRM(uLat, uLon, airport);
+  }
+
+  // --- OSRM orqali marshrut (zaxira) ---
+  async function fetchRouteOSRM(uLat, uLon, airport) {
     try {
       const url = `https://router.project-osrm.org/route/v1/driving/${uLon},${uLat};${airport.lon},${airport.lat}?overview=full&geometries=geojson`;
       const res = await fetch(url);
@@ -348,6 +377,7 @@
       if (trafficOn) { trafficLayer.addTo(map); } else { map.removeLayer(trafficLayer); }
       tBtn.textContent = trafficOn ? '🚦 TRAFFIC: ON' : '🚦 TRAFFIC: OFF';
       tBtn.classList.toggle('off', !trafficOn);
+      refreshRoutes();
     });
   }
 

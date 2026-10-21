@@ -47,12 +47,16 @@
   #speedBadge.over { background: #FF3B30; }
   #speedBadge.over .num, #speedBadge.over .unit { color: #fff; }
   #speedBadge.over .warn { display: block; }
-  #recenter, #trafficToggle {
+  #recenter, #trafficToggle, #locationMenuToggle {
     pointer-events: auto; background: rgba(18,18,18,0.88); color: #0A84FF;
     border: 1px solid #0A84FF; border-radius: 16px; padding: 6px 14px;
     font-size: 11px; font-weight: bold; cursor: pointer;
   }
-  #recenter:active, #trafficToggle:active { background: rgba(10,132,255,0.25); }
+  #recenter:active, #trafficToggle:active, #locationMenuToggle:active { background: rgba(10,132,255,0.25); }
+  #btnRow {
+    display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+    pointer-events: none;
+  }
   #trafficToggle.off { color: #8E8E93; border-color: #3A3A3C; }
 
   /* Pastki doiralar */
@@ -88,19 +92,11 @@
     box-shadow: 0 0 0 6px rgba(10,132,255,0.3), 0 2px 8px rgba(0,0,0,0.6);
   }
 
-  /* Chap yuqori lokatsiya menyusi */
-  #locationMenuWrap {
-    position: absolute; top: 12px; left: 12px; z-index: 1200;
-    pointer-events: auto;
-  }
-  #locationMenuToggle {
-    background: rgba(18,18,18,0.96); color: #fff;
-    border: 1px solid #3A3A3C; border-radius: 14px;
-    padding: 10px 13px; font-size: 13px; font-weight: 800;
-    cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.45);
-  }
+  /* Lokatsiya menyusi (tugmalar qatorida) */
+  #locationMenuWrap { position: relative; pointer-events: auto; }
   #locationMenu {
-    display: none; margin-top: 8px; width: 220px; padding: 8px;
+    display: none; position: absolute; top: calc(100% + 8px); left: 50%;
+    transform: translateX(-50%); width: 220px; padding: 8px; z-index: 1300;
     background: rgba(18,18,18,0.97); border: 1px solid #3A3A3C;
     border-radius: 16px; box-shadow: 0 8px 22px rgba(0,0,0,0.55);
   }
@@ -122,16 +118,6 @@
 <body>
 
 
-<div id="locationMenuWrap">
-  <button id="locationMenuToggle" aria-expanded="false" aria-controls="locationMenu">☰ LOCATIONS</button>
-  <div id="locationMenu">
-    <button class="location-option" data-location="1">Location 1<span>360 W 40th St, New York, NY 10018</span></button>
-    <button class="location-option" data-location="2">Location 2<span>277 E 10th St, New York, NY 10009</span></button>
-    <button class="location-option" data-location="3">Location 3<span>1227 Broadway, New York, NY 10001</span></button>
-    <button class="location-option" data-location="4">Location 4<span>Times Square, Manhattan, NY</span></button>
-  </div>
-</div>
-
 <div id="map"></div>
 
 <div id="loader">
@@ -150,8 +136,19 @@
       <div class="warn">LIMIT 65!</div>
     </div>
   </div>
-  <button id="recenter">🌐 RE-CENTER ALL AIRPORTS</button>
-  <button id="trafficToggle">🚦 TRAFFIC: ON</button>
+  <div id="btnRow">
+    <button id="recenter">🌐 RE-CENTER ALL AIRPORTS</button>
+    <button id="trafficToggle">🚦 TRAFFIC: ON</button>
+    <div id="locationMenuWrap">
+      <button id="locationMenuToggle" aria-expanded="false" aria-controls="locationMenu">☰ LOCATIONS</button>
+      <div id="locationMenu">
+        <button class="location-option" data-location="1">Office 40w St<span>360 W 40th St, New York, NY 10018</span></button>
+        <button class="location-option" data-location="2">Office 10e St<span>277 E 10th St, New York, NY 10009</span></button>
+        <button class="location-option" data-location="3">Virgin Hotel<span>1227 Broadway, New York, NY 10001</span></button>
+        <button class="location-option" data-location="4">Location 4<span>Times Square, Manhattan, NY</span></button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div id="bottombar"></div>
@@ -167,9 +164,9 @@
 
   // Saqlangan lokatsiyalar (Location 4 hozircha Times Square).
   const SAVED_LOCATIONS = [
-    { id: 1, name: 'Location 1', address: '360 W 40th St, New York, NY 10018', lat: 40.75696, lon: -73.99338 },
-    { id: 2, name: 'Location 2', address: '277 E 10th St, New York, NY 10009', lat: 40.72818, lon: -73.98279 },
-    { id: 3, name: 'Location 3', address: '1227 Broadway, New York, NY 10001', lat: 40.74674, lon: -73.98865 },
+    { id: 1, name: 'Office 40w St', address: '360 W 40th St, New York, NY 10018', lat: 40.75696, lon: -73.99338 },
+    { id: 2, name: 'Office 10e St', address: '277 E 10th St, New York, NY 10009', lat: 40.72818, lon: -73.98279 },
+    { id: 3, name: 'Virgin Hotel', address: '1227 Broadway, New York, NY 10001', lat: 40.74674, lon: -73.98865 },
     { id: 4, name: 'Location 4', address: 'Times Square, Manhattan, NY', lat: 40.7580, lon: -73.9855 },
   ];
 

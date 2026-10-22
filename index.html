@@ -139,13 +139,16 @@
   /* Lokatsiya menyusi (tugmalar qatorida) */
   #locationMenuWrap, #restroomMenuWrap { position: relative; pointer-events: auto; }
   #locationMenu, #restroomMenu {
-    display: none; position: fixed; top: 50%; right: 8px; transform: translateY(-50%);
+    display: none; position: fixed; top: calc(env(safe-area-inset-top) + 186px); right: 8px;
     width: 252px; padding: 6px; z-index: 1300;
     background: rgba(18,18,18,0.97); border: 1px solid #3A3A3C;
     border-radius: 14px; box-shadow: 0 8px 22px rgba(0,0,0,0.55);
     max-height: 220px; overflow-y: auto;
   }
   #locationMenu.open, #restroomMenu.open { display: block; }
+  @media (max-height: 520px) {
+    #locationMenu, #restroomMenu { max-height: 150px; }
+  }
   .location-option {
     display: flex; align-items: center; gap: 6px;
     width: 100%; margin: 3px 0; padding: 6px 8px;

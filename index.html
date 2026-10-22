@@ -187,7 +187,7 @@
     <div>
       <div id="title">NYC RADAR 🚕</div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
-      <div id="ver">v2.2</div>
+      <div id="ver">v2.3</div>
       <div id="upd"></div>
     </div>
     <button id="menuBtn">☰ MENU</button>
@@ -344,13 +344,47 @@
     return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
   }
 
+  // TomTom kunlik limiti: rasmiy qoldiq API si yo'q — sayt o'zi qilgan so'rovlarni sanaydi (taxminiy)
+  const TT_DAILY_LIMIT = 2500;
+  let ttUsage = { day: '', routing: 0, tiles: 0 };
+  try {
+    const savedTt = JSON.parse(localStorage.getItem('ttUsageV1') || 'null');
+    if (savedTt && typeof savedTt.routing === 'number') ttUsage = savedTt;
+  } catch (e) {}
+  let quotaText = '';
+  let lastQuotaPaint = 0;
+
+  function ttDayKey() {
+    const d = new Date();
+    return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+  }
+
+  function ttCount(kind) {
+    const today = ttDayKey();
+    if (ttUsage.day !== today) ttUsage = { day: today, routing: 0, tiles: 0 };
+    ttUsage[kind]++;
+    try { localStorage.setItem('ttUsageV1', JSON.stringify(ttUsage)); } catch (e) {}
+    paintQuota(false);
+  }
+
+  function paintQuota(force) {
+    const now = Date.now();
+    if (!force && now - lastQuotaPaint < 1500) return;
+    lastQuotaPaint = now;
+    const left = Math.max(0, TT_DAILY_LIMIT - ttUsage.routing - ttUsage.tiles);
+    quotaText = '📉 TomTom: ~' + left + ' qoldi';
+    checkStale();
+  }
+
   // Ma'lumot 3 daqiqadan eski bo'lsa kartalar xiralashadi va ogohlantirish chiqadi
   function checkStale() {
     const upd = document.getElementById('upd');
-    if (!upd || !lastRouteSuccess) return;
-    const stale = Date.now() - lastRouteSuccess > 180000;
+    if (!upd) return;
+    const stale = !!lastRouteSuccess && (Date.now() - lastRouteSuccess > 180000);
     document.querySelectorAll('.circleCard').forEach(c => c.classList.toggle('stale', stale));
-    upd.textContent = stale ? ('⚠ Eski ma\'lumot • ' + fmtTime(lastRouteSuccess)) : ('🕒 ' + fmtTime(lastRouteSuccess));
+    if (stale) upd.textContent = '⚠ Eski • ' + fmtTime(lastRouteSuccess) + (quotaText ? ' • ' + quotaText : '');
+    else if (quotaText) upd.textContent = quotaText;
+    else if (lastRouteSuccess) upd.textContent = '🕒 ' + fmtTime(lastRouteSuccess);
   }
 
   function updateTrafficLabel() {
@@ -396,6 +430,7 @@
   async function fetchRoute(uLat, uLon, airport) {
     try {
       const url = `https://api.tomtom.com/routing/1/calculateRoute/${uLat},${uLon}:${airport.lat},${airport.lon}/json?key=${TOMTOM_KEY}&traffic=${trafficOn}&routeRepresentation=polyline&travelMode=car`;
+      ttCount('routing');
       const res = await fetch(url);
       const data = await res.json();
       if (data.routes && data.routes.length > 0) {
@@ -762,6 +797,7 @@
       if (tileErrCount >= 3 && !tileDegraded) { tileDegraded = true; updateTrafficLabel(); }
     });
     trafficLayer.on('tileload', () => {
+      ttCount('tiles');
       if (tileErrCount > 0) { tileErrCount = 0; if (tileDegraded) { tileDegraded = false; updateTrafficLabel(); } }
     });
 
@@ -864,7 +900,8 @@
     }
   });
 
-  setInterval(checkStale, 30000);
+  setInterval(() => paintQuota(true), 30000);
+  paintQuota(true);
 </script>
 </body>
 </html>

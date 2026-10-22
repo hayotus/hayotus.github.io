@@ -139,7 +139,7 @@
   /* Lokatsiya menyusi (tugmalar qatorida) */
   #locationMenuWrap, #restroomMenuWrap { position: relative; pointer-events: auto; }
   #locationMenu, #restroomMenu {
-    display: none; position: fixed; top: calc(env(safe-area-inset-top) + 186px); right: 8px;
+    display: none; position: fixed; top: 120px; right: 8px;
     width: 252px; padding: 6px; z-index: 1300;
     background: rgba(18,18,18,0.97); border: 1px solid #3A3A3C;
     border-radius: 14px; box-shadow: 0 8px 22px rgba(0,0,0,0.55);
@@ -308,6 +308,7 @@
     toggle.addEventListener('click', () => {
       const isOpen = menu.classList.toggle('open');
       toggle.setAttribute('aria-expanded', String(isOpen));
+      if (isOpen) placeMenuUnderButton(menu, toggle);
       const rm = document.getElementById('restroomMenu');
       const rmWasOpen = rm && rm.classList.contains('open');
       if (rm) rm.classList.remove('open');
@@ -354,7 +355,6 @@
     const savedTt = JSON.parse(localStorage.getItem('ttUsageV1') || 'null');
     if (savedTt && typeof savedTt.routing === 'number') ttUsage = savedTt;
   } catch (e) {}
-  let quotaText = '';
   let lastQuotaPaint = 0;
 
   function ttDayKey() {
@@ -375,7 +375,8 @@
     if (!force && now - lastQuotaPaint < 1500) return;
     lastQuotaPaint = now;
     const left = Math.max(0, TT_DAILY_LIMIT - ttUsage.routing - ttUsage.tiles);
-    quotaText = '~' + left + ' qoldi';
+    const ver = document.getElementById('ver');
+    if (ver) ver.textContent = 'v2.3.' + left;
     checkStale();
   }
 
@@ -385,9 +386,7 @@
     if (!upd) return;
     const stale = !!lastRouteSuccess && (Date.now() - lastRouteSuccess > 180000);
     document.querySelectorAll('.circleCard').forEach(c => c.classList.toggle('stale', stale));
-    if (stale) upd.textContent = '⚠ Eski' + (quotaText ? ' • ' + quotaText : '');
-    else if (quotaText) upd.textContent = quotaText;
-    else if (lastRouteSuccess) upd.textContent = '🕒 ' + fmtTime(lastRouteSuccess);
+    upd.textContent = stale ? '⚠ Eski ma\'lumot' : '';
   }
 
   function updateTrafficLabel() {
@@ -396,6 +395,13 @@
     let label = trafficOn ? '🚦 TRAFFIC: ON' : '🚦 TRAFFIC: OFF';
     if (trafficOn && (routeDegraded || tileDegraded)) label += ' ⚠';
     b.textContent = label;
+  }
+
+  // Menyu o'z tugmasining tagidan ochiladi (har qanday ekranda tugmalarni yopmaydi)
+  function placeMenuUnderButton(menu, toggle) {
+    if (!menu || !toggle) return;
+    const r = toggle.getBoundingClientRect();
+    menu.style.top = (r.bottom + 6) + 'px';
   }
 
   function restoreSavedView() {
@@ -697,6 +703,7 @@
     toggle.addEventListener('click', () => {
       const isOpen = menu.classList.toggle('open');
       toggle.setAttribute('aria-expanded', String(isOpen));
+      if (isOpen) placeMenuUnderButton(menu, toggle);
       document.getElementById('locationMenu').classList.remove('open');
       syncLocationMarkers(false);
       if (isOpen) {

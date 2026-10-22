@@ -47,12 +47,12 @@
   #speedBadge.over { background: #FF3B30; }
   #speedBadge.over .num, #speedBadge.over .unit { color: #fff; }
   #speedBadge.over .warn { display: block; }
-  #recenter, #trafficToggle, #locationMenuToggle, #restroomMenuToggle {
+  #recenter, #trafficToggle, #locationMenuToggle, #restroomMenuToggle, #menuBtn {
     pointer-events: auto; background: rgba(18,18,18,0.88); color: #0A84FF;
     border: 1px solid #0A84FF; border-radius: 16px; padding: 6px 14px;
     font-size: 11px; font-weight: bold; cursor: pointer;
   }
-  #recenter:active, #trafficToggle:active, #locationMenuToggle:active, #restroomMenuToggle:active { background: rgba(10,132,255,0.25); }
+  #recenter:active, #trafficToggle:active, #locationMenuToggle:active, #restroomMenuToggle:active, #menuBtn:active { background: rgba(10,132,255,0.25); }
   #btnRow {
     display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
     pointer-events: none;
@@ -85,6 +85,28 @@
     font-size: 10px; font-weight: 900; box-shadow: 0 2px 8px rgba(0,0,0,0.7);
     cursor: pointer;
   }
+  /* MENU ekrani (kvadrat tugmalar) */
+  #menuScreen {
+    display: none; position: fixed; inset: 0; z-index: 2000;
+    background: rgba(10,10,12,0.98); overflow-y: auto;
+    padding: calc(env(safe-area-inset-top) + 14px) 14px 24px;
+  }
+  #menuScreen.open { display: block; }
+  #menuHead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  #menuTitle { font-size: 20px; font-weight: 800; color: #fff; }
+  #menuClose {
+    width: 38px; height: 38px; border-radius: 50%; border: 1px solid #3A3A3C;
+    background: #1C1C1E; color: #fff; font-size: 16px; cursor: pointer;
+  }
+  #menuGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .menu-tile {
+    aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 8px; padding: 8px 6px; text-decoration: none; text-align: center;
+    background: #1C1C1E; border: 1px solid #3A3A3C; border-radius: 16px;
+  }
+  .menu-tile:active { background: #0A84FF; }
+  .mt-icon { font-size: 30px; line-height: 1; }
+  .mt-label { font-size: 11px; font-weight: 700; color: #fff; line-height: 1.25; }
   /* Location metkasi */
   .location-marker {
     width: 28px; height: 28px; border-radius: 50%;
@@ -113,7 +135,7 @@
     width: 252px; padding: 6px; z-index: 1300;
     background: rgba(18,18,18,0.97); border: 1px solid #3A3A3C;
     border-radius: 14px; box-shadow: 0 8px 22px rgba(0,0,0,0.55);
-    max-height: 62vh; overflow-y: auto;
+    max-height: 220px; overflow-y: auto;
   }
   #locationMenu.open, #restroomMenu.open { display: block; }
   .location-option {
@@ -155,9 +177,10 @@
 <div id="topbar">
   <div id="header">
     <div>
-      <div id="title">NYC AIRPORT RADAR 🚕</div>
+      <div id="title">NYC RADAR 🚕</div>
       <div id="traffic">STEADY FLOW 🚗</div>
     </div>
+    <button id="menuBtn">☰ MENU</button>
     <div id="speedBadge">
       <span class="num" id="speedNum">0</span> <span class="unit">mph</span>
       <div class="warn">LIMIT 65!</div>
@@ -184,6 +207,25 @@
 </div>
 
 <div id="bottombar"></div>
+
+<div id="menuScreen">
+  <div id="menuHead">
+    <span id="menuTitle">MENU</span>
+    <button id="menuClose" aria-label="Yopish">✕</button>
+  </div>
+  <div id="menuGrid">
+    <a class="menu-tile" href="https://dmv.ny.gov/mydmv/sign-in-to-mydmv" target="_blank" rel="noopener"><span class="mt-icon">🪪</span><span class="mt-label">Driver License Tekshirish</span></a>
+    <a class="menu-tile" href="https://www.nyc.gov/site/finance/pay-now/pay.page" target="_blank" rel="noopener"><span class="mt-icon">💳</span><span class="mt-label">Ticket Tolash</span></a>
+    <a class="menu-tile" href="https://www.nyc.gov/citypay" target="_blank" rel="noopener"><span class="mt-icon">🔍</span><span class="mt-label">Plate Ticket Tekshirish</span></a>
+    <a class="menu-tile" href="https://www.nyc.gov/site/tlc/drivers/check-license-status.page" target="_blank" rel="noopener"><span class="mt-icon">🚕</span><span class="mt-label">TLC Plate Tekshirish</span></a>
+    <a class="menu-tile" href="https://www.nyc.gov/site/tlc/index.page" target="_blank" rel="noopener"><span class="mt-icon">🏛️</span><span class="mt-label">TLC Portal</span></a>
+    <a class="menu-tile" href="https://www.nyc.gov/site/tlc/tlc-online/lars.page" target="_blank" rel="noopener"><span class="mt-icon">🔄</span><span class="mt-label">TLC LARS Portal</span></a>
+    <a class="menu-tile" href="https://dmv.ny.gov/points-and-penalties/the-new-york-state-driver-point-system" target="_blank" rel="noopener"><span class="mt-icon">⭐</span><span class="mt-label">Pointlar Ro'yxati</span></a>
+    <a class="menu-tile" href="https://www1.nyc.gov/site/finance/vehicles/nyc-pay-or-dispute.page" target="_blank" rel="noopener"><span class="mt-icon">⚖️</span><span class="mt-label">Ticket Dispute</span></a>
+    <a class="menu-tile" href="https://nycserv.nyc.gov/NYCServWeb/PVO_Find_Towed_Vehicle.jsp" target="_blank" rel="noopener"><span class="mt-icon">🚗</span><span class="mt-label">Towing Car Location</span></a>
+    <a class="menu-tile" href="https://nyctmc.org/" target="_blank" rel="noopener"><span class="mt-icon">📹</span><span class="mt-label">Webcamera Live New York</span></a>
+  </div>
+</div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
@@ -693,6 +735,14 @@
   initLocationMenu();
   initRestroomMenu();
   renderRestrooms();
+
+  // MENU ekrani ochish/yopish
+  document.getElementById('menuBtn').addEventListener('click', () => {
+    document.getElementById('menuScreen').classList.add('open');
+  });
+  document.getElementById('menuClose').addEventListener('click', () => {
+    document.getElementById('menuScreen').classList.remove('open');
+  });
 
   if ('geolocation' in navigator) {
     navigator.geolocation.watchPosition(onPosition, onPositionError, {

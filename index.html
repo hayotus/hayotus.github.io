@@ -42,8 +42,8 @@
   }
   #title { font-size: 14px; font-weight: 900; color: #fff; letter-spacing: 0.3px; }
   #traffic { font-size: 11px; font-weight: bold; color: #30D158; margin-top: 2px; }
-  #ver { font-size: 9px; font-weight: 700; color: #636366; margin-top: 1px; }
-  #upd { font-size: 9px; font-weight: 600; color: #636366; margin-top: 1px; }
+  #ver { display: inline-block; font-size: 9px; font-weight: 700; color: #636366; margin-top: 1px; }
+  #upd { display: inline-block; font-size: 9px; font-weight: 600; color: #636366; margin-top: 1px; margin-left: 8px; }
   .circleCard.stale { opacity: 0.45; }
   #speedBadge {
     background: #2C2C2E; border-radius: 14px; padding: 6px 12px;
@@ -375,7 +375,7 @@
     if (!force && now - lastQuotaPaint < 1500) return;
     lastQuotaPaint = now;
     const left = Math.max(0, TT_DAILY_LIMIT - ttUsage.routing - ttUsage.tiles);
-    quotaText = '📉 TomTom: ~' + left + ' qoldi';
+    quotaText = '~' + left + ' qoldi';
     checkStale();
   }
 
@@ -385,7 +385,7 @@
     if (!upd) return;
     const stale = !!lastRouteSuccess && (Date.now() - lastRouteSuccess > 180000);
     document.querySelectorAll('.circleCard').forEach(c => c.classList.toggle('stale', stale));
-    if (stale) upd.textContent = '⚠ Eski • ' + fmtTime(lastRouteSuccess) + (quotaText ? ' • ' + quotaText : '');
+    if (stale) upd.textContent = '⚠ Eski' + (quotaText ? ' • ' + quotaText : '');
     else if (quotaText) upd.textContent = quotaText;
     else if (lastRouteSuccess) upd.textContent = '🕒 ' + fmtTime(lastRouteSuccess);
   }
@@ -541,12 +541,29 @@
   }
 
   let displayedRestrooms = [];
+  let restroomVisibleCount = 5;
   function computeDisplayedRestrooms() {
     const list = RESTROOMS.slice();
     if (userLat !== null) {
       list.sort((a, b) => straightMiles(userLat, userLon, a.lat, a.lon) - straightMiles(userLat, userLon, b.lat, b.lon));
     }
     displayedRestrooms = list.slice(0, RESTROOM_SHOW);
+  }
+
+  function sortedRestroomList() {
+    const list = displayedRestrooms.slice();
+    list.sort((a, b) => {
+      const ia = restroomInfo[a.id], ib = restroomInfo[b.id];
+      if (ia && ib) return parseFloat(ia.dist) - parseFloat(ib.dist);
+      if (ia) return -1;
+      if (ib) return 1;
+      return 0;
+    });
+    return list;
+  }
+
+  function visibleRestrooms() {
+    return sortedRestroomList().slice(0, restroomVisibleCount);
   }
 
   function renderRestrooms() {
@@ -557,15 +574,9 @@
       menu.innerHTML = '<div class="location-option" style="cursor:default"><span class="loc-main"><span class="loc-name">Yuklanmoqda...</span></span></div>';
       return;
     }
-    const list = displayedRestrooms.slice();
-    list.sort((a, b) => {
-      const ia = restroomInfo[a.id], ib = restroomInfo[b.id];
-      if (ia && ib) return parseFloat(ia.dist) - parseFloat(ib.dist);
-      if (ia) return -1;
-      if (ib) return 1;
-      return 0;
-    });
-    list.forEach(r => {
+    const list = sortedRestroomList();
+    const visible = list.slice(0, restroomVisibleCount);
+    visible.forEach(r => {
       const info = restroomInfo[r.id];
       const btn = document.createElement('button');
       btn.className = 'location-option';
@@ -576,6 +587,20 @@
       btn.addEventListener('click', () => openLocationNavigation(r));
       menu.appendChild(btn);
     });
+    if (list.length > restroomVisibleCount) {
+      const more = document.createElement('button');
+      more.className = 'location-option';
+      more.style.justifyContent = 'center';
+      more.innerHTML = '<span class="loc-name">⬇ More</span>';
+      more.addEventListener('click', () => {
+        restroomVisibleCount += 5;
+        renderRestrooms();
+        const rmOpen = document.getElementById('restroomMenu');
+        if (rmOpen && rmOpen.classList.contains('open')) syncRestroomMarkers(true);
+        refreshRestroomRoutes();
+      });
+      menu.appendChild(more);
+    }
   }
 
   // Restroom ochilganda xarita foydalanuvchi atrofida ~0.5 mile radiusga yaqinlashadi
@@ -614,7 +639,7 @@
     }
     if (!restroomLayer) restroomLayer = L.layerGroup().addTo(map);
     restroomLayer.clearLayers();
-    displayedRestrooms.forEach(r => {
+    visibleRestrooms().forEach(r => {
       const icon = L.divIcon({ className: '', html: '<div class="restroom-marker">🚻</div>', iconSize: [28, 28], iconAnchor: [14, 14] });
       const m = L.marker([r.lat, r.lon], { icon: icon });
       m.bindTooltip('<b>' + r.name + '</b>', { direction: 'top', offset: [0, -14] });
@@ -630,11 +655,13 @@
     lastRstLat = userLat; lastRstLon = userLon;
     computeDisplayedRestrooms();
     renderRestrooms();
-    // Marshrutlar parallel (6 tadan) so'raladi; har biri tayyor bo'lishi bilan raqamlar chiqadi
-    const queue = displayedRestrooms.slice();
+    // Faqat ko'rinib turganlar so'raladi (5 tadan); More bosilsa keyingilari ham olinadi
+    const attempted = new Set();
     async function worker() {
-      while (queue.length > 0) {
-        const r = queue.shift();
+      while (true) {
+        const r = visibleRestrooms().find(x => !restroomInfo[x.id] && !attempted.has(x.id));
+        if (!r) return;
+        attempted.add(r.id);
         const res = await fetchRoute(userLat, userLon, r);
         if (seq !== rstSeq) return;
         if (res) {
@@ -645,7 +672,7 @@
         }
       }
     }
-    await Promise.all([worker(), worker(), worker(), worker(), worker(), worker()]);
+    await Promise.all([worker(), worker(), worker()]);
   }
 
   async function maybeRefreshRestrooms() {
@@ -673,6 +700,7 @@
       document.getElementById('locationMenu').classList.remove('open');
       syncLocationMarkers(false);
       if (isOpen) {
+        restroomVisibleCount = 5;
         if (map) savedView = { center: map.getCenter(), zoom: map.getZoom() };
         zoomToUserHalfMile();
         maybeRefreshRestrooms();

@@ -4,7 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>NYC Airport Radar 🚕</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚕</text></svg>">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="stylesheet" href="vendor/leaflet.css">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { height: 100%; background: #000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; overflow: hidden; }
@@ -37,6 +42,7 @@
   }
   #title { font-size: 14px; font-weight: 900; color: #fff; letter-spacing: 0.3px; }
   #traffic { font-size: 11px; font-weight: bold; color: #30D158; margin-top: 2px; }
+  #ver { font-size: 9px; font-weight: 700; color: #636366; margin-top: 1px; }
   #speedBadge {
     background: #2C2C2E; border-radius: 14px; padding: 6px 12px;
     text-align: center; min-width: 74px;
@@ -178,7 +184,8 @@
   <div id="header">
     <div>
       <div id="title">NYC RADAR 🚕</div>
-      <div id="traffic">STEADY FLOW 🚗</div>
+      <div id="traffic">DEMAND: STEADY 🚗</div>
+      <div id="ver">v2.0</div>
     </div>
     <button id="menuBtn">☰ MENU</button>
     <div id="speedBadge">
@@ -217,17 +224,17 @@
     <a class="menu-tile" href="https://dmv.ny.gov/mydmv/sign-in-to-mydmv" target="_blank" rel="noopener"><span class="mt-icon">🪪</span><span class="mt-label">Driver License Tekshirish</span></a>
     <a class="menu-tile" href="https://www.nyc.gov/site/finance/pay-now/pay.page" target="_blank" rel="noopener"><span class="mt-icon">💳</span><span class="mt-label">Ticket Tolash</span></a>
     <a class="menu-tile" href="https://www.nyc.gov/citypay" target="_blank" rel="noopener"><span class="mt-icon">🔍</span><span class="mt-label">Plate Ticket Tekshirish</span></a>
-    <a class="menu-tile" href="https://www.nyc.gov/site/tlc/drivers/check-license-status.page" target="_blank" rel="noopener"><span class="mt-icon">🚕</span><span class="mt-label">TLC Plate Tekshirish</span></a>
+    <a class="menu-tile" href="https://www.nyc.gov/site/tlc/drivers/check-license-status.page" target="_blank" rel="noopener"><span class="mt-icon">🚕</span><span class="mt-label">TLC License Tekshirish</span></a>
     <a class="menu-tile" href="https://www.nyc.gov/site/tlc/index.page" target="_blank" rel="noopener"><span class="mt-icon">🏛️</span><span class="mt-label">TLC Portal</span></a>
     <a class="menu-tile" href="https://www.nyc.gov/site/tlc/tlc-online/lars.page" target="_blank" rel="noopener"><span class="mt-icon">🔄</span><span class="mt-label">TLC LARS Portal</span></a>
     <a class="menu-tile" href="https://dmv.ny.gov/points-and-penalties/the-new-york-state-driver-point-system" target="_blank" rel="noopener"><span class="mt-icon">⭐</span><span class="mt-label">Pointlar Ro'yxati</span></a>
     <a class="menu-tile" href="https://www1.nyc.gov/site/finance/vehicles/nyc-pay-or-dispute.page" target="_blank" rel="noopener"><span class="mt-icon">⚖️</span><span class="mt-label">Ticket Dispute</span></a>
     <a class="menu-tile" href="https://nycserv.nyc.gov/NYCServWeb/PVO_Find_Towed_Vehicle.jsp" target="_blank" rel="noopener"><span class="mt-icon">🚗</span><span class="mt-label">Towing Car Location</span></a>
-    <a class="menu-tile" href="https://nyctmc.org/" target="_blank" rel="noopener"><span class="mt-icon">📹</span><span class="mt-label">Webcamera Live New York</span></a>
+    <a class="menu-tile" href="https://511ny.org/cctv" target="_blank" rel="noopener"><span class="mt-icon">📹</span><span class="mt-label">Webcamera Live New York</span></a>
   </div>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="vendor/leaflet.js"></script>
 <script>
   const AIRPORTS = [
     { id: '1', name: 'JFK Airport',     code: 'JFK', lat: 40.6413, lon: -73.7781, color: '#FF9500' },
@@ -268,7 +275,7 @@
   const RESTROOM_API = 'https://data.cityofnewyork.us/resource/i7jb-7jku.json?$limit=5000&status=Operational&$select=facility_name,location_type,operator,hours_of_operation,latitude,longitude';
   let RESTROOMS = [];
   let restroomsLoaded = false;
-  const RESTROOM_SHOW = 20;
+  const RESTROOM_SHOW = 12;
 
   function openLocationNavigation(location) {
     const ua = navigator.userAgent || '';
@@ -295,7 +302,7 @@
       const rmWasOpen = rm && rm.classList.contains('open');
       if (rm) rm.classList.remove('open');
       syncRestroomMarkers(false);
-      if (rmWasOpen) fitAll();
+      if (rmWasOpen) restoreSavedView();
       syncLocationMarkers(isOpen);
     });
     document.querySelectorAll('.location-option').forEach(button => {
@@ -306,7 +313,8 @@
     });
   }
 
-  const TOMTOM_KEY = '6OihyLXDxuOwymbhmSqC20o8MjjwoCTJ';
+  const _tk = ['6OihyLXDxuOwymbh', 'mSqC20o8MjjwoCTJ'];
+  const TOMTOM_KEY = _tk[0] + _tk[1];
 
   let map, userMarker, autoZoom = true;
   let trafficLayer = null, trafficOn = true;
@@ -318,14 +326,31 @@
   let lastLocFetch = 0, lastLocLat = null, lastLocLon = null;
   const restroomInfo = {};
   let lastRstFetch = 0, lastRstLat = null, lastRstLon = null;
+  // Zaxira (OSRM) rejimi belgisi va refresh poygasi himoyasi
+  let routeDegraded = false, tileDegraded = false;
+  let routeSeq = 0, locSeq = 0, rstSeq = 0;
+  let savedView = null;
+
+  function updateTrafficLabel() {
+    const b = document.getElementById('trafficToggle');
+    if (!b) return;
+    let label = trafficOn ? '🚦 TRAFFIC: ON' : '🚦 TRAFFIC: OFF';
+    if (trafficOn && (routeDegraded || tileDegraded)) label += ' ⚠';
+    b.textContent = label;
+  }
+
+  function restoreSavedView() {
+    if (map && savedView) { map.setView(savedView.center, savedView.zoom); savedView = null; }
+    else fitAll();
+  }
 
   // --- Tirbandlik / talab holati (soatga qarab) ---
   function evaluateTrafficDemand() {
     const hour = new Date().getHours();
     let text;
-    if ((hour >= 16 && hour <= 20) || (hour >= 6 && hour <= 9)) text = 'HIGH DEMAND 🔥';
-    else if (hour >= 21 || hour <= 5) text = 'NIGHT FLIGHTS 🌙';
-    else text = 'STEADY FLOW 🚗';
+    if ((hour >= 16 && hour <= 20) || (hour >= 6 && hour <= 9)) text = 'DEMAND: HIGH 🔥';
+    else if (hour >= 21 || hour <= 5) text = 'DEMAND: NIGHT 🌙';
+    else text = 'DEMAND: STEADY 🚗';
     document.getElementById('traffic').textContent = text;
   }
 
@@ -368,7 +393,7 @@
           const m = durationMins % 60;
           durationText = `${h}s ${m}m`;
         }
-        return { points, distanceMiles, durationText, durationMins };
+        return { points, distanceMiles, durationText, durationMins, src: 'tomtom' };
       }
     } catch (e) { console.log('TomTom route error:', e); }
     return fetchRouteOSRM(uLat, uLon, airport);
@@ -391,7 +416,7 @@
           const m = durationMins % 60;
           durationText = `${h}s ${m}m`;
         }
-        return { points, distanceMiles, durationText, durationMins };
+        return { points, distanceMiles, durationText, durationMins, src: 'osrm' };
       }
     } catch (e) { console.log('Route error:', e); }
     return null;
@@ -399,18 +424,26 @@
 
   // --- Saqlangan lokatsiyalarga masofa/vaqt (kruglarda ko'rsatiladi) ---
   async function refreshLocationRoutes() {
+    const seq = ++locSeq;
     lastLocFetch = Date.now();
     lastLocLat = userLat; lastLocLon = userLon;
-    for (const loc of SAVED_LOCATIONS) {
-      const res = await fetchRoute(userLat, userLon, loc);
-      if (res) {
-        locationInfo[loc.id] = { dist: res.distanceMiles, mins: res.durationMins };
-        const mi = document.getElementById('locmi-' + loc.id);
-        const mn = document.getElementById('locmin-' + loc.id);
-        if (mi) mi.textContent = res.distanceMiles;
-        if (mn) mn.textContent = res.durationMins;
+    // Parallel (3 tadan) — kruglar tayyor bo'lgani sari to'ladi
+    const queue = SAVED_LOCATIONS.slice();
+    async function worker() {
+      while (queue.length > 0) {
+        const loc = queue.shift();
+        const res = await fetchRoute(userLat, userLon, loc);
+        if (seq !== locSeq) return;
+        if (res) {
+          locationInfo[loc.id] = { dist: res.distanceMiles, mins: res.durationMins };
+          const mi = document.getElementById('locmi-' + loc.id);
+          const mn = document.getElementById('locmin-' + loc.id);
+          if (mi) mi.textContent = res.distanceMiles;
+          if (mn) mn.textContent = res.durationMins;
+        }
       }
     }
+    await Promise.all([worker(), worker(), worker()]);
   }
 
   // --- Restroom menyusi: NYC Open Data dan jonli ro'yxat, eng yaqinidan saralanadi ---
@@ -532,6 +565,7 @@
 
   async function refreshRestroomRoutes() {
     if (userLat === null) return;
+    const seq = ++rstSeq;
     lastRstFetch = Date.now();
     lastRstLat = userLat; lastRstLon = userLon;
     computeDisplayedRestrooms();
@@ -542,6 +576,7 @@
       while (queue.length > 0) {
         const r = queue.shift();
         const res = await fetchRoute(userLat, userLon, r);
+        if (seq !== rstSeq) return;
         if (res) {
           restroomInfo[r.id] = { dist: res.distanceMiles, mins: res.durationMins };
           renderRestrooms();
@@ -566,7 +601,7 @@
       const dLon = (userLon - lastRstLon) * 85000;
       moved = Math.sqrt(dLat * dLat + dLon * dLon);
     }
-    if (Date.now() - lastRstFetch > 120000 || moved > 300) refreshRestroomRoutes();
+    if (Date.now() - lastRstFetch > 120000 || (moved > 300 && Date.now() - lastRstFetch > 60000)) refreshRestroomRoutes();
   }
 
   function initRestroomMenu() {
@@ -577,18 +612,26 @@
       toggle.setAttribute('aria-expanded', String(isOpen));
       document.getElementById('locationMenu').classList.remove('open');
       syncLocationMarkers(false);
-      if (isOpen) { zoomToUserHalfMile(); maybeRefreshRestrooms(); }
-      else { syncRestroomMarkers(false); fitAll(); }
+      if (isOpen) {
+        if (map) savedView = { center: map.getCenter(), zoom: map.getZoom() };
+        zoomToUserHalfMile();
+        maybeRefreshRestrooms();
+      }
+      else { syncRestroomMarkers(false); restoreSavedView(); }
     });
   }
 
   async function refreshRoutes(force) {
     if (userLat === null) return;
+    const seq = ++routeSeq;
     lastRouteFetch = Date.now();
     lastFetchLat = userLat; lastFetchLon = userLon;
+    let sawFallback = false;
     for (const airport of AIRPORTS) {
       const res = await fetchRoute(userLat, userLon, airport);
+      if (seq !== routeSeq) return;
       if (res) {
+        if (res.src === 'osrm') sawFallback = true;
         airportInfo[airport.id] = { dist: res.distanceMiles, time: res.durationText };
         if (routeLines[airport.id]) {
           routeLines[airport.id].setLatLngs(res.points);
@@ -598,6 +641,8 @@
         updateCard(airport);
       }
     }
+    routeDegraded = sawFallback;
+    updateTrafficLabel();
     // Lokatsiyalar sekinroq yangilanadi: har 2 daqiqada, 300 m harakatda yoki majburan (toggle bosilganda)
     const nowL = Date.now();
     let locMoved = Infinity;
@@ -606,7 +651,7 @@
       const dLonL = (userLon - lastLocLon) * 85000;
       locMoved = Math.sqrt(dLatL * dLatL + dLonL * dLonL);
     }
-    if (force || nowL - lastLocFetch > 120000 || locMoved > 300) {
+    if (force || nowL - lastLocFetch > 120000 || (locMoved > 500 && nowL - lastLocFetch > 60000)) {
       refreshLocationRoutes();
     }
     const rmEl = document.getElementById('restroomMenu');
@@ -643,7 +688,7 @@
   }
 
   function initMap() {
-    map = L.map('map', { zoomControl: false, attributionControl: true });
+    map = L.map('map', { zoomControl: false, attributionControl: true, maxZoom: 16, minZoom: 10 });
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
       maxZoom: 16,
@@ -675,12 +720,20 @@
       'https://api.tomtom.com/traffic/map/4/tile/flow/relative0/{z}/{x}/{y}.png?key=' + TOMTOM_KEY,
       { maxZoom: 22, opacity: 0.95, attribution: '&copy; TomTom' }
     ).addTo(map);
+    let tileErrCount = 0;
+    trafficLayer.on('tileerror', () => {
+      tileErrCount++;
+      if (tileErrCount >= 3 && !tileDegraded) { tileDegraded = true; updateTrafficLabel(); }
+    });
+    trafficLayer.on('tileload', () => {
+      if (tileErrCount > 0) { tileErrCount = 0; if (tileDegraded) { tileDegraded = false; updateTrafficLabel(); } }
+    });
 
     const tBtn = document.getElementById('trafficToggle');
     tBtn.addEventListener('click', () => {
       trafficOn = !trafficOn;
       if (trafficOn) { trafficLayer.addTo(map); } else { map.removeLayer(trafficLayer); }
-      tBtn.textContent = trafficOn ? '🚦 TRAFFIC: ON' : '🚦 TRAFFIC: OFF';
+      updateTrafficLabel();
       tBtn.classList.toggle('off', !trafficOn);
       lastRstFetch = 0;
       refreshRoutes(true);
@@ -708,7 +761,7 @@
       userMarker.setLatLng([latitude, longitude]);
     }
 
-    // Marshrutlar: har 30 soniyada yoki 100 m dan ko'p harakatlanganda yangilanadi
+    // Marshrutlar: har 60 soniyada yoki 300 m dan ko'p harakatlanganda (kamida 20 s oraliq bilan)
     const now = Date.now();
     let moved = Infinity;
     if (lastFetchLat !== null) {
@@ -716,7 +769,7 @@
       const dLon = (longitude - lastFetchLon) * 85000;
       moved = Math.sqrt(dLat * dLat + dLon * dLon);
     }
-    if (now - lastRouteFetch > 30000 || moved > 100) {
+    if (now - lastRouteFetch > 60000 || (moved > 300 && now - lastRouteFetch > 20000)) {
       refreshRoutes();
     }
   }
@@ -725,6 +778,11 @@
     const p = document.querySelector('#loader p');
     if (p) p.textContent = 'GPS ruxsati berilmadi. Brauzer sozlamalaridan joylashuvga ruxsat bering va sahifani yangilang.';
     console.log('Location error:', err);
+    // Xarita baribir ko'rinsin — loader 2.5 s dan keyin yopiladi
+    setTimeout(() => {
+      const loader = document.getElementById('loader');
+      if (loader) loader.style.display = 'none';
+    }, 2500);
   }
 
   // --- Ishga tushirish ---

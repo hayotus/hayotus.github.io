@@ -73,7 +73,7 @@
     display: flex; justify-content: space-around; padding: 0 10px; pointer-events: none;
   }
   .circleCard {
-    pointer-events: auto; width: 110px; height: 110px; border-radius: 55px;
+    pointer-events: auto; width: min(110px, 23vw); height: min(110px, 23vw); border-radius: 50%;
     background: rgba(18,18,18,0.95); border: 3px solid #888;
     display: flex; flex-direction: column; justify-content: center; align-items: center;
     cursor: pointer; box-shadow: 0 6px 16px rgba(0,0,0,0.6); user-select: none;
@@ -187,7 +187,7 @@
     <div>
       <div id="title">NYC RADAR 🚕</div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
-      <div id="ver">v2.1</div>
+      <div id="ver">v2.2</div>
       <div id="upd"></div>
     </div>
     <button id="menuBtn">☰ MENU</button>
@@ -202,7 +202,6 @@
     <div id="locationMenuWrap">
       <button id="locationMenuToggle" aria-expanded="false" aria-controls="locationMenu">☰ LOCATIONS</button>
       <div id="locationMenu">
-        <button class="location-option" data-location="1"><span class="loc-main"><span class="loc-name">Go Home</span><span class="loc-addr">8973-95 Bay Pkwy, Brooklyn, NY 11214</span></span><span class="loc-badges"><span class="loc-badge"><span class="v" id="locmi-1">--</span><span class="u">mi</span></span><span class="loc-badge min"><span class="v" id="locmin-1">--</span><span class="u">min</span></span></span></button>
         <button class="location-option" data-location="2"><span class="loc-main"><span class="loc-name">Office 40w St</span><span class="loc-addr">360 W 40th St, New York, NY 10018</span></span><span class="loc-badges"><span class="loc-badge"><span class="v" id="locmi-2">--</span><span class="u">mi</span></span><span class="loc-badge min"><span class="v" id="locmin-2">--</span><span class="u">min</span></span></span></button>
         <button class="location-option" data-location="3"><span class="loc-main"><span class="loc-name">Office 10e St</span><span class="loc-addr">277 E 10th St, New York, NY 10009</span></span><span class="loc-badges"><span class="loc-badge"><span class="v" id="locmi-3">--</span><span class="u">mi</span></span><span class="loc-badge min"><span class="v" id="locmin-3">--</span><span class="u">min</span></span></span></button>
         <button class="location-option" data-location="4"><span class="loc-main"><span class="loc-name">Virgin Hotel</span><span class="loc-addr">1227 Broadway, New York, NY 10001</span></span><span class="loc-badges"><span class="loc-badge"><span class="v" id="locmi-4">--</span><span class="u">mi</span></span><span class="loc-badge min"><span class="v" id="locmin-4">--</span><span class="u">min</span></span></span></button>
@@ -246,10 +245,13 @@
     { id: '3', name: 'Newark Liberty',  code: 'EWR', lat: 40.6895, lon: -74.1745, color: '#BF5AF2' },
   ];
 
+  // Uy — pastda aeroportlar qatorida 4-krug bo'lib chiqadi (LOCATIONS menyusida emas).
+  const HOME = { id: 'home', name: 'Go Home', code: 'HOME', lat: 40.5985, lon: -73.9965, color: '#FFD60A' };
+  const ROUTE_TARGETS = AIRPORTS.concat([HOME]);
+
 
   // Saqlangan lokatsiyalar.
   const SAVED_LOCATIONS = [
-    { id: 1, name: 'Go Home', address: '8973-95 Bay Pkwy, Brooklyn, NY 11214', lat: 40.5985, lon: -73.9965 },
     { id: 2, name: 'Office 40w St', address: '360 W 40th St, New York, NY 10018', lat: 40.75696, lon: -73.99338 },
     { id: 3, name: 'Office 10e St', address: '277 E 10th St, New York, NY 10009', lat: 40.72818, lon: -73.98279 },
     { id: 4, name: 'Virgin Hotel', address: '1227 Broadway, New York, NY 10001', lat: 40.74674, lon: -73.98865 },
@@ -647,7 +649,7 @@
     lastRouteFetch = Date.now();
     lastFetchLat = userLat; lastFetchLon = userLon;
     let sawFallback = false, anyOk = false;
-    for (const airport of AIRPORTS) {
+    for (const airport of ROUTE_TARGETS) {
       const res = await fetchRoute(userLat, userLon, airport);
       if (seq !== routeSeq) return;
       if (res) {
@@ -699,7 +701,7 @@
 
   function buildCards() {
     const bar = document.getElementById('bottombar');
-    AIRPORTS.forEach(a => {
+    ROUTE_TARGETS.forEach(a => {
       const card = document.createElement('div');
       card.className = 'circleCard';
       card.style.borderColor = a.color;
@@ -734,6 +736,15 @@
         fillColor: a.color, fillOpacity: 0.1,
       }).addTo(map);
     });
+
+    const homeIcon = L.divIcon({
+      className: '',
+      html: `<div class="airport-marker" style="background:${HOME.color}">🏠</div>`,
+      iconSize: [34, 34], iconAnchor: [17, 17],
+    });
+    const homeMarker = L.marker([HOME.lat, HOME.lon], { icon: homeIcon }).addTo(map);
+    homeMarker.bindTooltip('<b>Go Home</b>', { direction: 'top', offset: [0, -18] });
+    homeMarker.on('click', () => openNavigation(HOME));
 
     document.getElementById('recenter').addEventListener('click', () => {
       autoZoom = true;

@@ -61,8 +61,8 @@
   #speedBadge.over .warn { display: block; }
   #recenter, #trafficToggle, #locationMenuToggle, #restroomMenuToggle, #menuBtn {
     pointer-events: auto; background: rgba(18,18,18,0.88); color: #0A84FF;
-    border: 1px solid #0A84FF; border-radius: 16px; padding: 8px 16px;
-    font-size: 14px; font-weight: bold; cursor: pointer;
+    border: 1px solid #0A84FF; border-radius: 16px; padding: 6px 14px;
+    font-size: 11px; font-weight: bold; cursor: pointer;
   }
   #recenter:active, #trafficToggle:active, #locationMenuToggle:active, #restroomMenuToggle:active, #menuBtn:active { background: rgba(10,132,255,0.25); }
   #btnRow {
@@ -72,8 +72,8 @@
   .btnCol { display: flex; flex-direction: column; gap: 4px; pointer-events: auto; }
   #weatherBtn, #chargeBtn {
     pointer-events: auto; background: rgba(18,18,18,0.88); color: #fff;
-    border: 1px solid #0A84FF; border-radius: 14px; padding: 6px 0;
-    font-size: 16px; cursor: pointer;
+    border: 1px solid #0A84FF; border-radius: 12px; padding: 4px 0;
+    font-size: 13px; cursor: pointer;
   }
   #weatherBtn:active, #chargeBtn:active { background: rgba(10,132,255,0.25); }
   #trafficToggle.off { color: #8E8E93; border-color: #3A3A3C; }
@@ -241,13 +241,6 @@
   .wx-hour .h-ic { font-size: 16px; }
   .wx-hour .h-temp { font-size: 12px; font-weight: 700; color: #fff; }
   .wx-hour .h-rain { font-size: 10px; color: #0A84FF; }
-  /* Zaryadlash metkasi (xarita) */
-  .chg-pin {
-    width: 30px; height: 30px; border-radius: 50%;
-    background: #121212; border: 2px solid #FFCC00;
-    display: flex; align-items: center; justify-content: center; font-size: 16px;
-  }
-
   /* Location metkasi */
   .location-marker {
     width: 28px; height: 28px; border-radius: 50%;
@@ -327,7 +320,7 @@
     <div class="head-title">
       <div id="title">NYC RADAR 🚕</div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
-      <div id="ver">v2.12</div>
+      <div id="ver">v2.13</div>
       <div id="upd"></div>
     </div>
     <div id="speedBadge">
@@ -611,7 +604,7 @@
     lastQuotaPaint = now;
     const left = Math.max(0, TT_DAILY_LIMIT - ttUsage.routing - ttUsage.tiles);
     const ver = document.getElementById('ver');
-    if (ver) ver.textContent = 'v2.12.' + left;
+    if (ver) ver.textContent = 'v2.13.' + left;
     checkStale();
   }
 
@@ -1081,27 +1074,6 @@
   // Tesla Supercharger (Photon / OpenStreetMap, kalitsiz)
   const CHG_CACHE_TTL = 30 * 60 * 1000; // 30 daqiqa
   let chgCache = { at: 0, data: null };
-  let chargerLayer = null;
-
-  // Zaryadlash joylarini xaritada belgi qilib ko'rsatish (bosilsa navigatsiya)
-  function showChargerMarkers(list) {
-    if (!map) return;
-    if (chargerLayer) map.removeLayer(chargerLayer);
-    chargerLayer = L.layerGroup().addTo(map);
-    const icon = L.divIcon({ className: 'charger-marker', html: '<div class="chg-pin">⚡</div>', iconSize: [30, 30], iconAnchor: [15, 15] });
-    const pts = [];
-    list.forEach(c => {
-      const m = L.marker([c.lat, c.lon], { icon }).addTo(chargerLayer);
-      m.bindTooltip('<b>⚡ ' + c.name + '</b><br>' + c.addr, { direction: 'top', offset: [0, -18] });
-      m.on('click', () => openNavigation(c));
-      pts.push([c.lat, c.lon]);
-    });
-    if (userLat !== null) pts.push([userLat, userLon]);
-    if (pts.length) {
-      autoZoom = false;
-      map.fitBounds(L.latLngBounds(pts).pad(0.2));
-    }
-  }
 
   async function fetchChargers() {
     const now = Date.now();
@@ -1139,7 +1111,6 @@
         body.innerHTML = '<p class="points-note">Yaqin atrofda (50 km) Tesla Supercharger topilmadi.</p>';
         return;
       }
-      showChargerMarkers(data.list);
       body.innerHTML = '<div class="f-list">' + data.list.map((c, i) =>
         '<button class="location-option" data-i="' + i + '"><span class="loc-main"><span class="loc-name">⚡ ' + c.name + '</span><span class="loc-addr">' + c.addr + '</span></span>' +
         '<span class="loc-badges"><span class="loc-badge"><span class="v" id="chgmi-' + i + '">' + (c.km * 0.621371).toFixed(1) + '</span><span class="u">mi</span></span>' +

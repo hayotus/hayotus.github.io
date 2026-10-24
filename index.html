@@ -66,9 +66,16 @@
   }
   #recenter:active, #trafficToggle:active, #locationMenuToggle:active, #restroomMenuToggle:active, #menuBtn:active { background: rgba(10,132,255,0.25); }
   #btnRow {
-    display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+    display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-items: flex-start;
     pointer-events: none;
   }
+  .btnCol { display: flex; flex-direction: column; gap: 4px; pointer-events: auto; }
+  #weatherBtn {
+    pointer-events: auto; background: rgba(18,18,18,0.88); color: #fff;
+    border: 1px solid #0A84FF; border-radius: 12px; padding: 4px 0;
+    font-size: 13px; cursor: pointer;
+  }
+  #weatherBtn:active { background: rgba(10,132,255,0.25); }
   #trafficToggle.off { color: #8E8E93; border-color: #3A3A3C; }
 
   /* Pastki doiralar */
@@ -233,9 +240,6 @@
   .wx-hour .h-ic { font-size: 16px; }
   .wx-hour .h-temp { font-size: 12px; font-weight: 700; color: #fff; }
   .wx-hour .h-rain { font-size: 10px; color: #0A84FF; }
-  .wx-foot { display: flex; gap: 8px; margin-top: 12px; }
-  .wx-btn { flex: 1; padding: 10px; border-radius: 12px; border: 1px solid #3A3A3C; background: #1C1C1E; color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; }
-
   /* Location metkasi */
   .location-marker {
     width: 28px; height: 28px; border-radius: 50%;
@@ -315,7 +319,7 @@
     <div class="head-title">
       <div id="title">NYC RADAR 🚕</div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
-      <div id="ver">v2.8</div>
+      <div id="ver">v2.9</div>
       <div id="upd"></div>
     </div>
     <div id="speedBadge">
@@ -324,7 +328,10 @@
     </div>
   </div>
   <div id="btnRow">
-    <button id="recenter">🌐</button>
+    <div class="btnCol">
+      <button id="recenter">🌐</button>
+      <button id="weatherBtn" aria-label="Ob-havo">🌤️</button>
+    </div>
     <button id="trafficToggle">🚦 TRAFFIC: ON</button>
     <div id="locationMenuWrap">
       <button id="locationMenuToggle" aria-expanded="false" aria-controls="locationMenu">☰ LOCATIONS</button>
@@ -585,7 +592,7 @@
     lastQuotaPaint = now;
     const left = Math.max(0, TT_DAILY_LIMIT - ttUsage.routing - ttUsage.tiles);
     const ver = document.getElementById('ver');
-    if (ver) ver.textContent = 'v2.8.' + left;
+    if (ver) ver.textContent = 'v2.9.' + left;
     checkStale();
   }
 
@@ -1096,14 +1103,8 @@
         const hw = WMO[h.weather_code[idx]] || ['🌡️'];
         return '<div class="wx-hour"><div class="h-t">' + new Date(t).getHours() + ':00</div><div class="h-ic">' + hw[0] + '</div><div class="h-temp">' + Math.round(h.temperature_2m[idx]) + '°</div><div class="h-rain">' + (h.precipitation_probability[idx] || 0) + '%</div></div>';
       }).join('') + '</div>';
-      html += '<div class="wx-foot"><button class="wx-btn" id="wxRecenter">🎯 Xaritani markazlash</button></div>';
       html += '<p class="points-foot">Open-Meteo asosida • Yangilangan: ' + fmtClock(data.at) + ' • Maʼlumot 30 daqiqaga keshlanadi.</p>';
       body.innerHTML = html;
-      document.getElementById('wxRecenter').addEventListener('click', () => {
-        modal.classList.remove('open');
-        autoZoom = true;
-        fitAll();
-      });
     } catch (e) {
       body.innerHTML = '<p class="points-note">Ob-havo olinmadi. Internetni tekshirib, birozdan keyin yana urinib ko\'ring.</p>';
     }
@@ -1207,6 +1208,10 @@
     homeMarker.on('click', () => openNavigation(HOME));
 
     document.getElementById('recenter').addEventListener('click', () => {
+      autoZoom = true;
+      fitAll();
+    });
+    document.getElementById('weatherBtn').addEventListener('click', () => {
       showWeather();
     });
 

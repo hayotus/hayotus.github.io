@@ -73,7 +73,7 @@
     display: flex; justify-content: space-around; padding: 0 10px; pointer-events: none;
   }
   .circleCard {
-    pointer-events: auto; width: min(110px, 18vw); height: min(110px, 18vw); border-radius: 50%;
+    pointer-events: auto; width: min(110px, 23vw); height: min(110px, 23vw); border-radius: 50%;
     background: rgba(18,18,18,0.95); border: 3px solid #888;
     display: flex; flex-direction: column; justify-content: center; align-items: center;
     cursor: pointer; box-shadow: 0 6px 16px rgba(0,0,0,0.6); user-select: none;
@@ -133,6 +133,26 @@
     background: #1C1C1E; color: #fff; font-size: 14px; cursor: pointer;
   }
   #pointsState { font-size: 14px; font-weight: 800; margin-bottom: 6px; }
+  .head-left { display: flex; gap: 6px; align-items: center; flex: none; }
+  .head-title { min-width: 0; }
+  #title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #pointsBtn {
+    background: rgba(18,18,18,0.88); color: #FFD60A;
+    border: 1px solid #FFD60A; border-radius: 16px; padding: 6px 10px;
+    font-size: 11px; font-weight: bold; cursor: pointer;
+  }
+  #pointsBtn:active { background: rgba(255,214,10,0.25); }
+  #pointsBtn.bonus { background: rgba(255,214,10,0.25); }
+  .points-big {
+    width: 92px; height: 92px; border-radius: 50%;
+    border: 3px solid #888; margin: 4px auto 12px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .pb-num { font-size: 34px; font-weight: 900; color: #fff; line-height: 1; }
+  .pb-label { font-size: 11px; color: #8E8E93; margin-top: 2px; }
+  .p-row.next { background: rgba(10,132,255,0.12); border-color: #0A84FF; }
+  .p-next { display: none; font-size: 10px; font-weight: 900; color: #0A84FF; }
+  .p-row.next .p-next { display: inline; }
   .points-note { font-size: 12px; color: #B8B8BD; line-height: 1.4; margin-bottom: 12px; }
   .p-day { font-size: 12px; font-weight: 800; color: #0A84FF; margin: 12px 0 6px; }
   .p-row {
@@ -220,11 +240,14 @@
 
 <div id="topbar">
   <div id="header">
-    <button id="menuBtn">☰ MENU</button>
-    <div>
+    <div class="head-left">
+      <button id="menuBtn">☰ MENU</button>
+      <button id="pointsBtn" title="Uber Pro ballar">⭐ <span id="pointsNum">--</span></button>
+    </div>
+    <div class="head-title">
       <div id="title">NYC RADAR 🚕</div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
-      <div id="ver">v2.4</div>
+      <div id="ver">v2.5</div>
       <div id="upd"></div>
     </div>
     <div id="speedBadge">
@@ -280,22 +303,23 @@
       <button id="pointsClose" aria-label="Yopish">✕</button>
     </div>
     <div id="pointsState">Hozir: --</div>
+    <div class="points-big" id="pointsBig"><div class="pb-num" id="pointsBigNum">--</div><div class="pb-label">ball</div></div>
     <p class="points-note">Har bir safar uchun <b>1 ball</b>. Quyidagi vaqtlarda boshlangan yoki tugagan safar uchun <b>5 ball</b> beriladi.</p>
     <div class="p-group">
       <div class="p-day">Dushanba – Payshanba</div>
-      <div class="p-row" data-days="1,2,3,4" data-start="480" data-end="600"><span class="p-ico">☀️</span><span class="p-time">08 – 10</span><span class="p-val">5 ball</span><span class="p-now">HOZIR</span></div>
-      <div class="p-row" data-days="1,2,3,4" data-start="900" data-end="1440"><span class="p-ico">🔔</span><span class="p-time">15 – 00</span><span class="p-val">5 ball</span><span class="p-now">HOZIR</span></div>
+      <div class="p-row" data-days="1,2,3,4" data-start="480" data-end="600"><span class="p-ico">☀️</span><span class="p-time">08 – 10</span><span class="p-val">5 ball</span><span class="p-now">HOZIR</span><span class="p-next">KEYINGI</span></div>
+      <div class="p-row" data-days="1,2,3,4" data-start="900" data-end="1440"><span class="p-ico">🔔</span><span class="p-time">15 – 00</span><span class="p-val">5 ball</span><span class="p-now">HOZIR</span><span class="p-next">KEYINGI</span></div>
     </div>
     <div class="p-group">
       <div class="p-day">Juma</div>
-      <div class="p-row" data-days="5" data-start="0" data-end="60"><span class="p-ico">🌙</span><span class="p-time">00 – 01</span><span class="p-val">5 ball</span><span class="p-now">HOZIR</span></div>
-      <div class="p-row" data-days="5" data-start="480" data-end="600"><span class="p-ico">☀️</span><span class="p-time">08 – 10</span><span class="p-val">5 ball</span><span class="p-now">HOZIR</span></div>
-      <div class="p-row" data-days="5" data-start="720" data-end="1440"><span class="p-ico">☀️</span><span class="p-time">12 – 00</span><span class="p-val">5 ball</span><span class="p-now">HOZIR</span></div>
+      <div class="p-row" data-days="5" data-start="0" data-end="60"><span class="p-ico">🌙</span><span class="p-time">00 – 01</span><span class="p-val">5 ball</span><span class="p-now">HOZIR</span><span class="p-next">KEYINGI</span></div>
+      <div class="p-row" data-days="5" data-start="480" data-end="600"><span class="p-ico">☀️</span><span class="p-time">08 – 10</span><span class="p-val">5 ball</span><span class="p-now">HOZIR</span><span class="p-next">KEYINGI</span></div>
+      <div class="p-row" data-days="5" data-start="720" data-end="1440"><span class="p-ico">☀️</span><span class="p-time">12 – 00</span><span class="p-val">5 ball</span><span class="p-now">HOZIR</span><span class="p-next">KEYINGI</span></div>
     </div>
     <div class="p-group">
       <div class="p-day">Shanba – Yakshanba</div>
-      <div class="p-row" data-days="6,0" data-start="0" data-end="60"><span class="p-ico">🌙</span><span class="p-time">00 – 01</span><span class="p-val">5 ball</span><span class="p-now">HOZIR</span></div>
-      <div class="p-row" data-days="6,0" data-start="720" data-end="1440"><span class="p-ico">☀️</span><span class="p-time">12 – 00</span><span class="p-val">5 ball</span><span class="p-now">HOZIR</span></div>
+      <div class="p-row" data-days="6,0" data-start="0" data-end="60"><span class="p-ico">🌙</span><span class="p-time">00 – 01</span><span class="p-val">5 ball</span><span class="p-now">HOZIR</span><span class="p-next">KEYINGI</span></div>
+      <div class="p-row" data-days="6,0" data-start="720" data-end="1440"><span class="p-ico">☀️</span><span class="p-time">12 – 00</span><span class="p-val">5 ball</span><span class="p-now">HOZIR</span><span class="p-next">KEYINGI</span></div>
     </div>
     <p class="points-foot">Uber ilovasidagi jadval asosida tuzilgan. Boshqa vaqtlarda har bir safar uchun 1 ball beriladi.</p>
   </div>
@@ -448,7 +472,7 @@
     lastQuotaPaint = now;
     const left = Math.max(0, TT_DAILY_LIMIT - ttUsage.routing - ttUsage.tiles);
     const ver = document.getElementById('ver');
-    if (ver) ver.textContent = 'v2.4.' + left;
+    if (ver) ver.textContent = 'v2.5.' + left;
     checkStale();
   }
 
@@ -856,19 +880,34 @@
     const now = new Date();
     const st = getPointsState(now);
     const mins = now.getHours() * 60 + now.getMinutes();
+    const day = now.getDay();
     const num = document.getElementById('pointsNum');
-    const card = document.getElementById('pointsCard');
+    const btn = document.getElementById('pointsBtn');
     if (num) num.textContent = st.points;
-    if (card) card.style.borderColor = st.bonus ? '#FFD60A' : '#888';
+    if (btn) btn.classList.toggle('bonus', st.bonus);
+    const bigNum = document.getElementById('pointsBigNum');
+    const big = document.getElementById('pointsBig');
+    if (bigNum) bigNum.textContent = st.points;
+    if (big) {
+      big.style.borderColor = st.bonus ? '#FFD60A' : '#888';
+      if (bigNum) bigNum.style.color = st.bonus ? '#FFD60A' : '#fff';
+    }
     const stEl = document.getElementById('pointsState');
     if (stEl) {
       stEl.textContent = st.bonus ? '🔥 Hozir bonus faol: 5 ball' : 'Hozir oddiy vaqt: 1 ball';
       stEl.style.color = st.bonus ? '#FFD60A' : '#8E8E93';
     }
+    // Keyingi bonus vaqti (bugun qolmagan bo'lsa ertangi birinchi vaqt)
+    let next = POINTS_PERIODS.filter(p => p.days.includes(day) && p.start > mins).sort((a, b) => a.start - b.start)[0];
+    if (!next) {
+      const tmr = (day + 1) % 7;
+      next = POINTS_PERIODS.filter(p => p.days.includes(tmr)).sort((a, b) => a.start - b.start)[0] || null;
+    }
     document.querySelectorAll('#pointsModal .p-row').forEach(row => {
       const days = row.dataset.days.split(',').map(Number);
       const s = Number(row.dataset.start), e = Number(row.dataset.end);
-      row.classList.toggle('now', days.includes(now.getDay()) && mins >= s && mins < e);
+      row.classList.toggle('now', days.includes(day) && mins >= s && mins < e);
+      row.classList.toggle('next', !!next && days.includes(next.days[0]) && s === next.start);
     });
   }
 
@@ -890,14 +929,6 @@
       card.addEventListener('click', () => openNavigation(a));
       bar.appendChild(card);
     });
-    // Uber Pro ballar krugi (HOME yonida) — bossangiz jadval oynasi ochiladi
-    const pc = document.createElement('div');
-    pc.className = 'circleCard';
-    pc.id = 'pointsCard';
-    pc.style.borderColor = '#888';
-    pc.innerHTML = `<div class="code" style="color:#FFD60A">POINTS</div><div class="time" id="pointsNum">--</div><div class="dist">ball</div>`;
-    pc.addEventListener('click', openPointsModal);
-    bar.appendChild(pc);
   }
 
   function initMap() {
@@ -1026,6 +1057,7 @@
   });
 
   // Uber Pro ballar oynasi
+  document.getElementById('pointsBtn').addEventListener('click', openPointsModal);
   const pointsModal = document.getElementById('pointsModal');
   document.getElementById('pointsClose').addEventListener('click', () => pointsModal.classList.remove('open'));
   pointsModal.addEventListener('click', e => { if (e.target === pointsModal) pointsModal.classList.remove('open'); });

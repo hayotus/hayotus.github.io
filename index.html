@@ -4,9 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>NYC Airport Radar 🚕</title>
-<meta name="theme-color" content="#000000">
+<meta name="theme-color" content="#121212">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NYC Radar">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.svg">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚕</text></svg>">
 <link rel="apple-touch-icon" href="icon.svg">
 <link rel="stylesheet" href="vendor/leaflet.css">
@@ -200,6 +204,38 @@
   .f-num { font-size: 14px; font-weight: 700; color: #fff; flex: 1; }
   .f-from { font-size: 12px; color: #B8B8BD; }
 
+  /* Ob-havo oynasi */
+  #weatherModal {
+    display: none; position: fixed; inset: 0; z-index: 2100;
+    background: rgba(0,0,0,0.72);
+    align-items: center; justify-content: center; padding: 16px;
+  }
+  #weatherModal.open { display: flex; }
+  #weatherClose {
+    width: 34px; height: 34px; border-radius: 50%; border: 1px solid #3A3A3C;
+    background: #1C1C1E; color: #fff; font-size: 14px; cursor: pointer;
+  }
+  .wx-big { font-size: 44px; font-weight: 900; color: #fff; text-align: center; line-height: 1; margin: 4px 0 2px; }
+  .wx-cond { font-size: 14px; color: #B8B8BD; text-align: center; margin-bottom: 4px; }
+  .wx-meta { font-size: 12px; color: #B8B8BD; text-align: center; margin-bottom: 10px; }
+  .wx-row {
+    display: flex; align-items: center; gap: 10px;
+    background: #1C1C1E; border: 1px solid #3A3A3C; border-radius: 12px;
+    padding: 8px 12px; margin: 5px 0;
+  }
+  .wx-code { font-size: 14px; font-weight: 800; color: #fff; width: 44px; }
+  .wx-temp { font-size: 14px; font-weight: 800; color: #0A84FF; }
+  .wx-desc { font-size: 12px; color: #B8B8BD; flex: 1; }
+  .wx-wind { font-size: 12px; color: #B8B8BD; }
+  .wx-hours { display: flex; gap: 6px; overflow-x: auto; margin-top: 8px; padding-bottom: 4px; }
+  .wx-hour { min-width: 52px; background: #1C1C1E; border: 1px solid #3A3A3C; border-radius: 10px; padding: 6px 4px; text-align: center; }
+  .wx-hour .h-t { font-size: 11px; color: #B8B8BD; }
+  .wx-hour .h-ic { font-size: 16px; }
+  .wx-hour .h-temp { font-size: 12px; font-weight: 700; color: #fff; }
+  .wx-hour .h-rain { font-size: 10px; color: #0A84FF; }
+  .wx-foot { display: flex; gap: 8px; margin-top: 12px; }
+  .wx-btn { flex: 1; padding: 10px; border-radius: 12px; border: 1px solid #3A3A3C; background: #1C1C1E; color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; }
+
   /* Location metkasi */
   .location-marker {
     width: 28px; height: 28px; border-radius: 50%;
@@ -279,7 +315,7 @@
     <div class="head-title">
       <div id="title">NYC RADAR 🚕</div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
-      <div id="ver">v2.6</div>
+      <div id="ver">v2.8</div>
       <div id="upd"></div>
     </div>
     <div id="speedBadge">
@@ -338,6 +374,16 @@
   </div>
 </div>
 
+<div id="weatherModal">
+  <div class="points-card">
+    <div class="points-head">
+      <span class="points-title">🌤️ Ob-havo</span>
+      <button id="weatherClose" aria-label="Yopish">✕</button>
+    </div>
+    <div id="weatherBody"><p class="points-note">Yuklanmoqda...</p></div>
+  </div>
+</div>
+
 <div id="pointsModal">
   <div class="points-card">
     <div class="points-head">
@@ -378,6 +424,24 @@
   // Uy — pastda aeroportlar qatorida 4-krug bo'lib chiqadi (LOCATIONS menyusida emas).
   const HOME = { id: 'home', name: 'Go Home', code: 'HOME', lat: 40.5985, lon: -73.9965, color: '#FFD60A' };
   const ROUTE_TARGETS = AIRPORTS.concat([HOME]);
+
+  // Ob-havo (Open-Meteo, kalitsiz)
+  const WX_CACHE_TTL = 30 * 60 * 1000; // 30 daqiqa
+  let wxCache = { at: 0, data: null };
+  const WMO = {
+    0: ['☀️', 'Ochiq'], 1: ['🌤️', 'Asosan ochiq'], 2: ['⛅', 'Bulutli'], 3: ['☁️', 'Yopiq bulut'],
+    45: ['🌫️', 'Tuman'], 48: ['🌫️', 'Tuman'],
+    51: ['🌦️', 'Mayda yomg\'ir'], 53: ['🌦️', 'Yomg\'ir'], 55: ['🌦️', 'Yomg\'ir'],
+    56: ['🌧️', 'Muzli yomg\'ir'], 57: ['🌧️', 'Muzli yomg\'ir'],
+    61: ['🌧️', 'Yomg\'ir'], 63: ['🌧️', 'Yomg\'ir'], 65: ['🌧️', 'Kuchli yomg\'ir'],
+    66: ['🌧️', 'Muzli yomg\'ir'], 67: ['🌧️', 'Muzli yomg\'ir'],
+    71: ['🌨️', 'Yengil qor'], 73: ['🌨️', 'Qor'], 75: ['🌨️', 'Kuchli qor'], 77: ['🌨️', 'Qor donalari'],
+    80: ['🌧️', 'Jala'], 81: ['🌧️', 'Jala'], 82: ['🌧️', 'Kuchli jala'],
+    85: ['🌨️', 'Qor yog\'ishi'], 86: ['🌨️', 'Qor yog\'ishi'],
+    95: ['⛈️', 'Momaqaldiroq'], 96: ['⛈️', 'Momaqaldiroq + do\'l'], 99: ['⛈️', 'Momaqaldiroq + do\'l']
+  };
+  const f2c = f => Math.round((f - 32) * 5 / 9);
+  const windDirUz = d => ['Sh', 'Sh-Shq', 'Shq', 'J-Shq', 'J', 'J-G‘', 'G‘', 'Sh-G‘'][Math.round(d / 45) % 8];
 
   // AirLabs reyslar API kaliti (bepul: 1000 ta so'rov, 2026-11-24 gacha amal qiladi)
   const _ak = ['e47a4224-471e-4631', '-8e57-67aea417485e'];
@@ -521,7 +585,7 @@
     lastQuotaPaint = now;
     const left = Math.max(0, TT_DAILY_LIMIT - ttUsage.routing - ttUsage.tiles);
     const ver = document.getElementById('ver');
-    if (ver) ver.textContent = 'v2.6.' + left;
+    if (ver) ver.textContent = 'v2.8.' + left;
     checkStale();
   }
 
@@ -988,6 +1052,63 @@
     });
   }
 
+  // Ob-havo: hozirgi joy + 3 ta aeroport + keyingi 6 soat (Open-Meteo)
+  async function fetchWeather() {
+    const now = Date.now();
+    if (wxCache.data && now - wxCache.at < WX_CACHE_TTL) return wxCache.data;
+    const lat = (userLat !== null) ? userLat : 40.7580;
+    const lon = (userLon !== null) ? userLon : -73.9855;
+    const base = 'https://api.open-meteo.com/v1/forecast?current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m&hourly=temperature_2m,precipitation_probability,weather_code&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America%2FNew_York&forecast_days=2';
+    const [mine, ports] = await Promise.all([
+      fetch(base + '&latitude=' + lat + '&longitude=' + lon).then(r => r.json()),
+      fetch(base + '&latitude=40.6413,40.7769,40.6895&longitude=-73.7781,-73.8740,-74.1745').then(r => r.json())
+    ]);
+    const data = { mine, ports: Array.isArray(ports) ? ports : [ports], at: now };
+    wxCache = { at: now, data };
+    return data;
+  }
+
+  async function showWeather() {
+    const modal = document.getElementById('weatherModal');
+    const body = document.getElementById('weatherBody');
+    modal.classList.add('open');
+    body.innerHTML = '<p class="points-note">Yuklanmoqda...</p>';
+    try {
+      const data = await fetchWeather();
+      const c = data.mine.current;
+      const w = WMO[c.weather_code] || ['🌡️', ''];
+      let html = '<div class="wx-big">' + Math.round(c.temperature_2m) + '°F <span style="font-size:16px;color:#B8B8BD">(' + f2c(c.temperature_2m) + '°C)</span></div>'
+        + '<div class="wx-cond">' + w[0] + ' ' + w[1] + ' • His qilinadi: ' + Math.round(c.apparent_temperature) + '°F</div>'
+        + '<div class="wx-meta">Shamol ' + Math.round(c.wind_speed_10m) + ' mph ' + windDirUz(c.wind_direction_10m) + ' • Namlik ' + c.relative_humidity_2m + '%</div>';
+      const names = ['JFK', 'LGA', 'EWR'];
+      html += '<div class="f-list">' + data.ports.map((p, i) => {
+        const pc = p.current;
+        const pw = WMO[pc.weather_code] || ['🌡️', ''];
+        return '<div class="wx-row"><span class="wx-code">' + names[i] + '</span><span class="wx-temp">' + Math.round(pc.temperature_2m) + '°F</span><span class="wx-desc">' + pw[0] + ' ' + pw[1] + '</span><span class="wx-wind">' + Math.round(pc.wind_speed_10m) + ' mph</span></div>';
+      }).join('') + '</div>';
+      const h = data.mine.hourly;
+      let startIdx = 0;
+      for (let i = 0; i < h.time.length; i++) {
+        if (new Date(h.time[i]).getTime() >= data.at - 3600000) { startIdx = i; break; }
+      }
+      html += '<div class="wx-hours">' + h.time.slice(startIdx, startIdx + 6).map((t, i) => {
+        const idx = startIdx + i;
+        const hw = WMO[h.weather_code[idx]] || ['🌡️'];
+        return '<div class="wx-hour"><div class="h-t">' + new Date(t).getHours() + ':00</div><div class="h-ic">' + hw[0] + '</div><div class="h-temp">' + Math.round(h.temperature_2m[idx]) + '°</div><div class="h-rain">' + (h.precipitation_probability[idx] || 0) + '%</div></div>';
+      }).join('') + '</div>';
+      html += '<div class="wx-foot"><button class="wx-btn" id="wxRecenter">🎯 Xaritani markazlash</button></div>';
+      html += '<p class="points-foot">Open-Meteo asosida • Yangilangan: ' + fmtClock(data.at) + ' • Maʼlumot 30 daqiqaga keshlanadi.</p>';
+      body.innerHTML = html;
+      document.getElementById('wxRecenter').addEventListener('click', () => {
+        modal.classList.remove('open');
+        autoZoom = true;
+        fitAll();
+      });
+    } catch (e) {
+      body.innerHTML = '<p class="points-note">Ob-havo olinmadi. Internetni tekshirib, birozdan keyin yana urinib ko\'ring.</p>';
+    }
+  }
+
   // Aeroportga keyingi 1 soatda qo'nadigan reyslar (AirLabs jadvali)
   // Ikki nuqta orasidagi masofa (km)
   function havKm(lat1, lon1, lat2, lon2) {
@@ -1086,8 +1207,7 @@
     homeMarker.on('click', () => openNavigation(HOME));
 
     document.getElementById('recenter').addEventListener('click', () => {
-      autoZoom = true;
-      fitAll();
+      showWeather();
     });
 
     // --- TomTom jonli tirbandlik qatlami (relative flow) ---
@@ -1186,10 +1306,22 @@
   updatePointsCircle();
   setInterval(updatePointsCircle, 30000);
 
+  // Ob-havo oynasi
+  const weatherModal = document.getElementById('weatherModal');
+  document.getElementById('weatherClose').addEventListener('click', () => weatherModal.classList.remove('open'));
+  weatherModal.addEventListener('click', e => { if (e.target === weatherModal) weatherModal.classList.remove('open'); });
+
   // Reyslar oynasi
   const flightsModal = document.getElementById('flightsModal');
   document.getElementById('flightsClose').addEventListener('click', () => flightsModal.classList.remove('open'));
   flightsModal.addEventListener('click', e => { if (e.target === flightsModal) flightsModal.classList.remove('open'); });
+
+  // Ilova kabi o'rnatish (PWA): service worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    });
+  }
 
   if ('geolocation' in navigator) {
     navigator.geolocation.watchPosition(onPosition, onPositionError, {

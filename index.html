@@ -182,10 +182,11 @@
 
   /* Aeroport krugidagi + tugmasi (reyslar) */
   .flightsBtn {
-    position: absolute; top: -9px; left: 50%; transform: translateX(-50%);
-    width: 26px; height: 26px; border-radius: 50%;
-    background: #0A84FF; color: #fff; border: 2px solid #121212;
-    font-size: 16px; font-weight: 900; line-height: 1; cursor: pointer; z-index: 2;
+    position: absolute; top: -11px; left: 50%; transform: translateX(-50%);
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg, #0A84FF, #30B0FF); color: #fff; border: 2px solid rgba(255,255,255,0.9);
+    font-size: 20px; font-weight: 900; line-height: 1; cursor: pointer; z-index: 2;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.55);
   }
   .flightsBtn:active { transform: translateX(-50%) scale(0.92); }
   /* Reyslar oynasi */
@@ -326,7 +327,7 @@
     <div class="head-title">
       <div id="title">NYC RADAR 🚕</div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
-      <div id="ver">v2.11</div>
+      <div id="ver">v2.12</div>
       <div id="upd"></div>
     </div>
     <div id="speedBadge">
@@ -610,7 +611,7 @@
     lastQuotaPaint = now;
     const left = Math.max(0, TT_DAILY_LIMIT - ttUsage.routing - ttUsage.tiles);
     const ver = document.getElementById('ver');
-    if (ver) ver.textContent = 'v2.11.' + left;
+    if (ver) ver.textContent = 'v2.12.' + left;
     checkStale();
   }
 
@@ -1244,6 +1245,55 @@
     return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
   }
 
+  // IATA kodi -> shahar nomi (reyslar ro'yxati uchun)
+  const AIRPORT_CITIES = {
+    ABQ: 'Albukerke', ACA: 'Akapulko', AGS: 'Augusta', AKL: 'Oklend', ALB: 'Olbeni',
+    AMS: 'Amsterdam', ANC: 'Ankorij', ANU: 'Antigua', ASE: 'Aspen', ATL: 'Atlanta',
+    AUA: 'Aruba', AUH: 'Abu-Dabi', AUS: 'Ostin', AVL: 'Eshvill', BDL: 'Hartford',
+    BGR: 'Bangor', BGI: 'Barbados', BIL: 'Billings', BIS: 'Bismark', BKK: 'Bangkok',
+    BLR: 'Bangalor', BNA: 'Nashvill', BOD: 'Bordo', BOG: 'Bogota', BOI: 'Boyse',
+    BOM: 'Mumbay', BOS: 'Boston', BRU: 'Bryussel', BTR: 'Baton-Ruj', BUD: 'Budapesht',
+    BUF: 'Buffalo', BUR: 'Burbank', BWI: 'Baltimor', BZN: 'Bozeman', CAE: 'Kolambiya',
+    CAI: 'Qohira', CAN: 'Guanchjou', CCS: 'Karakas', CDG: 'Parij', CGK: 'Jakarta',
+    CHS: 'Charleston', CID: 'Sidar-Repids', CLE: 'Klivlend', CLT: 'Sharlotta', CMH: 'Kolambus',
+    CPH: 'Kopengagen', CRW: 'Charleston', CUN: 'Kankun', CUR: 'Kyurasao', CVG: 'Sinsinnati',
+    DAL: 'Dallas', DAY: 'Deyton', DCA: 'Vashington', DEL: 'Dehli', DEN: 'Denver',
+    DFW: 'Dallas', DOH: 'Doha', DSM: 'De-Moyn', DTW: 'Detroit', DUB: 'Dublin',
+    DXB: 'Dubay', EDI: 'Edinburg', EGE: 'Veyl', ELP: 'El-Paso', EWR: 'Nyuark',
+    EZE: 'Buenos-Ayres', FAI: 'Ferbenks', FAR: 'Fargo', FAT: 'Fresno', FCO: 'Rim',
+    FLL: 'Fort-Loderdeyl', FRA: 'Frankfurt', GDL: 'Gvadalaxara', GEG: 'Spokan', GEO: 'Jorjtaun',
+    GIG: 'Rio-de-Janeyro', GRR: 'Grand-Repids', GRU: 'San-Paulu', GUA: 'Gvatemala', GVA: 'Jeneva',
+    HAV: 'Gavana', HDN: 'Hayden', HEL: 'Xelsinki', HKG: 'Gonkong', HNL: 'Gonolulu',
+    HOU: 'Hyuston', HSV: 'Xantsvill', HYD: 'Haydarobod', IAD: 'Vashington', IAH: 'Hyuston',
+    ICN: 'Seul', ICT: 'Uichita', IND: 'Indianapolis', IST: 'Istanbul', ITO: 'Hilo',
+    JAC: 'Jekson', JAN: 'Jekson', JAX: 'Jeksonvill', JED: 'Jidda', JFK: 'Nyu-York',
+    JNB: 'Yoxannesburg', KBP: 'Kiyev', KEF: 'Reykyavik', KIN: 'Kingston', KOA: 'Kona',
+    KUL: 'Kuala-Lumpur', LAS: 'Las-Vegas', LAX: 'Los-Anjeles', LBB: 'Labbok', LCA: 'Larnaka',
+    LGA: 'Nyu-York', LHR: 'London', LGW: 'London', LIH: 'Lixue', LIM: 'Lima',
+    LIS: 'Lissabon', LIT: 'Litl-Rok', LUX: 'Lyuksemburg', MAA: 'Chennay', MAD: 'Madrid',
+    MAN: 'Manchester', MBJ: 'Montego-Bey', MCI: 'Kanzas-Siti', MCO: 'Orlando', MDW: 'Chikago',
+    MEL: 'Melburn', MEM: 'Memfis', MEX: 'Mexiko', MFE: 'Makallen', MGA: 'Managua',
+    MIA: 'Mayami', MKE: 'Miluoki', MLA: 'Malta', MNL: 'Manila', MOB: 'Mobil',
+    MSP: 'Minneapolis', MSY: 'Yangi Orlean', MTJ: 'Montrouz', MUC: 'Myunxen', MXP: 'Milan',
+    MYR: 'Mertl-Bich', NAP: 'Neapol', NAS: 'Nassau', NRT: 'Tokio', HND: 'Tokio',
+    OAK: 'Oukland', OGG: 'Kaxului', OKC: 'Oklaxoma-Siti', OMA: 'Omaxa', ORD: 'Chikago',
+    ORF: 'Norfolk', OSL: 'Oslo', OTP: 'Buxarest', PBI: 'Vest-Palm-Bich', PDX: 'Portlend',
+    PEK: 'Pekin', PHL: 'Filadelfiya', PHX: 'Finiks', PIA: 'Peoriya', PIE: 'Sent-Pitersburg',
+    PIT: 'Pitsburg', PLS: 'Providensiales', POS: 'Port-of-Speyn', PRG: 'Praga', PSP: 'Palm-Springs',
+    PTY: 'Panama', PUJ: 'Punta-Kana', PVG: 'Shanxay', PWM: 'Portlend', RDU: 'Roli',
+    RIC: 'Richmond', RNO: 'Reno', RSW: 'Fort-Mayers', RUH: 'Ar-Riyod', SAL: 'San-Salvador',
+    SAN: 'San-Diego', SAT: 'San-Antonio', SAV: 'Savanna', SBA: 'Santa-Barbara', SCL: 'Santyago',
+    SDQ: 'Santo-Domingo', SEA: 'Sietl', SFO: 'San-Fransisko', SGF: 'Springfild', SIN: 'Singapur',
+    SJC: 'San-Xose', SJO: 'San-Xose', SLC: 'Solt-Leyk-Siti', SMF: 'Sakramento', SNA: 'Santa-Ana',
+    SOF: 'Sofiya', SRQ: 'Sarasota', STL: 'Sent-Luis', STI: 'Santyago', STS: 'Santa-Roza',
+    SUN: 'San-Valli', SXM: 'Sen-Marten', SYD: 'Sidney', SYR: 'Sirakuza', TLV: 'Tel-Aviv',
+    TPA: 'Tampa', TPE: 'Taypey', TRI: 'Tri-Sitiz', TUL: 'Talsa', TUS: 'Tukson',
+    TVC: 'Travers-Siti', UIO: 'Kito', VCE: 'Venetsiya', VIE: 'Vena', VPS: 'Fort-Uolton',
+    WAW: 'Varshava', XNA: 'Fayettvill', YEG: 'Edmonton', YHZ: 'Galifaks', YOW: 'Ottava',
+    YQB: 'Kvebek', YUL: 'Monreal', YVR: 'Vankuver', YYC: 'Kalgari', YYZ: 'Toronto',
+    ZRH: 'Syurix'
+  };
+
   async function showFlights(airport) {
     const modal = document.getElementById('flightsModal');
     const body = document.getElementById('flightsBody');
@@ -1262,16 +1312,31 @@
         .map(f => ({ num: f.flight_iata || '', from: f.dep_iata || '', eta: etaMin(f, ap) }))
         .filter(f => f.eta > 0 && f.eta <= 60)
         .sort((a, b) => a.eta - b.eta);
+      const rowHtml = f => {
+        const city = AIRPORT_CITIES[f.from] || '';
+        const fromTxt = city ? f.from + ' · ' + city + 'dan' : f.from + ' dan';
+        return '<div class="f-row"><span class="f-time">~' + Math.round(f.eta) + ' daq</span><span class="f-num">' + f.num + '</span><span class="f-from">' + fromTxt + '</span></div>';
+      };
+      let shown = 0;
+      const renderMore = () => {
+        const next = upcoming.slice(shown, shown + 6);
+        shown += next.length;
+        return next.map(rowHtml).join('');
+      };
       let html = '<div class="flights-big">' + upcoming.length + '</div><div class="flights-sub">keyingi 1 soatda qo\'nadigan reyslar (taxminiy)</div>';
       if (upcoming.length > 0) {
-        html += '<div class="f-list">' + upcoming.slice(0, 6).map(f =>
-          '<div class="f-row"><span class="f-time">~' + Math.round(f.eta) + ' daq</span><span class="f-num">' + f.num + '</span><span class="f-from">' + f.from + ' dan</span></div>'
-        ).join('') + '</div>';
+        html += '<div class="f-list" id="flightsList">' + renderMore() + '</div>';
+        if (shown < upcoming.length) html += '<div style="margin-top:10px"><button class="wx-btn" id="flightsMore" style="width:100%">⬇ More</button></div>';
       } else {
         html += '<p class="points-note">Keyingi 1 soatda qo\'nadigan reys topilmadi.</p>';
       }
       html += '<p class="points-foot">Havodagi reyslar asosida hisoblanadi (taxminiy; hali uchmagan reyslar kirmaydi). Yangilangan: ' + fmtClock(liveFlightsCache.at) + ' • Maʼlumot 30 daqiqaga keshlanadi.</p>';
       body.innerHTML = html;
+      const moreBtn = document.getElementById('flightsMore');
+      if (moreBtn) moreBtn.addEventListener('click', () => {
+        document.getElementById('flightsList').insertAdjacentHTML('beforeend', renderMore());
+        if (shown >= upcoming.length) moreBtn.remove();
+      });
     } catch (e) {
       body.innerHTML = '<p class="points-note">Maʼlumot olinmadi. Internetni tekshirib, birozdan keyin yana urinib ko\'ring.</p>';
     }

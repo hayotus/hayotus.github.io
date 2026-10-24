@@ -73,6 +73,7 @@
     display: flex; justify-content: space-around; padding: 0 10px; pointer-events: none;
   }
   .circleCard {
+    position: relative;
     pointer-events: auto; width: min(110px, 23vw); height: min(110px, 23vw); border-radius: 50%;
     background: rgba(18,18,18,0.95); border: 3px solid #888;
     display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -168,6 +169,37 @@
   .p-row.now .p-now { display: inline; }
   .points-foot { font-size: 11px; color: #636366; line-height: 1.4; margin-top: 12px; }
 
+  /* Aeroport krugidagi + tugmasi (reyslar) */
+  .flightsBtn {
+    position: absolute; top: -9px; left: 50%; transform: translateX(-50%);
+    width: 26px; height: 26px; border-radius: 50%;
+    background: #0A84FF; color: #fff; border: 2px solid #121212;
+    font-size: 16px; font-weight: 900; line-height: 1; cursor: pointer; z-index: 2;
+  }
+  .flightsBtn:active { transform: translateX(-50%) scale(0.92); }
+  /* Reyslar oynasi */
+  #flightsModal {
+    display: none; position: fixed; inset: 0; z-index: 2100;
+    background: rgba(0,0,0,0.72);
+    align-items: center; justify-content: center; padding: 16px;
+  }
+  #flightsModal.open { display: flex; }
+  #flightsClose {
+    width: 34px; height: 34px; border-radius: 50%; border: 1px solid #3A3A3C;
+    background: #1C1C1E; color: #fff; font-size: 14px; cursor: pointer;
+  }
+  .flights-big { font-size: 46px; font-weight: 900; color: #fff; text-align: center; line-height: 1; margin: 6px 0 2px; }
+  .flights-sub { font-size: 13px; color: #B8B8BD; text-align: center; margin-bottom: 12px; }
+  .f-list { margin-top: 4px; }
+  .f-row {
+    display: flex; align-items: center; gap: 10px;
+    background: #1C1C1E; border: 1px solid #3A3A3C; border-radius: 12px;
+    padding: 8px 12px; margin: 5px 0;
+  }
+  .f-time { font-size: 14px; font-weight: 800; color: #0A84FF; }
+  .f-num { font-size: 14px; font-weight: 700; color: #fff; flex: 1; }
+  .f-from { font-size: 12px; color: #B8B8BD; }
+
   /* Location metkasi */
   .location-marker {
     width: 28px; height: 28px; border-radius: 50%;
@@ -247,7 +279,7 @@
     <div class="head-title">
       <div id="title">NYC RADAR 🚕</div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
-      <div id="ver">v2.5</div>
+      <div id="ver">v2.6</div>
       <div id="upd"></div>
     </div>
     <div id="speedBadge">
@@ -296,6 +328,16 @@
   </div>
 </div>
 
+<div id="flightsModal">
+  <div class="points-card">
+    <div class="points-head">
+      <span class="points-title" id="flightsTitle">✈️ Reyslar</span>
+      <button id="flightsClose" aria-label="Yopish">✕</button>
+    </div>
+    <div id="flightsBody"><p class="points-note">Yuklanmoqda...</p></div>
+  </div>
+</div>
+
 <div id="pointsModal">
   <div class="points-card">
     <div class="points-head">
@@ -336,6 +378,11 @@
   // Uy — pastda aeroportlar qatorida 4-krug bo'lib chiqadi (LOCATIONS menyusida emas).
   const HOME = { id: 'home', name: 'Go Home', code: 'HOME', lat: 40.5985, lon: -73.9965, color: '#FFD60A' };
   const ROUTE_TARGETS = AIRPORTS.concat([HOME]);
+
+  // AirLabs reyslar API kaliti (waitlist tasdiqlangach shu yerga qo'yiladi)
+  const AIRLABS_KEY = '';
+  const FLIGHTS_CACHE_TTL = 2 * 60 * 60 * 1000; // 2 soat (1000/oy limit tejaladi)
+  const flightsCache = {};
 
   // Uber Pro bonus ballar jadvali (daqiqa: 0 = 00:00, 1440 = 24:00)
   const POINTS_PERIODS = [
@@ -472,7 +519,7 @@
     lastQuotaPaint = now;
     const left = Math.max(0, TT_DAILY_LIMIT - ttUsage.routing - ttUsage.tiles);
     const ver = document.getElementById('ver');
-    if (ver) ver.textContent = 'v2.5.' + left;
+    if (ver) ver.textContent = 'v2.6.' + left;
     checkStale();
   }
 
@@ -927,8 +974,71 @@
         <div class="time" id="time-${a.id}">--</div>
         <div class="dist" id="dist-${a.id}">-- <span class="u">mi</span></div>`;
       card.addEventListener('click', () => openNavigation(a));
+      if (a.id !== 'home') {
+        const fb = document.createElement('button');
+        fb.className = 'flightsBtn';
+        fb.textContent = '+';
+        fb.setAttribute('aria-label', a.code + ' reyslari');
+        fb.addEventListener('click', e => { e.stopPropagation(); showFlights(a); });
+        card.appendChild(fb);
+      }
       bar.appendChild(card);
     });
+  }
+
+  // Aeroportga keyingi 1 soatda qo'nadigan reyslar (AirLabs jadvali)
+  async function fetchAirportFlights(code) {
+    const now = Date.now();
+    const hit = flightsCache[code];
+    if (hit && now - hit.at < FLIGHTS_CACHE_TTL) return hit.flights;
+    const url = 'https://airlabs.co/api/v9/schedules?api_key=' + AIRLABS_KEY + '&arr_iata=' + code + '&_fields=flight_iata,dep_iata,arr_time,arr_time_ts,arr_estimated,arr_estimated_ts,status,cs_flight_iata';
+    const res = await fetch(url);
+    const data = await res.json();
+    if (!data || !Array.isArray(data.response)) throw new Error('bad response');
+    flightsCache[code] = { at: now, flights: data.response };
+    return data.response;
+  }
+
+  function nextHourFlights(flights, nowSec) {
+    return flights
+      .filter(f => !f.cs_flight_iata)
+      .map(f => ({ num: f.flight_iata || '', from: f.dep_iata || '', ts: f.arr_estimated_ts || f.arr_time_ts }))
+      .filter(f => f.ts && f.ts >= nowSec && f.ts <= nowSec + 3600)
+      .sort((a, b) => a.ts - b.ts);
+  }
+
+  function fmtClock(ts) {
+    const d = new Date(ts * 1000);
+    return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  }
+
+  async function showFlights(airport) {
+    const modal = document.getElementById('flightsModal');
+    const body = document.getElementById('flightsBody');
+    document.getElementById('flightsTitle').textContent = '✈️ ' + airport.code + ' — Reyslar';
+    modal.classList.add('open');
+    if (!AIRLABS_KEY) {
+      body.innerHTML = '<p class="points-note">Reys maʼlumoti hali ulanmagan — AirLabs kaliti kutilmoqda (waitlist). Kalit kelishi bilan shu tugma ishga tushadi.</p>';
+      return;
+    }
+    body.innerHTML = '<p class="points-note">Yuklanmoqda...</p>';
+    try {
+      const flights = await fetchAirportFlights(airport.code);
+      const nowSec = Math.floor(Date.now() / 1000);
+      const upcoming = nextHourFlights(flights, nowSec);
+      let html = '<div class="flights-big">' + upcoming.length + '</div><div class="flights-sub">keyingi 1 soatda qo\'nadigan reyslar</div>';
+      if (upcoming.length > 0) {
+        html += '<div class="f-list">' + upcoming.slice(0, 6).map(f =>
+          '<div class="f-row"><span class="f-time">' + fmtClock(f.ts) + '</span><span class="f-num">' + f.num + '</span><span class="f-from">' + f.from + ' dan</span></div>'
+        ).join('') + '</div>';
+      } else {
+        html += '<p class="points-note">Keyingi 1 soatda qo\'nadigan reys topilmadi.</p>';
+      }
+      html += '<p class="points-foot">AirLabs jadvali asosida (rejalangan vaqt; kechikish bo\'lishi mumkin). Maʼlumot 2 soatga keshlanadi.</p>';
+      body.innerHTML = html;
+    } catch (e) {
+      body.innerHTML = '<p class="points-note">Maʼlumot olinmadi. Internetni tekshirib, birozdan keyin yana urinib ko\'ring.</p>';
+    }
   }
 
   function initMap() {
@@ -1063,6 +1173,11 @@
   pointsModal.addEventListener('click', e => { if (e.target === pointsModal) pointsModal.classList.remove('open'); });
   updatePointsCircle();
   setInterval(updatePointsCircle, 30000);
+
+  // Reyslar oynasi
+  const flightsModal = document.getElementById('flightsModal');
+  document.getElementById('flightsClose').addEventListener('click', () => flightsModal.classList.remove('open'));
+  flightsModal.addEventListener('click', e => { if (e.target === flightsModal) flightsModal.classList.remove('open'); });
 
   if ('geolocation' in navigator) {
     navigator.geolocation.watchPosition(onPosition, onPositionError, {

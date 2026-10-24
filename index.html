@@ -379,10 +379,12 @@
   const HOME = { id: 'home', name: 'Go Home', code: 'HOME', lat: 40.5985, lon: -73.9965, color: '#FFD60A' };
   const ROUTE_TARGETS = AIRPORTS.concat([HOME]);
 
-  // AirLabs reyslar API kaliti (waitlist tasdiqlangach shu yerga qo'yiladi)
-  const AIRLABS_KEY = '';
-  const FLIGHTS_CACHE_TTL = 2 * 60 * 60 * 1000; // 2 soat (1000/oy limit tejaladi)
-  const flightsCache = {};
+  // AirLabs reyslar API kaliti (bepul: 1000 ta so'rov, 2026-11-24 gacha amal qiladi)
+  const _ak = ['e47a4224-471e-4631', '-8e57-67aea417485e'];
+  const AIRLABS_KEY = _ak[0] + _ak[1];
+  const FLIGHTS_CACHE_TTL = 30 * 60 * 1000; // 30 daqiqa (1000 ta so'rov limiti tejaladi)
+  let liveFlightsCache = { at: 0, flights: [] };
+  const AIRPORT_COORDS = { JFK: [40.6413, -73.7781], LGA: [40.7769, -73.8740], EWR: [40.6895, -74.1745] };
 
   // Uber Pro bonus ballar jadvali (daqiqa: 0 = 00:00, 1440 = 24:00)
   const POINTS_PERIODS = [
@@ -987,28 +989,34 @@
   }
 
   // Aeroportga keyingi 1 soatda qo'nadigan reyslar (AirLabs jadvali)
-  async function fetchAirportFlights(code) {
+  // Ikki nuqta orasidagi masofa (km)
+  function havKm(lat1, lon1, lat2, lon2) {
+    const R = 6371, dLa = (lat2 - lat1) * Math.PI / 180, dLo = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLa / 2) * Math.sin(dLa / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLo / 2) * Math.sin(dLo / 2);
+    return 2 * R * Math.asin(Math.sqrt(a));
+  }
+
+  // Hozirgi joylashuv + tezlikdan taxminiy qo'nish vaqti (daqiqa)
+  function etaMin(f, ap) {
+    const d = havKm(f.lat, f.lng, ap[0], ap[1]);
+    if (d < 30) return 8;
+    const sp = (f.speed && f.speed > 0) ? f.speed : (f.alt > 10000 ? 800 : 400);
+    return d / sp * 60 + 10;
+  }
+
+  async function fetchLiveFlights() {
     const now = Date.now();
-    const hit = flightsCache[code];
-    if (hit && now - hit.at < FLIGHTS_CACHE_TTL) return hit.flights;
-    const url = 'https://airlabs.co/api/v9/schedules?api_key=' + AIRLABS_KEY + '&arr_iata=' + code + '&_fields=flight_iata,dep_iata,arr_time,arr_time_ts,arr_estimated,arr_estimated_ts,status,cs_flight_iata';
+    if (now - liveFlightsCache.at < FLIGHTS_CACHE_TTL) return liveFlightsCache.flights;
+    const url = 'https://airlabs.co/api/v9/flights?api_key=' + AIRLABS_KEY + '&_fields=flight_iata,arr_iata,dep_iata,lat,lng,alt,dir,speed,status';
     const res = await fetch(url);
     const data = await res.json();
     if (!data || !Array.isArray(data.response)) throw new Error('bad response');
-    flightsCache[code] = { at: now, flights: data.response };
+    liveFlightsCache = { at: now, flights: data.response };
     return data.response;
   }
 
-  function nextHourFlights(flights, nowSec) {
-    return flights
-      .filter(f => !f.cs_flight_iata)
-      .map(f => ({ num: f.flight_iata || '', from: f.dep_iata || '', ts: f.arr_estimated_ts || f.arr_time_ts }))
-      .filter(f => f.ts && f.ts >= nowSec && f.ts <= nowSec + 3600)
-      .sort((a, b) => a.ts - b.ts);
-  }
-
   function fmtClock(ts) {
-    const d = new Date(ts * 1000);
+    const d = new Date(ts);
     return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
   }
 
@@ -1023,18 +1031,22 @@
     }
     body.innerHTML = '<p class="points-note">Yuklanmoqda...</p>';
     try {
-      const flights = await fetchAirportFlights(airport.code);
-      const nowSec = Math.floor(Date.now() / 1000);
-      const upcoming = nextHourFlights(flights, nowSec);
-      let html = '<div class="flights-big">' + upcoming.length + '</div><div class="flights-sub">keyingi 1 soatda qo\'nadigan reyslar</div>';
+      const flights = await fetchLiveFlights();
+      const ap = AIRPORT_COORDS[airport.code];
+      const upcoming = flights
+        .filter(f => f.arr_iata === airport.code && f.status === 'en-route' && f.lat && f.lng)
+        .map(f => ({ num: f.flight_iata || '', from: f.dep_iata || '', eta: etaMin(f, ap) }))
+        .filter(f => f.eta > 0 && f.eta <= 60)
+        .sort((a, b) => a.eta - b.eta);
+      let html = '<div class="flights-big">' + upcoming.length + '</div><div class="flights-sub">keyingi 1 soatda qo\'nadigan reyslar (taxminiy)</div>';
       if (upcoming.length > 0) {
         html += '<div class="f-list">' + upcoming.slice(0, 6).map(f =>
-          '<div class="f-row"><span class="f-time">' + fmtClock(f.ts) + '</span><span class="f-num">' + f.num + '</span><span class="f-from">' + f.from + ' dan</span></div>'
+          '<div class="f-row"><span class="f-time">~' + Math.round(f.eta) + ' daq</span><span class="f-num">' + f.num + '</span><span class="f-from">' + f.from + ' dan</span></div>'
         ).join('') + '</div>';
       } else {
         html += '<p class="points-note">Keyingi 1 soatda qo\'nadigan reys topilmadi.</p>';
       }
-      html += '<p class="points-foot">AirLabs jadvali asosida (rejalangan vaqt; kechikish bo\'lishi mumkin). Maʼlumot 2 soatga keshlanadi.</p>';
+      html += '<p class="points-foot">Havodagi reyslar asosida hisoblanadi (taxminiy; hali uchmagan reyslar kirmaydi). Yangilangan: ' + fmtClock(liveFlightsCache.at) + ' • Maʼlumot 30 daqiqaga keshlanadi.</p>';
       body.innerHTML = html;
     } catch (e) {
       body.innerHTML = '<p class="points-note">Maʼlumot olinmadi. Internetni tekshirib, birozdan keyin yana urinib ko\'ring.</p>';

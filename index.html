@@ -117,8 +117,6 @@
     display: flex; align-items: center; justify-content: center;
   }
   .side-btn:active { transform: scale(0.93); }
-  #layersBtn { color: #C084FC; }
-  #layersBtn.off { color: #6B7280; }
 
   /* Pastki ETA kartalar */
   #etaSection {
@@ -473,7 +471,7 @@
   <div id="header">
     <button id="menuBtn" aria-label="Menyu">☰</button>
     <div class="head-title">
-      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.1</span></div>
+      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.2</span></div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
     </div>
     <button id="pointsBtn" title="Uber Pro ballar">⭐ <span id="pointsNum">--</span>.0</button>
@@ -493,7 +491,6 @@
 
 <div id="sideBtns">
   <button class="side-btn" id="recenter" aria-label="Markazlash">🎯</button>
-  <button class="side-btn" id="layersBtn" aria-label="Traffic qatlam">🗂️</button>
 </div>
 
 <div id="restroomMenu"></div>
@@ -547,7 +544,7 @@
   <div class="drawer-foot">
     <div class="drawer-foot-card">
       <div class="drawer-foot-name">NYC TLC Driver</div>
-      <div class="drawer-foot-ver" id="drawerVer">v3.1</div>
+      <div class="drawer-foot-ver" id="drawerVer">v3.2</div>
     </div>
   </div>
 </aside>
@@ -564,7 +561,7 @@
     <div class="set-row"><span class="set-label">⚠️ Tezlik ogohlantirishi</span><button class="set-toggle on" id="setSpeedWarn" role="switch" aria-checked="true">ON</button></div>
     <div class="set-row"><span class="set-label">🔄 Avtomatik yangilash</span><button class="set-toggle on" id="setAutoUpd" role="switch" aria-checked="true">ON</button></div>
     <button id="settingsRefresh" class="wx-btn" style="width:100%;margin-top:12px">🔄 Yangilash</button>
-    <p class="points-foot">Versiya: <span id="settingsVer">v3.1</span></p>
+    <p class="points-foot">Versiya: <span id="settingsVer">v3.2</span></p>
   </div>
 </div>
 
@@ -798,9 +795,9 @@
     lastQuotaPaint = now;
     const left = Math.max(0, TT_DAILY_LIMIT - ttUsage.routing - ttUsage.tiles);
     const dv = document.getElementById('drawerVer');
-    if (dv) dv.textContent = 'v3.1.' + left;
+    if (dv) dv.textContent = 'v3.2.' + left;
     const sv = document.getElementById('settingsVer');
-    if (sv) sv.textContent = 'v3.1.' + left;
+    if (sv) sv.textContent = 'v3.2.' + left;
     checkStale();
   }
 
@@ -823,11 +820,9 @@
       strip.textContent = label;
       strip.classList.toggle('off', !trafficOn);
     }
-    const layers = document.getElementById('layersBtn');
-    if (layers) layers.classList.toggle('off', !trafficOn);
   }
 
-  // Traffic qatlamni yoqish/o'chirish (strip pill, layers tugma va sozlamadan chaqiriladi)
+  // Traffic qatlamni yoqish/o'chirish (strip pill va sozlamadan chaqiriladi)
   function toggleTraffic() {
     trafficOn = !trafficOn;
     if (map && trafficLayer) {
@@ -1591,7 +1586,6 @@
       autoZoom = true;
       fitAll();
     });
-    document.getElementById('layersBtn').addEventListener('click', toggleTraffic);
     document.getElementById('stripTraffic').addEventListener('click', toggleTraffic);
     document.getElementById('stripHotspots').addEventListener('click', () => {
       showChargers();

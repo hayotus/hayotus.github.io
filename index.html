@@ -87,13 +87,13 @@
 
   /* Status strip — 4 ta shisha pill */
   #statusStrip {
-    display: flex; gap: 8px; pointer-events: auto; overflow-x: auto;
+    display: flex; gap: 6px; pointer-events: auto; overflow-x: auto;
     scrollbar-width: none; padding: 1px;
   }
   #statusStrip::-webkit-scrollbar { display: none; }
   .strip-pill {
     flex: none; background: rgba(255,255,255,0.92); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
-    border: 1px solid rgba(0,0,0,0.06); border-radius: 999px; padding: 7px 12px;
+    border: 1px solid rgba(0,0,0,0.06); border-radius: 999px; padding: 7px 8px;
     font-size: 12px; font-weight: 800; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.18);
     white-space: nowrap; color: #111827;
   }
@@ -104,18 +104,19 @@
   #stripRestrooms { color: #0284C7; }
   #stripWx { color: #B45309; }
 
-  /* O'ng tomondagi dumaloq tugmalar */
+  /* O'ng tomondagi markazlash tugmasi (pastda, kartalar ustida) */
   #sideBtns {
-    position: absolute; right: 12px; top: 34%; z-index: 1000;
+    position: absolute; right: 12px; bottom: 265px; z-index: 1000;
     display: flex; flex-direction: column; gap: 10px;
   }
   .side-btn {
-    width: 48px; height: 48px; border-radius: 50%;
-    background: rgba(31,41,55,0.92); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
-    border: 1px solid rgba(255,255,255,0.14); color: #22D3EE;
-    font-size: 20px; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+    width: 56px; height: 56px; border-radius: 50%;
+    background: rgba(255,255,255,0.96); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    border: 2px solid #0EA5E9; color: #0284C7;
+    font-size: 20px; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.35);
     display: flex; align-items: center; justify-content: center;
   }
+  .side-btn svg { display: block; }
   .side-btn:active { transform: scale(0.93); }
 
   /* Pastki ETA kartalar */
@@ -471,7 +472,7 @@
   <div id="header">
     <button id="menuBtn" aria-label="Menyu">☰</button>
     <div class="head-title">
-      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.2</span></div>
+      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.3</span></div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
     </div>
     <button id="pointsBtn" title="Uber Pro ballar">⭐ <span id="pointsNum">--</span>.0</button>
@@ -482,7 +483,7 @@
     </div>
   </div>
   <div id="statusStrip">
-    <button class="strip-pill" id="stripTraffic">🚦 Traffic: ON</button>
+    <button class="strip-pill" id="stripTraffic">🚦 Traffic</button>
     <button class="strip-pill" id="stripHotspots">⚡ Hotspots</button>
     <button class="strip-pill" id="stripRestrooms">🚻 Restrooms</button>
     <button class="strip-pill" id="stripWx">🌙 —°F</button>
@@ -490,7 +491,7 @@
 </div>
 
 <div id="sideBtns">
-  <button class="side-btn" id="recenter" aria-label="Markazlash">🎯</button>
+  <button class="side-btn" id="recenter" aria-label="Markazlash"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0284C7" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="1.6" fill="#0284C7" stroke="none"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/></svg></button>
 </div>
 
 <div id="restroomMenu"></div>
@@ -544,7 +545,7 @@
   <div class="drawer-foot">
     <div class="drawer-foot-card">
       <div class="drawer-foot-name">NYC TLC Driver</div>
-      <div class="drawer-foot-ver" id="drawerVer">v3.2</div>
+      <div class="drawer-foot-ver" id="drawerVer">v3.3</div>
     </div>
   </div>
 </aside>
@@ -561,7 +562,7 @@
     <div class="set-row"><span class="set-label">⚠️ Tezlik ogohlantirishi</span><button class="set-toggle on" id="setSpeedWarn" role="switch" aria-checked="true">ON</button></div>
     <div class="set-row"><span class="set-label">🔄 Avtomatik yangilash</span><button class="set-toggle on" id="setAutoUpd" role="switch" aria-checked="true">ON</button></div>
     <button id="settingsRefresh" class="wx-btn" style="width:100%;margin-top:12px">🔄 Yangilash</button>
-    <p class="points-foot">Versiya: <span id="settingsVer">v3.2</span></p>
+    <p class="points-foot">Versiya: <span id="settingsVer">v3.3</span></p>
   </div>
 </div>
 
@@ -795,9 +796,9 @@
     lastQuotaPaint = now;
     const left = Math.max(0, TT_DAILY_LIMIT - ttUsage.routing - ttUsage.tiles);
     const dv = document.getElementById('drawerVer');
-    if (dv) dv.textContent = 'v3.2.' + left;
+    if (dv) dv.textContent = 'v3.3.' + left;
     const sv = document.getElementById('settingsVer');
-    if (sv) sv.textContent = 'v3.2.' + left;
+    if (sv) sv.textContent = 'v3.3.' + left;
     checkStale();
   }
 
@@ -815,7 +816,7 @@
   function updateTrafficLabel() {
     const strip = document.getElementById('stripTraffic');
     if (strip) {
-      let label = trafficOn ? '🚦 Traffic: ON' : '🚦 Traffic: OFF';
+      let label = '🚦 Traffic';
       if (trafficOn && (routeDegraded || tileDegraded)) label += ' ⚠';
       strip.textContent = label;
       strip.classList.toggle('off', !trafficOn);

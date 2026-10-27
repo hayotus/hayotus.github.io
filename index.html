@@ -24,9 +24,10 @@
 <link rel="stylesheet" href="vendor/leaflet.css">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { height: 100%; background: #000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; overflow: hidden; }
-  #map { position: absolute; inset: 0; background: #000; }
-  .leaflet-container { background: #000; }
+  html, body { height: 100%; background: #0B0F14; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; overflow: hidden; }
+  #map { position: absolute; inset: 0; background: #E8E8E8; }
+  .leaflet-container { background: #E8E8E8; }
+  .leaflet-control-attribution { background: rgba(255,255,255,0.75); font-size: 9px; }
 
   /* Yuklanish ekrani */
   #loader {
@@ -41,100 +42,135 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   #loader p { color: #8E8E93; font-size: 14px; text-align: center; padding: 0 24px; }
 
-  /* Yuqori panel */
+  /* Yuqori panel — suzuvchi shisha bar */
   #topbar {
-    position: absolute; top: 10px; left: 0; right: 0; z-index: 1000;
-    display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none;
+    position: absolute; top: calc(env(safe-area-inset-top) + 10px); left: 12px; right: 12px; z-index: 1000;
+    display: flex; flex-direction: column; gap: 8px; pointer-events: none;
   }
   #header {
-    width: 92%; max-width: 560px; background: rgba(18,18,18,0.94);
-    border: 1px solid #2C2C2E; border-radius: 22px;
-    padding: 10px 16px; display: flex; align-items: center; justify-content: space-between;
-    pointer-events: auto;
+    background: rgba(31,41,55,0.92); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.09); border-radius: 22px;
+    padding: 10px 12px; display: flex; align-items: center; gap: 10px;
+    pointer-events: auto; box-shadow: 0 8px 24px rgba(0,0,0,0.35);
   }
-  #title { font-size: 14px; font-weight: 900; color: #fff; letter-spacing: 0.3px; }
-  #traffic { font-size: 11px; font-weight: bold; color: #30D158; margin-top: 2px; }
-  #ver { display: inline-block; font-size: 9px; font-weight: 700; color: #636366; margin-top: 1px; }
-  #upd { display: inline-block; font-size: 9px; font-weight: 600; color: #636366; margin-top: 1px; margin-left: 8px; }
-  .circleCard.stale { opacity: 0.45; }
+  #menuBtn {
+    flex: none; width: 42px; height: 42px; border-radius: 13px; border: 1px solid rgba(255,255,255,0.10);
+    background: rgba(255,255,255,0.08); color: #fff; font-size: 19px; font-weight: 700; cursor: pointer;
+  }
+  #menuBtn:active { background: rgba(255,255,255,0.18); }
+  .head-title { flex: 1; min-width: 0; }
+  .title-row { display: flex; align-items: center; gap: 7px; }
+  #title { font-size: 16px; font-weight: 900; color: #fff; letter-spacing: 0.6px; white-space: nowrap; }
+  #ver {
+    display: inline-block; font-size: 10px; font-weight: 800; color: #FBBF24;
+    background: rgba(245,158,11,0.18); border: 1px solid rgba(245,158,11,0.55);
+    border-radius: 9px; padding: 2px 7px; flex: none;
+  }
+  #traffic { font-size: 11px; font-weight: 800; color: #34D399; margin-top: 3px; letter-spacing: 0.3px; }
+  #pointsBtn {
+    flex: none; background: rgba(0,0,0,0.35); color: #FBBF24;
+    border: 1px solid #F59E0B; border-radius: 14px; padding: 9px 11px;
+    font-size: 13px; font-weight: 800; cursor: pointer; white-space: nowrap;
+  }
+  #pointsBtn:active { background: rgba(245,158,11,0.25); }
+  #pointsBtn.bonus { background: rgba(255,214,10,0.25); }
   #speedBadge {
-    background: #2C2C2E; border-radius: 14px; padding: 6px 12px;
-    text-align: center; min-width: 74px;
+    flex: none; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.10); border-radius: 14px;
+    padding: 6px 11px; text-align: center; min-width: 58px;
   }
-  #speedBadge .num { color: #30D158; font-size: 16px; font-weight: bold; }
-  #speedBadge .unit { color: #30D158; font-size: 10px; }
+  #speedBadge .num { color: #22D3EE; font-size: 20px; font-weight: 900; line-height: 1; display: block; }
+  #speedBadge .unit { color: #22D3EE; font-size: 9px; font-weight: 800; letter-spacing: 1px; }
   #speedBadge .warn { display: none; color: #fff; font-size: 9px; font-weight: 900; margin-top: 1px; }
-  #speedBadge.over { background: #FF3B30; }
+  #speedBadge.over { background: #FF3B30; border-color: #FF3B30; }
   #speedBadge.over .num, #speedBadge.over .unit { color: #fff; }
   #speedBadge.over .warn { display: block; }
-  #recenter, #trafficToggle, #locationMenuToggle, #restroomMenuToggle, #menuBtn {
-    pointer-events: auto; background: rgba(18,18,18,0.88); color: #0A84FF;
-    border: 1px solid #0A84FF; border-radius: 16px; padding: 6px 14px;
-    font-size: 11px; font-weight: bold; cursor: pointer;
-  }
-  #recenter:active, #trafficToggle:active, #locationMenuToggle:active, #restroomMenuToggle:active, #menuBtn:active { background: rgba(10,132,255,0.25); }
-  #btnRow {
-    display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-items: flex-start;
-    pointer-events: none;
-  }
-  .btnCol { display: flex; flex-direction: column; gap: 4px; pointer-events: auto; }
-  #weatherBtn, #chargeBtn {
-    pointer-events: auto; background: rgba(18,18,18,0.88); color: #fff;
-    border: 1px solid #0A84FF; border-radius: 12px; padding: 4px 0;
-    font-size: 13px; cursor: pointer;
-  }
-  #weatherBtn:active, #chargeBtn:active { background: rgba(10,132,255,0.25); }
-  #trafficToggle.off { color: #8E8E93; border-color: #3A3A3C; }
 
-  /* Pastki doiralar */
-  #bottombar {
-    position: absolute; bottom: 18px; left: 0; right: 0; z-index: 1000;
-    display: flex; justify-content: space-around; padding: 0 10px; pointer-events: none;
+  /* Status strip — 4 ta shisha pill */
+  #statusStrip {
+    display: flex; gap: 8px; pointer-events: auto; overflow-x: auto;
+    scrollbar-width: none; padding: 1px;
   }
-  .circleCard {
-    position: relative;
-    pointer-events: auto; width: min(110px, 23vw); height: min(110px, 23vw); border-radius: 50%;
-    background: rgba(18,18,18,0.95); border: 3px solid #888;
-    display: flex; flex-direction: column; justify-content: center; align-items: center;
-    cursor: pointer; box-shadow: 0 6px 16px rgba(0,0,0,0.6); user-select: none;
+  #statusStrip::-webkit-scrollbar { display: none; }
+  .strip-pill {
+    flex: none; background: rgba(255,255,255,0.92); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    border: 1px solid rgba(0,0,0,0.06); border-radius: 999px; padding: 7px 12px;
+    font-size: 12px; font-weight: 800; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    white-space: nowrap; color: #111827;
+  }
+  .strip-pill:active { transform: scale(0.96); }
+  #stripTraffic { color: #059669; }
+  #stripTraffic.off { color: #6B7280; }
+  #stripHotspots { color: #D97706; }
+  #stripRestrooms { color: #0284C7; }
+  #stripWx { color: #B45309; }
+
+  /* O'ng tomondagi dumaloq tugmalar */
+  #sideBtns {
+    position: absolute; right: 12px; top: 34%; z-index: 1000;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .side-btn {
+    width: 48px; height: 48px; border-radius: 50%;
+    background: rgba(31,41,55,0.92); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.14); color: #22D3EE;
+    font-size: 20px; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .side-btn:active { transform: scale(0.93); }
+  #layersBtn { color: #C084FC; }
+  #layersBtn.off { color: #6B7280; }
+
+  /* Pastki ETA kartalar */
+  #etaSection {
+    position: absolute; bottom: 0; left: 0; right: 0; z-index: 1000;
+    padding: 30px 12px calc(env(safe-area-inset-bottom) + 12px); pointer-events: none;
+    background: linear-gradient(to top, rgba(0,0,0,0.88) 58%, rgba(0,0,0,0));
+  }
+  #etaHead {
+    display: flex; align-items: baseline; justify-content: space-between;
+    padding: 0 4px 8px;
+  }
+  #etaTitle { font-size: 12px; font-weight: 800; letter-spacing: 1.2px; color: #E5E7EB; text-shadow: 0 1px 4px rgba(0,0,0,0.6); }
+  #autoStatus { font-size: 11px; font-weight: 700; color: #22D3EE; text-shadow: 0 1px 4px rgba(0,0,0,0.6); }
+  #autoStatus.stale { color: #FBBF24; }
+  #etaCards { display: flex; gap: 10px; pointer-events: auto; }
+  .etaCard {
+    position: relative; flex: 1; min-width: 0;
+    background: rgba(17,24,39,0.93); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    border: 1.5px solid #888; border-radius: 20px;
+    padding: 12px 6px 10px; text-align: center; cursor: pointer;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.45); user-select: none;
     -webkit-tap-highlight-color: transparent;
   }
-  .circleCard:active { transform: scale(0.96); }
-  .circleCard .code { font-size: 15px; font-weight: 900; }
-  .circleCard .time { color: #fff; font-size: 19px; font-weight: bold; margin: 1px 0; }
-  .circleCard .dist { color: #0A84FF; font-size: 13px; font-weight: 600; }
-  .circleCard .dist .u { color: #8E8E93; font-size: 11px; font-weight: normal; }
+  .etaCard:active { transform: scale(0.97); }
+  .etaCard.stale { opacity: 0.45; }
+  .etaCard.nearest {
+    border-width: 2px;
+    box-shadow: 0 0 18px color-mix(in srgb, var(--c) 55%, transparent), 0 6px 16px rgba(0,0,0,0.45);
+  }
+  .eta-ico {
+    width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 6px;
+    border: 2px solid #888; display: flex; align-items: center; justify-content: center; font-size: 18px;
+  }
+  .eta-code { font-size: 15px; font-weight: 900; letter-spacing: 0.4px; }
+  .eta-min { color: #fff; font-size: 26px; font-weight: 900; line-height: 1.15; }
+  .eta-min-u { font-size: 12px; font-weight: 600; color: #9CA3AF; margin-left: 2px; }
+  .eta-mi { color: #9CA3AF; font-size: 12px; font-weight: 600; margin: 1px 0 8px; }
+  .eta-go {
+    width: 100%; border-radius: 12px; padding: 8px 0;
+    font-size: 13px; font-weight: 900; letter-spacing: 1px; cursor: pointer;
+  }
+  .eta-go:active { transform: scale(0.96); }
 
-  /* Aeroport markeri */
+  /* Aeroport markeri (pin) */
   .airport-marker {
-    width: 34px; height: 34px; border-radius: 50%;
-    border: 2.5px solid #fff; color: #fff;
+    width: 56px; height: 56px; border-radius: 50%;
+    border: 3px solid #fff; color: #fff;
     display: flex; align-items: center; justify-content: center;
-    font-size: 10px; font-weight: 900; box-shadow: 0 2px 8px rgba(0,0,0,0.7);
+    font-size: 14px; font-weight: 900; letter-spacing: 0.3px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.45);
     cursor: pointer;
   }
-  /* MENU ekrani (kvadrat tugmalar) */
-  #menuScreen {
-    display: none; position: fixed; inset: 0; z-index: 2000;
-    background: rgba(10,10,12,0.98); overflow-y: auto;
-    padding: calc(env(safe-area-inset-top) + 14px) 14px 24px;
-  }
-  #menuScreen.open { display: block; }
-  #menuHead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-  #menuTitle { font-size: 20px; font-weight: 800; color: #fff; }
-  #menuClose {
-    width: 38px; height: 38px; border-radius: 50%; border: 1px solid #3A3A3C;
-    background: #1C1C1E; color: #fff; font-size: 16px; cursor: pointer;
-  }
-  #menuGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-  .menu-tile {
-    aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 8px; padding: 8px 6px; text-decoration: none; text-align: center;
-    background: #1C1C1E; border: 1px solid #3A3A3C; border-radius: 16px;
-  }
-  .menu-tile:active { background: #0A84FF; }
-  .mt-icon { font-size: 30px; line-height: 1; }
-  .mt-label { font-size: 11px; font-weight: 700; color: #fff; line-height: 1.25; }
   /* Uber Pro ballar oynasi (markazda) */
   #pointsModal {
     display: none; position: fixed; inset: 0; z-index: 2100;
@@ -144,7 +180,9 @@
   #pointsModal.open { display: flex; }
   .points-card {
     width: 100%; max-width: 380px; max-height: 85vh; overflow-y: auto;
-    background: #121212; border: 1px solid #3A3A3C; border-radius: 20px; padding: 16px;
+    background: rgba(17,24,39,0.96); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.12); border-radius: 22px; padding: 16px;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.6);
   }
   .points-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
   .points-title { font-size: 18px; font-weight: 800; color: #fff; }
@@ -153,7 +191,6 @@
     background: #1C1C1E; color: #fff; font-size: 14px; cursor: pointer;
   }
   #pointsState { font-size: 14px; font-weight: 800; margin-bottom: 6px; }
-  .head-left { display: flex; gap: 6px; align-items: center; flex: none; }
   .head-title { min-width: 0; }
   #title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   #pointsBtn {
@@ -188,15 +225,15 @@
   .p-row.now .p-now { display: inline; }
   .points-foot { font-size: 11px; color: #636366; line-height: 1.4; margin-top: 12px; }
 
-  /* Aeroport krugidagi + tugmasi (reyslar) */
+  /* Aeroport kartasidagi + tugmasi (reyslar) */
   .flightsBtn {
-    position: absolute; top: -11px; left: 50%; transform: translateX(-50%);
-    width: 32px; height: 32px; border-radius: 50%;
+    position: absolute; top: -9px; right: -7px;
+    width: 28px; height: 28px; border-radius: 50%;
     background: linear-gradient(135deg, #0A84FF, #30B0FF); color: #fff; border: 2px solid rgba(255,255,255,0.9);
-    font-size: 20px; font-weight: 900; line-height: 1; cursor: pointer; z-index: 2;
+    font-size: 17px; font-weight: 900; line-height: 1; cursor: pointer; z-index: 2;
     box-shadow: 0 2px 8px rgba(0,0,0,0.55);
   }
-  .flightsBtn:active { transform: translateX(-50%) scale(0.92); }
+  .flightsBtn:active { transform: scale(0.92); }
   /* Reyslar oynasi */
   #flightsModal {
     display: none; position: fixed; inset: 0; z-index: 2100;
@@ -263,25 +300,33 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.6); cursor: pointer;
   }
-  /* Foydalanuvchi nuqtasi */
+  /* Foydalanuvchi nuqtasi (pulsatsiyalanuvchi halo) */
   .user-dot {
-    width: 20px; height: 20px; border-radius: 50%;
+    position: relative; width: 20px; height: 20px; border-radius: 50%;
     background: #0A84FF; border: 3px solid #fff;
-    box-shadow: 0 0 0 6px rgba(10,132,255,0.3), 0 2px 8px rgba(0,0,0,0.6);
+    box-shadow: 0 0 0 5px rgba(10,132,255,0.3), 0 2px 8px rgba(0,0,0,0.6);
+  }
+  .user-dot::after {
+    content: ''; position: absolute; inset: -13px; border-radius: 50%;
+    border: 2px solid rgba(10,132,255,0.55); animation: pulse 2s ease-out infinite;
+  }
+  @keyframes pulse {
+    0% { transform: scale(0.55); opacity: 0.9; }
+    100% { transform: scale(1.45); opacity: 0; }
   }
 
-  /* Lokatsiya menyusi (tugmalar qatorida) */
-  #locationMenuWrap, #restroomMenuWrap { position: relative; pointer-events: auto; }
-  #locationMenu, #restroomMenu {
+  /* Restroom menyusi (suzuvchi panel) */
+  #restroomMenu {
     display: none; position: fixed; top: 120px; right: 8px;
-    width: 252px; padding: 6px; z-index: 1300;
-    background: rgba(18,18,18,0.97); border: 1px solid #3A3A3C;
-    border-radius: 14px; box-shadow: 0 8px 22px rgba(0,0,0,0.55);
-    max-height: 220px; overflow-y: auto;
+    width: min(300px, calc(100vw - 16px)); padding: 6px; z-index: 1300;
+    background: rgba(17,24,39,0.97); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px; box-shadow: 0 12px 28px rgba(0,0,0,0.5);
+    max-height: min(320px, 55vh); overflow-y: auto;
   }
-  #locationMenu.open, #restroomMenu.open { display: block; }
+  #restroomMenu.open { display: block; }
   @media (max-height: 520px) {
-    #locationMenu, #restroomMenu { max-height: 150px; }
+    #restroomMenu { max-height: 180px; }
   }
   .location-option {
     display: flex; align-items: center; gap: 6px;
@@ -307,6 +352,111 @@
   .loc-badge .v { color: #fff; font-size: 11px; font-weight: 800; line-height: 1; }
   .loc-badge .u { color: #8E8E93; font-size: 8px; font-weight: 600; margin-top: 1px; }
 
+  /* Yon menyu (drawer) */
+  #drawerOverlay {
+    position: fixed; inset: 0; z-index: 1900; background: rgba(0,0,0,0.5);
+    opacity: 0; pointer-events: none; transition: opacity 0.28s ease;
+  }
+  #drawerOverlay.open { opacity: 1; pointer-events: auto; }
+  #drawer {
+    position: fixed; top: 0; left: 0; bottom: 0; z-index: 2000;
+    width: min(320px, 78%); background: #0F1420;
+    transform: translateX(-102%); transition: transform 0.28s ease;
+    display: flex; flex-direction: column; overflow-y: auto;
+    padding: calc(env(safe-area-inset-top) + 18px) 16px calc(env(safe-area-inset-bottom) + 16px);
+    box-shadow: 8px 0 30px rgba(0,0,0,0.5);
+  }
+  #drawer.open { transform: translateX(0); }
+  .drawer-head { display: flex; align-items: center; gap: 12px; }
+  .drawer-logo {
+    width: 52px; height: 52px; border-radius: 50%; flex: none;
+    border: 2px solid #22D3EE; color: #22D3EE;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; font-weight: 900; letter-spacing: 0.5px;
+  }
+  .drawer-id { flex: 1; min-width: 0; }
+  .drawer-name { font-size: 16px; font-weight: 800; color: #fff; }
+  .drawer-status { font-size: 12px; font-weight: 700; color: #34D399; margin-top: 2px; }
+  #drawerClose {
+    flex: none; width: 34px; height: 34px; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06);
+    color: #fff; font-size: 14px; cursor: pointer;
+  }
+  .drawer-div { height: 1px; background: rgba(255,255,255,0.10); margin: 18px 0 4px; }
+  .drawer-nav { display: flex; flex-direction: column; gap: 4px; margin-top: 16px; }
+  .drawer-item {
+    display: flex; align-items: center; gap: 12px; width: 100%;
+    padding: 13px 12px; background: transparent; border: 1px solid transparent;
+    color: #E5E7EB; font-size: 15px; font-weight: 600; border-radius: 12px;
+    cursor: pointer; text-align: left;
+  }
+  .drawer-item:active { background: rgba(255,255,255,0.06); }
+  .drawer-item.active { background: rgba(14,165,233,0.15); color: #38BDF8; border-color: rgba(14,165,233,0.35); }
+  .drawer-sec {
+    margin: 18px 0 8px; font-size: 11px; font-weight: 800;
+    letter-spacing: 1.2px; text-transform: uppercase; color: #6B7280;
+  }
+  /* Drawer ichidagi saqlangan joylar ro'yxati */
+  #drawer #locationMenu { display: block; position: static; width: auto; padding: 0; background: transparent; border: none; box-shadow: none; max-height: none; overflow: visible; }
+  .drawer-links { display: flex; flex-direction: column; gap: 6px; }
+  .drawer-link {
+    display: flex; align-items: center; gap: 10px; padding: 11px 12px;
+    color: #fff; text-decoration: none; font-size: 13px; font-weight: 700;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;
+  }
+  .drawer-link:active { background: rgba(14,165,233,0.15); }
+  .drawer-link .dl-ico { font-size: 16px; }
+  .drawer-foot {
+    margin-top: auto; padding-top: 18px;
+  }
+  .drawer-foot-card {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px; padding: 13px; text-align: center;
+  }
+  .drawer-foot-name { font-size: 14px; font-weight: 800; color: #fff; }
+  .drawer-foot-ver { font-size: 12px; color: #9CA3AF; margin-top: 3px; }
+
+  /* Toast (kichik xabar) */
+  #toast {
+    position: fixed; left: 50%; bottom: 240px; z-index: 3000;
+    transform: translateX(-50%) translateY(8px);
+    background: rgba(17,24,39,0.96); color: #fff; font-size: 13px; font-weight: 700;
+    padding: 11px 18px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.14);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5); opacity: 0; pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease; white-space: nowrap; max-width: 92vw;
+    overflow: hidden; text-overflow: ellipsis;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* Sozlamalar oynasi */
+  #settingsModal {
+    display: none; position: fixed; inset: 0; z-index: 2100;
+    background: rgba(0,0,0,0.72);
+    align-items: center; justify-content: center; padding: 16px;
+  }
+  #settingsModal.open { display: flex; }
+  #settingsClose {
+    width: 34px; height: 34px; border-radius: 50%; border: 1px solid #3A3A3C;
+    background: #1C1C1E; color: #fff; font-size: 14px; cursor: pointer;
+  }
+  .set-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    background: #1C1C1E; border: 1px solid #3A3A3C; border-radius: 12px;
+    padding: 11px 12px; margin: 6px 0;
+  }
+  .set-label { font-size: 14px; font-weight: 700; color: #fff; }
+  .set-toggle {
+    flex: none; min-width: 56px; border-radius: 999px; padding: 7px 12px;
+    font-size: 12px; font-weight: 900; cursor: pointer;
+    background: #2C2C2E; color: #8E8E93; border: 1px solid #3A3A3C;
+  }
+  .set-toggle.on { background: rgba(48,209,88,0.2); color: #30D158; border-color: #30D158; }
+  .wx-btn {
+    background: #0A84FF; color: #fff; border: none; border-radius: 12px;
+    padding: 11px 14px; font-size: 14px; font-weight: 800; cursor: pointer;
+  }
+  .wx-btn:active { opacity: 0.85; }
+
 </style>
 </head>
 <body>
@@ -321,63 +471,100 @@
 
 <div id="topbar">
   <div id="header">
-    <div class="head-left">
-      <button id="menuBtn">☰ MENU</button>
-      <button id="pointsBtn" title="Uber Pro ballar">⭐ <span id="pointsNum">--</span></button>
-    </div>
+    <button id="menuBtn" aria-label="Menyu">☰</button>
     <div class="head-title">
-      <div id="title">NYC RADAR 🚕</div>
+      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.0</span></div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
-      <div id="ver">v2.15</div>
-      <div id="upd"></div>
     </div>
+    <button id="pointsBtn" title="Uber Pro ballar">⭐ <span id="pointsNum">--</span>.0</button>
     <div id="speedBadge">
-      <span class="num" id="speedNum">0</span> <span class="unit">mph</span>
+      <span class="num" id="speedNum">0</span>
+      <span class="unit">MPH</span>
       <div class="warn">LIMIT 30!</div>
     </div>
   </div>
-  <div id="btnRow">
-    <div class="btnCol">
-      <button id="recenter">🌐</button>
-      <button id="weatherBtn" aria-label="Ob-havo">🌤️</button>
-      <button id="chargeBtn" aria-label="Tesla zaryadlash">⚡</button>
-    </div>
-    <button id="trafficToggle">🚦 TRAFFIC: ON</button>
-    <div id="locationMenuWrap">
-      <button id="locationMenuToggle" aria-expanded="false" aria-controls="locationMenu">☰ LOCATIONS</button>
-      <div id="locationMenu">
-        <button class="location-option" data-location="2"><span class="loc-main"><span class="loc-name">Office 40w St</span><span class="loc-addr">360 W 40th St, New York, NY 10018</span></span><span class="loc-badges"><span class="loc-badge"><span class="v" id="locmi-2">--</span><span class="u">mi</span></span><span class="loc-badge min"><span class="v" id="locmin-2">--</span><span class="u">min</span></span></span></button>
-        <button class="location-option" data-location="3"><span class="loc-main"><span class="loc-name">Office 10e St</span><span class="loc-addr">277 E 10th St, New York, NY 10009</span></span><span class="loc-badges"><span class="loc-badge"><span class="v" id="locmi-3">--</span><span class="u">mi</span></span><span class="loc-badge min"><span class="v" id="locmin-3">--</span><span class="u">min</span></span></span></button>
-        <button class="location-option" data-location="4"><span class="loc-main"><span class="loc-name">Virgin Hotel</span><span class="loc-addr">1227 Broadway, New York, NY 10001</span></span><span class="loc-badges"><span class="loc-badge"><span class="v" id="locmi-4">--</span><span class="u">mi</span></span><span class="loc-badge min"><span class="v" id="locmin-4">--</span><span class="u">min</span></span></span></button>
-        <button class="location-option" data-location="5"><span class="loc-main"><span class="loc-name">Times square</span><span class="loc-addr">Times Square, Manhattan, NY</span></span><span class="loc-badges"><span class="loc-badge"><span class="v" id="locmi-5">--</span><span class="u">mi</span></span><span class="loc-badge min"><span class="v" id="locmin-5">--</span><span class="u">min</span></span></span></button>
-        <button class="location-option" data-location="6"><span class="loc-main"><span class="loc-name">Exit 13</span><span class="loc-addr">1689 Remsen Ave, Brooklyn, NY 11236</span></span><span class="loc-badges"><span class="loc-badge"><span class="v" id="locmi-6">--</span><span class="u">mi</span></span><span class="loc-badge min"><span class="v" id="locmin-6">--</span><span class="u">min</span></span></span></button>
-      </div>
-    </div>
-    <div id="restroomMenuWrap">
-      <button id="restroomMenuToggle" aria-expanded="false" aria-controls="restroomMenu">🚻 RESTROOM</button>
-      <div id="restroomMenu"></div>
-    </div>
+  <div id="statusStrip">
+    <button class="strip-pill" id="stripTraffic">🚦 Traffic: ON</button>
+    <button class="strip-pill" id="stripHotspots">⚡ Hotspots</button>
+    <button class="strip-pill" id="stripRestrooms">🚻 Restrooms</button>
+    <button class="strip-pill" id="stripWx">🌙 —°F</button>
   </div>
 </div>
 
-<div id="bottombar"></div>
+<div id="sideBtns">
+  <button class="side-btn" id="recenter" aria-label="Markazlash">🎯</button>
+  <button class="side-btn" id="layersBtn" aria-label="Traffic qatlam">🗂️</button>
+</div>
 
-<div id="menuScreen">
-  <div id="menuHead">
-    <span id="menuTitle">MENU</span>
-    <button id="menuClose" aria-label="Yopish">✕</button>
+<div id="restroomMenu"></div>
+
+<div id="etaSection">
+  <div id="etaHead">
+    <span id="etaTitle">LIVE AIRPORT &amp; HOME ETAS</span>
+    <span id="autoStatus">● Auto Updating</span>
   </div>
-  <div id="menuGrid">
-    <a class="menu-tile" href="https://dmv.ny.gov/mydmv/sign-in-to-mydmv" target="_blank" rel="noopener"><span class="mt-icon">🪪</span><span class="mt-label">Driver License Tekshirish</span></a>
-    <a class="menu-tile" href="https://www.nyc.gov/site/finance/vehicles/vehicles.page" target="_blank" rel="noopener"><span class="mt-icon">💳</span><span class="mt-label">Ticket Tolash</span></a>
-    <a class="menu-tile" href="https://www.howsmydrivingny.nyc/" target="_blank" rel="noopener"><span class="mt-icon">🔍</span><span class="mt-label">Plate Ticket Tekshirish</span></a>
-    <a class="menu-tile" href="https://www.nyc.gov/site/tlc/drivers/check-license-status.page" target="_blank" rel="noopener"><span class="mt-icon">🚕</span><span class="mt-label">TLC Plate Tekshirish</span></a>
-    <a class="menu-tile" href="https://a156-nauf.nyc.gov/tlcup/" target="_blank" rel="noopener"><span class="mt-icon">🏛️</span><span class="mt-label">TLC UP Portal</span></a>
-    <a class="menu-tile" href="https://apps.nyc.gov/lars/" target="_blank" rel="noopener"><span class="mt-icon">🔄</span><span class="mt-label">TLC LARS Portal</span></a>
-    <a class="menu-tile" href="https://dmv.ny.gov/points-and-penalties/the-new-york-state-driver-point-system" target="_blank" rel="noopener"><span class="mt-icon">⭐</span><span class="mt-label">Pointlar Ro'yxati</span></a>
-    <a class="menu-tile" href="https://www.nyc.gov/site/finance/vehicles/dispute-a-ticket.page" target="_blank" rel="noopener"><span class="mt-icon">⚖️</span><span class="mt-label">Ticket Dispute</span></a>
-    <a class="menu-tile" href="https://nycserv.nyc.gov/NYCServWeb/PVO_Find_Towed_Vehicle.jsp" target="_blank" rel="noopener"><span class="mt-icon">🚗</span><span class="mt-label">Towing Car Location</span></a>
-    <a class="menu-tile" href="https://nyctmc.org/" target="_blank" rel="noopener"><span class="mt-icon">📹</span><span class="mt-label">Webcamera Live New York</span></a>
+  <div id="etaCards"></div>
+</div>
+
+<div id="drawerOverlay"></div>
+<aside id="drawer">
+  <div class="drawer-head">
+    <div class="drawer-logo">TLC</div>
+    <div class="drawer-id">
+      <div class="drawer-name">NYC Driver Pro</div>
+      <div class="drawer-status">● Active Online</div>
+    </div>
+    <button id="drawerClose" aria-label="Yopish">✕</button>
+  </div>
+  <nav class="drawer-nav">
+    <button class="drawer-item active" id="drawerRadar">🗺️ Live Radar Map</button>
+    <button class="drawer-item" id="drawerSurge">📈 Surge &amp; Demand Heatmap</button>
+    <button class="drawer-item" id="drawerQueue">✈️ Airport Queue Tracker</button>
+    <button class="drawer-item" id="drawerSettings">⚙️ Settings &amp; Preferences</button>
+  </nav>
+  <div class="drawer-sec">Saqlangan joylar</div>
+  <div id="locationMenu">
+    <button class="location-option" data-location="2"><span class="loc-main"><span class="loc-name">Office 40w St</span><span class="loc-addr">360 W 40th St, New York, NY 10018</span></span><span class="loc-badges"><span class="loc-badge"><span class="v" id="locmi-2">--</span><span class="u">mi</span></span><span class="loc-badge min"><span class="v" id="locmin-2">--</span><span class="u">min</span></span></span></button>
+    <button class="location-option" data-location="3"><span class="loc-main"><span class="loc-name">Office 10e St</span><span class="loc-addr">277 E 10th St, New York, NY 10009</span></span><span class="loc-badges"><span class="loc-badge"><span class="v" id="locmi-3">--</span><span class="u">mi</span></span><span class="loc-badge min"><span class="v" id="locmin-3">--</span><span class="u">min</span></span></span></button>
+    <button class="location-option" data-location="4"><span class="loc-main"><span class="loc-name">Virgin Hotel</span><span class="loc-addr">1227 Broadway, New York, NY 10001</span></span><span class="loc-badges"><span class="loc-badge"><span class="v" id="locmi-4">--</span><span class="u">mi</span></span><span class="loc-badge min"><span class="v" id="locmin-4">--</span><span class="u">min</span></span></span></button>
+    <button class="location-option" data-location="5"><span class="loc-main"><span class="loc-name">Times square</span><span class="loc-addr">Times Square, Manhattan, NY</span></span><span class="loc-badges"><span class="loc-badge"><span class="v" id="locmi-5">--</span><span class="u">mi</span></span><span class="loc-badge min"><span class="v" id="locmin-5">--</span><span class="u">min</span></span></span></button>
+    <button class="location-option" data-location="6"><span class="loc-main"><span class="loc-name">Exit 13</span><span class="loc-addr">1689 Remsen Ave, Brooklyn, NY 11236</span></span><span class="loc-badges"><span class="loc-badge"><span class="v" id="locmi-6">--</span><span class="u">mi</span></span><span class="loc-badge min"><span class="v" id="locmin-6">--</span><span class="u">min</span></span></span></button>
+  </div>
+  <div class="drawer-div"></div>
+  <div class="drawer-sec">Tezkor havolalar</div>
+  <div class="drawer-links">
+    <a class="drawer-link" href="https://dmv.ny.gov/mydmv/sign-in-to-mydmv" target="_blank" rel="noopener"><span class="dl-ico">🪪</span>Driver License Tekshirish</a>
+    <a class="drawer-link" href="https://www.nyc.gov/site/finance/vehicles/vehicles.page" target="_blank" rel="noopener"><span class="dl-ico">💳</span>Ticket Tolash</a>
+    <a class="drawer-link" href="https://www.howsmydrivingny.nyc/" target="_blank" rel="noopener"><span class="dl-ico">🔍</span>Plate Ticket Tekshirish</a>
+    <a class="drawer-link" href="https://www.nyc.gov/site/tlc/drivers/check-license-status.page" target="_blank" rel="noopener"><span class="dl-ico">🚕</span>TLC Plate Tekshirish</a>
+    <a class="drawer-link" href="https://a156-nauf.nyc.gov/tlcup/" target="_blank" rel="noopener"><span class="dl-ico">🏛️</span>TLC UP Portal</a>
+    <a class="drawer-link" href="https://apps.nyc.gov/lars/" target="_blank" rel="noopener"><span class="dl-ico">🔄</span>TLC LARS Portal</a>
+    <a class="drawer-link" href="https://dmv.ny.gov/points-and-penalties/the-new-york-state-driver-point-system" target="_blank" rel="noopener"><span class="dl-ico">⭐</span>Pointlar Ro'yxati</a>
+    <a class="drawer-link" href="https://www.nyc.gov/site/finance/vehicles/dispute-a-ticket.page" target="_blank" rel="noopener"><span class="dl-ico">⚖️</span>Ticket Dispute</a>
+    <a class="drawer-link" href="https://nycserv.nyc.gov/NYCServWeb/PVO_Find_Towed_Vehicle.jsp" target="_blank" rel="noopener"><span class="dl-ico">🚗</span>Towing Car Location</a>
+    <a class="drawer-link" href="https://nyctmc.org/" target="_blank" rel="noopener"><span class="dl-ico">📹</span>Webcamera Live New York</a>
+  </div>
+  <div class="drawer-foot">
+    <div class="drawer-foot-card">
+      <div class="drawer-foot-name">NYC TLC Driver</div>
+      <div class="drawer-foot-ver" id="drawerVer">v3.0</div>
+    </div>
+  </div>
+</aside>
+
+<div id="toast"></div>
+
+<div id="settingsModal">
+  <div class="points-card">
+    <div class="points-head">
+      <span class="points-title">⚙️ Sozlamalar</span>
+      <button id="settingsClose" aria-label="Yopish">✕</button>
+    </div>
+    <div class="set-row"><span class="set-label">🚦 Traffic qatlami</span><button class="set-toggle on" id="setTraffic" role="switch" aria-checked="true">ON</button></div>
+    <div class="set-row"><span class="set-label">⚠️ Tezlik ogohlantirishi</span><button class="set-toggle on" id="setSpeedWarn" role="switch" aria-checked="true">ON</button></div>
+    <div class="set-row"><span class="set-label">🔄 Avtomatik yangilash</span><button class="set-toggle on" id="setAutoUpd" role="switch" aria-checked="true">ON</button></div>
+    <button id="settingsRefresh" class="wx-btn" style="width:100%;margin-top:12px">🔄 Yangilash</button>
+    <p class="points-foot">Versiya: <span id="settingsVer">v3.0</span></p>
   </div>
 </div>
 
@@ -443,13 +630,13 @@
 <script src="vendor/leaflet.js"></script>
 <script>
   const AIRPORTS = [
-    { id: '1', name: 'JFK Airport',     code: 'JFK', lat: 40.6413, lon: -73.7781, color: '#FF9500' },
-    { id: '2', name: 'LaGuardia',       code: 'LGA', lat: 40.7769, lon: -73.8740, color: '#30D158' },
-    { id: '3', name: 'Newark Liberty',  code: 'EWR', lat: 40.6895, lon: -74.1745, color: '#BF5AF2' },
+    { id: '1', name: 'JFK Airport',     code: 'JFK', lat: 40.6413, lon: -73.7781, color: '#F59E0B' },
+    { id: '2', name: 'LaGuardia',       code: 'LGA', lat: 40.7769, lon: -73.8740, color: '#10B981' },
+    { id: '3', name: 'Newark Liberty',  code: 'EWR', lat: 40.6895, lon: -74.1745, color: '#A855F7' },
   ];
 
-  // Uy — pastda aeroportlar qatorida 4-krug bo'lib chiqadi (LOCATIONS menyusida emas).
-  const HOME = { id: 'home', name: 'Go Home', code: 'HOME', lat: 40.5985, lon: -73.9965, color: '#FFD60A' };
+  // Uy — pastda aeroportlar qatorida 4-karta bo'lib chiqadi (LOCATIONS menyusida emas).
+  const HOME = { id: 'home', name: 'Go Home', code: 'HOME', lat: 40.5985, lon: -73.9965, color: '#0EA5E9' };
   const ROUTE_TARGETS = AIRPORTS.concat([HOME]);
 
   // Ob-havo (Open-Meteo, kalitsiz)
@@ -538,21 +725,20 @@
     window.location.href = url;
   }
 
+  // Sozlamalar (localStorage da saqlanadi)
+  const SETTINGS_KEY = 'radarSettingsV1';
+  let settings = { traffic: true, speedWarn: true, autoUpdate: true };
+  try {
+    const savedSet = JSON.parse(localStorage.getItem(SETTINGS_KEY) || 'null');
+    if (savedSet) settings = { traffic: true, speedWarn: true, autoUpdate: true, ...savedSet };
+  } catch (e) {}
+  function saveSettings() {
+    try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch (e) {}
+  }
+
   function initLocationMenu() {
-    const toggle = document.getElementById('locationMenuToggle');
-    const menu = document.getElementById('locationMenu');
-    toggle.addEventListener('click', () => {
-      const isOpen = menu.classList.toggle('open');
-      toggle.setAttribute('aria-expanded', String(isOpen));
-      if (isOpen) placeMenuUnderButton(menu, toggle);
-      const rm = document.getElementById('restroomMenu');
-      const rmWasOpen = rm && rm.classList.contains('open');
-      if (rm) rm.classList.remove('open');
-      syncRestroomMarkers(false);
-      if (rmWasOpen) restoreSavedView();
-      syncLocationMarkers(isOpen);
-    });
-    document.querySelectorAll('.location-option').forEach(button => {
+    // Saqlangan joylar ro'yxati drawer ichida turadi — bosilsa navigatsiya ochiladi
+    document.querySelectorAll('#locationMenu .location-option').forEach(button => {
       button.addEventListener('click', () => {
         const location = SAVED_LOCATIONS.find(item => item.id === Number(button.dataset.location));
         if (location) openLocationNavigation(location);
@@ -564,7 +750,7 @@
   const TOMTOM_KEY = _tk[0] + _tk[1];
 
   let map, userMarker, autoZoom = true;
-  let trafficLayer = null, trafficOn = true;
+  let trafficLayer = null, trafficOn = settings.traffic;
   let userLat = null, userLon = null;
   let lastRouteFetch = 0, lastFetchLat = null, lastFetchLon = null;
   const routeLines = {};
@@ -611,26 +797,47 @@
     if (!force && now - lastQuotaPaint < 1500) return;
     lastQuotaPaint = now;
     const left = Math.max(0, TT_DAILY_LIMIT - ttUsage.routing - ttUsage.tiles);
-    const ver = document.getElementById('ver');
-    if (ver) ver.textContent = 'v2.15.' + left;
+    const dv = document.getElementById('drawerVer');
+    if (dv) dv.textContent = 'v3.0.' + left;
+    const sv = document.getElementById('settingsVer');
+    if (sv) sv.textContent = 'v3.0.' + left;
     checkStale();
   }
 
   // Ma'lumot 3 daqiqadan eski bo'lsa kartalar xiralashadi va ogohlantirish chiqadi
   function checkStale() {
-    const upd = document.getElementById('upd');
-    if (!upd) return;
+    const auto = document.getElementById('autoStatus');
     const stale = !!lastRouteSuccess && (Date.now() - lastRouteSuccess > 180000);
-    document.querySelectorAll('.circleCard').forEach(c => c.classList.toggle('stale', stale));
-    upd.textContent = stale ? '⚠ Eski ma\'lumot' : '';
+    document.querySelectorAll('.etaCard').forEach(c => c.classList.toggle('stale', stale));
+    if (auto) {
+      auto.textContent = stale ? '⚠ Eski ma\'lumot' : '● Auto Updating';
+      auto.classList.toggle('stale', stale);
+    }
   }
 
   function updateTrafficLabel() {
-    const b = document.getElementById('trafficToggle');
-    if (!b) return;
-    let label = trafficOn ? '🚦 TRAFFIC: ON' : '🚦 TRAFFIC: OFF';
-    if (trafficOn && (routeDegraded || tileDegraded)) label += ' ⚠';
-    b.textContent = label;
+    const strip = document.getElementById('stripTraffic');
+    if (strip) {
+      let label = trafficOn ? '🚦 Traffic: ON' : '🚦 Traffic: OFF';
+      if (trafficOn && (routeDegraded || tileDegraded)) label += ' ⚠';
+      strip.textContent = label;
+      strip.classList.toggle('off', !trafficOn);
+    }
+    const layers = document.getElementById('layersBtn');
+    if (layers) layers.classList.toggle('off', !trafficOn);
+  }
+
+  // Traffic qatlamni yoqish/o'chirish (strip pill, layers tugma va sozlamadan chaqiriladi)
+  function toggleTraffic() {
+    trafficOn = !trafficOn;
+    if (map && trafficLayer) {
+      if (trafficOn) trafficLayer.addTo(map); else map.removeLayer(trafficLayer);
+    }
+    updateTrafficLabel();
+    lastRstFetch = 0;
+    refreshRoutes(true);
+    const rm = document.getElementById('restroomMenu');
+    if (rm && rm.classList.contains('open')) refreshRestroomRoutes();
   }
 
   // Menyu o'z tugmasining tagidan ochiladi (har qanday ekranda tugmalarni yopmaydi)
@@ -848,8 +1055,9 @@
   // Restroom ochilganda xarita foydalanuvchi atrofida ~0.5 mile radiusga yaqinlashadi
   function zoomToUserHalfMile() {
     if (!map || userLat === null) return;
-    const b = L.circle([userLat, userLon], { radius: 805 }).getBounds();
-    map.fitBounds(b, { paddingTopLeft: [30, 120], paddingBottomRight: [30, 130] });
+    const dLat = 805 / 111320;
+    const dLon = 805 / (111320 * Math.cos(userLat * Math.PI / 180));
+    map.fitBounds([[userLat - dLat, userLon - dLon], [userLat + dLat, userLon + dLon]], { paddingTopLeft: [30, 130], paddingBottomRight: [30, 250] });
   }
 
   // Locations menyusi ochiq paytda uning metkalari ham ko'rinadi
@@ -934,15 +1142,13 @@
   }
 
   function initRestroomMenu() {
-    const toggle = document.getElementById('restroomMenuToggle');
+    const toggle = document.getElementById('stripRestrooms');
     const menu = document.getElementById('restroomMenu');
     toggle.addEventListener('click', () => {
       const isOpen = menu.classList.toggle('open');
-      toggle.setAttribute('aria-expanded', String(isOpen));
-      if (isOpen) placeMenuUnderButton(menu, toggle);
-      document.getElementById('locationMenu').classList.remove('open');
       syncLocationMarkers(false);
       if (isOpen) {
+        placeMenuUnderButton(menu, toggle);
         restroomVisibleCount = 5;
         if (map) savedView = { center: map.getCenter(), zoom: map.getZoom() };
         zoomToUserHalfMile();
@@ -964,18 +1170,18 @@
       if (res) {
         anyOk = true;
         if (res.src === 'osrm') sawFallback = true;
-        airportInfo[airport.id] = { dist: res.distanceMiles, time: res.durationText };
+        airportInfo[airport.id] = { dist: res.distanceMiles, time: res.durationText, mins: res.durationMins };
         if (routeLines[airport.id]) {
           routeLines[airport.id].setLatLngs(res.points);
         } else {
-          routeLines[airport.id] = L.polyline(res.points, { color: airport.color, weight: 4.5 }).addTo(map);
+          routeLines[airport.id] = L.polyline(res.points, { color: airport.color, weight: 6 }).addTo(map);
         }
         updateCard(airport);
       }
     }
     routeDegraded = sawFallback;
     updateTrafficLabel();
-    if (anyOk) { lastRouteSuccess = Date.now(); checkStale(); }
+    if (anyOk) { lastRouteSuccess = Date.now(); checkStale(); highlightNearest(); }
     // Lokatsiyalar sekinroq yangilanadi: har 2 daqiqada, 300 m harakatda yoki majburan (toggle bosilganda)
     const nowL = Date.now();
     let locMoved = Infinity;
@@ -984,9 +1190,9 @@
       const dLonL = (userLon - lastLocLon) * 85000;
       locMoved = Math.sqrt(dLatL * dLatL + dLonL * dLonL);
     }
-    // Menyu yopiq bo'lsa lokatsiyalar sekinroq (5 daq) yangilanadi — limit tejaladi
-    const locMenuEl = document.getElementById('locationMenu');
-    const locInterval = (locMenuEl && locMenuEl.classList.contains('open')) ? 120000 : 300000;
+    // Menyu (drawer) ochiq bo'lsa lokatsiyalar sekinroq (5 daq) yangilanadi — limit tejaladi
+    const drawerEl = document.getElementById('drawer');
+    const locInterval = (drawerEl && drawerEl.classList.contains('open')) ? 120000 : 300000;
     if (force || nowL - lastLocFetch > locInterval || (locMoved > 500 && nowL - lastLocFetch > 60000)) {
       refreshLocationRoutes();
     }
@@ -997,15 +1203,31 @@
   function fitAll() {
     if (!map || userLat === null || !autoZoom) return;
     const pts = [[userLat, userLon], ...AIRPORTS.map(a => [a.lat, a.lon])];
-    map.fitBounds(L.latLngBounds(pts), { paddingTopLeft: [45, 130], paddingBottomRight: [45, 170] });
+    map.fitBounds(L.latLngBounds(pts), { paddingTopLeft: [45, 140], paddingBottomRight: [45, 250] });
   }
 
   function updateCard(airport) {
-    const info = airportInfo[airport.id] || { dist: '--', time: '--' };
+    const info = airportInfo[airport.id] || { dist: '--', mins: null };
     const el = document.getElementById('time-' + airport.id);
     const dl = document.getElementById('dist-' + airport.id);
-    if (el) el.textContent = info.time;
-    if (dl) dl.innerHTML = `${info.dist} <span class="u">mi</span>`;
+    if (el) el.textContent = (typeof info.mins === 'number') ? info.mins : '—';
+    if (dl) dl.textContent = (info.dist && info.dist !== '--') ? info.dist + ' mi' : '—';
+  }
+
+  // Eng yaqin (eng kam daqiqali) kartani ajratib ko'rsatish
+  function highlightNearest() {
+    let best = null, bestMins = Infinity;
+    ROUTE_TARGETS.forEach(a => {
+      const info = airportInfo[a.id];
+      if (info && typeof info.mins === 'number' && info.mins < bestMins) { bestMins = info.mins; best = a.id; }
+    });
+    document.querySelectorAll('.etaCard').forEach(c => c.classList.toggle('nearest', best !== null && c.dataset.id === best));
+  }
+
+  // HEX rang -> rgba
+  function hexA(hex, alpha) {
+    const n = parseInt(hex.slice(1), 16);
+    return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + alpha + ')';
   }
 
   // Hozirgi vaqt bo'yicha nechta ball berilishi
@@ -1057,16 +1279,22 @@
   }
 
   function buildCards() {
-    const bar = document.getElementById('bottombar');
+    const wrap = document.getElementById('etaCards');
+    const icons = { '1': '🛫', '2': '✈️', '3': '🛬', 'home': '🏠' };
     ROUTE_TARGETS.forEach(a => {
       const card = document.createElement('div');
-      card.className = 'circleCard';
+      card.className = 'etaCard';
+      card.dataset.id = a.id;
+      card.style.setProperty('--c', a.color);
       card.style.borderColor = a.color;
       card.innerHTML = `
-        <div class="code" style="color:${a.color}">${a.code}</div>
-        <div class="time" id="time-${a.id}">--</div>
-        <div class="dist" id="dist-${a.id}">-- <span class="u">mi</span></div>`;
+        <div class="eta-ico" style="border-color:${a.color};color:${a.color};background:${hexA(a.color, 0.14)}">${icons[a.id] || '✈️'}</div>
+        <div class="eta-code" style="color:${a.color}">${a.code}</div>
+        <div class="eta-min"><span id="time-${a.id}">—</span><span class="eta-min-u">min</span></div>
+        <div class="eta-mi" id="dist-${a.id}">—</div>
+        <button class="eta-go" style="background:${hexA(a.color, 0.22)};color:${a.color};border-color:${hexA(a.color, 0.55)}">GO</button>`;
       card.addEventListener('click', () => openNavigation(a));
+      card.querySelector('.eta-go').addEventListener('click', e => { e.stopPropagation(); openNavigation(a); });
       if (a.id !== 'home') {
         const fb = document.createElement('button');
         fb.className = 'flightsBtn';
@@ -1075,7 +1303,7 @@
         fb.addEventListener('click', e => { e.stopPropagation(); showFlights(a); });
         card.appendChild(fb);
       }
-      bar.appendChild(card);
+      wrap.appendChild(card);
     });
   }
 
@@ -1157,6 +1385,15 @@
     return data;
   }
 
+  // Status strip'dagi harorat pill'ini yangilash
+  function updateStripWx(tempF) {
+    const el = document.getElementById('stripWx');
+    if (!el) return;
+    const h = new Date().getHours();
+    const ico = (h >= 6 && h < 20) ? '☀️' : '🌙';
+    el.textContent = ico + ' ' + Math.round(tempF) + '°F';
+  }
+
   async function showWeather() {
     const modal = document.getElementById('weatherModal');
     const body = document.getElementById('weatherBody');
@@ -1164,6 +1401,7 @@
     body.innerHTML = '<p class="points-note">Yuklanmoqda...</p>';
     try {
       const data = await fetchWeather();
+      updateStripWx(data.mine.current.temperature_2m);
       const c = data.mine.current;
       const w = WMO[c.weather_code] || ['🌡️', ''];
       let html = '<div class="wx-big">' + Math.round(c.temperature_2m) + '°F <span style="font-size:16px;color:#B8B8BD">(' + f2c(c.temperature_2m) + '°C)</span></div>'
@@ -1322,53 +1560,54 @@
   }
 
   function initMap() {
-    map = L.map('map', { zoomControl: false, attributionControl: true, maxZoom: 16, minZoom: 10 });
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
-      attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
-      maxZoom: 16,
+    map = L.map('map', { zoomControl: false, attributionControl: true, maxZoom: 18, minZoom: 10 });
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      subdomains: 'abcd',
+      maxZoom: 19,
     }).addTo(map);
     map.setView([40.7308, -73.9973], 11);
 
     AIRPORTS.forEach(a => {
       const icon = L.divIcon({
         className: '',
-        html: `<div class="airport-marker" style="background:${a.color}">${a.code}</div>`,
-        iconSize: [34, 34], iconAnchor: [17, 17],
+        html: `<div class="airport-marker" style="background:${a.color};box-shadow:0 0 16px ${hexA(a.color, 0.55)}, 0 2px 10px rgba(0,0,0,0.45)">${a.code}</div>`,
+        iconSize: [56, 56], iconAnchor: [28, 28],
       });
       const marker = L.marker([a.lat, a.lon], { icon }).addTo(map);
-      marker.bindTooltip(`<b>${a.code} Terminal</b><br>Rideshare Pickup Zone`, { direction: 'top', offset: [0, -18] });
-      marker.on('click', () => openNavigation(a));
-      L.circle([a.lat, a.lon], {
-        radius: 4828, color: a.color, weight: 1.5,
-        fillColor: a.color, fillOpacity: 0.1,
-      }).addTo(map);
+      marker.bindTooltip(`<b>${a.code} Terminal</b><br>Rideshare Pickup Zone`, { direction: 'top', offset: [0, -30] });
+      marker.on('click', () => showFlights(a));
     });
 
     const homeIcon = L.divIcon({
       className: '',
-      html: `<div class="airport-marker" style="background:${HOME.color}">🏠</div>`,
-      iconSize: [34, 34], iconAnchor: [17, 17],
+      html: `<div class="airport-marker" style="background:${HOME.color};box-shadow:0 0 16px ${hexA(HOME.color, 0.55)}, 0 2px 10px rgba(0,0,0,0.45)">HOME</div>`,
+      iconSize: [56, 56], iconAnchor: [28, 28],
     });
     const homeMarker = L.marker([HOME.lat, HOME.lon], { icon: homeIcon }).addTo(map);
-    homeMarker.bindTooltip('<b>Go Home</b>', { direction: 'top', offset: [0, -18] });
+    homeMarker.bindTooltip('<b>Go Home</b>', { direction: 'top', offset: [0, -30] });
     homeMarker.on('click', () => openNavigation(HOME));
 
     document.getElementById('recenter').addEventListener('click', () => {
       autoZoom = true;
       fitAll();
     });
-    document.getElementById('weatherBtn').addEventListener('click', () => {
-      showWeather();
-    });
-    document.getElementById('chargeBtn').addEventListener('click', () => {
+    document.getElementById('layersBtn').addEventListener('click', toggleTraffic);
+    document.getElementById('stripTraffic').addEventListener('click', toggleTraffic);
+    document.getElementById('stripHotspots').addEventListener('click', () => {
       showChargers();
+    });
+    document.getElementById('stripWx').addEventListener('click', () => {
+      showWeather();
     });
 
     // --- TomTom jonli tirbandlik qatlami (relative flow) ---
     trafficLayer = L.tileLayer(
       'https://api.tomtom.com/traffic/map/4/tile/flow/relative0/{z}/{x}/{y}.png?key=' + TOMTOM_KEY,
       { maxZoom: 22, opacity: 0.95, attribution: '&copy; TomTom' }
-    ).addTo(map);
+    );
+    if (trafficOn) trafficLayer.addTo(map);
+    updateTrafficLabel();
     let tileErrCount = 0;
     trafficLayer.on('tileerror', () => {
       tileErrCount++;
@@ -1377,18 +1616,6 @@
     trafficLayer.on('tileload', () => {
       ttCount('tiles');
       if (tileErrCount > 0) { tileErrCount = 0; if (tileDegraded) { tileDegraded = false; updateTrafficLabel(); } }
-    });
-
-    const tBtn = document.getElementById('trafficToggle');
-    tBtn.addEventListener('click', () => {
-      trafficOn = !trafficOn;
-      if (trafficOn) { trafficLayer.addTo(map); } else { map.removeLayer(trafficLayer); }
-      updateTrafficLabel();
-      tBtn.classList.toggle('off', !trafficOn);
-      lastRstFetch = 0;
-      refreshRoutes(true);
-      const rm = document.getElementById('restroomMenu');
-      if (rm && rm.classList.contains('open')) refreshRestroomRoutes();
     });
   }
 
@@ -1401,7 +1628,7 @@
     // Tezlik (m/s -> mph)
     const mph = speed && speed > 0 ? speed * 2.23694 : 0;
     document.getElementById('speedNum').textContent = mph.toFixed(0);
-    document.getElementById('speedBadge').classList.toggle('over', mph > 30);
+    document.getElementById('speedBadge').classList.toggle('over', settings.speedWarn && mph > 30);
 
     if (!userMarker) {
       const icon = L.divIcon({ className: '', html: '<div class="user-dot"></div>', iconSize: [20, 20], iconAnchor: [10, 10] });
@@ -1419,7 +1646,7 @@
       const dLon = (longitude - lastFetchLon) * 85000;
       moved = Math.sqrt(dLat * dLat + dLon * dLon);
     }
-    if (!document.hidden && (now - lastRouteFetch > 60000 || (moved > 300 && now - lastRouteFetch > 20000))) {
+    if (!document.hidden && settings.autoUpdate && (now - lastRouteFetch > 60000 || (moved > 300 && now - lastRouteFetch > 20000))) {
       refreshRoutes();
     }
   }
@@ -1444,12 +1671,107 @@
   initRestroomMenu();
   renderRestrooms();
 
-  // MENU ekrani ochish/yopish
-  document.getElementById('menuBtn').addEventListener('click', () => {
-    document.getElementById('menuScreen').classList.add('open');
+  // --- Toast (kichik xabar) ---
+  let toastTimer = null;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+  }
+
+  // --- Yon menyu (drawer) ---
+  function openDrawer() {
+    const rm = document.getElementById('restroomMenu');
+    if (rm && rm.classList.contains('open')) {
+      rm.classList.remove('open');
+      syncRestroomMarkers(false);
+      restoreSavedView();
+    }
+    document.getElementById('drawer').classList.add('open');
+    document.getElementById('drawerOverlay').classList.add('open');
+    syncLocationMarkers(true);
+    if (userLat !== null) refreshLocationRoutes();
+  }
+  function closeDrawer() {
+    document.getElementById('drawer').classList.remove('open');
+    document.getElementById('drawerOverlay').classList.remove('open');
+    syncLocationMarkers(false);
+  }
+  document.getElementById('menuBtn').addEventListener('click', openDrawer);
+  document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+  document.getElementById('drawerOverlay').addEventListener('click', closeDrawer);
+  document.getElementById('drawerRadar').addEventListener('click', closeDrawer);
+  document.getElementById('drawerSurge').addEventListener('click', () => {
+    closeDrawer();
+    showToast('Tez kunda — surge ma\'lumotlari hali ulanmagan');
   });
-  document.getElementById('menuClose').addEventListener('click', () => {
-    document.getElementById('menuScreen').classList.remove('open');
+
+  // Keyingi 1 soatda eng ko'p reys qo'nadigan aeroport (navbat kuzatuvchisi)
+  async function openBusiestFlights() {
+    let best = AIRPORTS[0];
+    try {
+      const flights = await fetchLiveFlights();
+      let bestCount = -1;
+      AIRPORTS.forEach(a => {
+        const ap = AIRPORT_COORDS[a.code];
+        const n = flights.filter(f => f.arr_iata === a.code && f.status === 'en-route' && f.lat && f.lng)
+          .filter(f => { const e = etaMin(f, ap); return e > 0 && e <= 60; }).length;
+        if (n > bestCount) { bestCount = n; best = a; }
+      });
+      if (bestCount <= 0) best = AIRPORTS[0];
+    } catch (e) { best = AIRPORTS[0]; }
+    showFlights(best);
+  }
+  document.getElementById('drawerQueue').addEventListener('click', () => {
+    closeDrawer();
+    openBusiestFlights();
+  });
+
+  // --- Sozlamalar ---
+  function setToggleUI(id, on) {
+    const b = document.getElementById(id);
+    if (!b) return;
+    b.classList.toggle('on', on);
+    b.textContent = on ? 'ON' : 'OFF';
+    b.setAttribute('aria-checked', String(on));
+  }
+  function applySettingsToUI() {
+    setToggleUI('setTraffic', settings.traffic);
+    setToggleUI('setSpeedWarn', settings.speedWarn);
+    setToggleUI('setAutoUpd', settings.autoUpdate);
+  }
+  document.getElementById('drawerSettings').addEventListener('click', () => {
+    closeDrawer();
+    applySettingsToUI();
+    document.getElementById('settingsModal').classList.add('open');
+  });
+  const settingsModal = document.getElementById('settingsModal');
+  document.getElementById('settingsClose').addEventListener('click', () => settingsModal.classList.remove('open'));
+  settingsModal.addEventListener('click', e => { if (e.target === settingsModal) settingsModal.classList.remove('open'); });
+  document.getElementById('setTraffic').addEventListener('click', () => {
+    settings.traffic = !settings.traffic;
+    saveSettings();
+    applySettingsToUI();
+    if (settings.traffic !== trafficOn) toggleTraffic();
+  });
+  document.getElementById('setSpeedWarn').addEventListener('click', () => {
+    settings.speedWarn = !settings.speedWarn;
+    saveSettings();
+    applySettingsToUI();
+    if (!settings.speedWarn) document.getElementById('speedBadge').classList.remove('over');
+  });
+  document.getElementById('setAutoUpd').addEventListener('click', () => {
+    settings.autoUpdate = !settings.autoUpdate;
+    saveSettings();
+    applySettingsToUI();
+  });
+  document.getElementById('settingsRefresh').addEventListener('click', () => {
+    settingsModal.classList.remove('open');
+    refreshRoutes(true);
+    showToast('Yangilandi');
   });
 
   // Uber Pro ballar oynasi
@@ -1500,7 +1822,7 @@
 
   // Sahifa fonga o'tsa yangilanish to'xtaydi (limit tejaladi); qaytilganda darhol yangilanadi
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden && userLat !== null) {
+    if (!document.hidden && userLat !== null && settings.autoUpdate) {
       lastRouteFetch = 0;
       refreshRoutes();
       const rm = document.getElementById('restroomMenu');
@@ -1510,6 +1832,9 @@
 
   setInterval(() => paintQuota(true), 30000);
   paintQuota(true);
+
+  // Status strip'dagi haroratni jimgina yuklash (ob-havo keshi 30 daqiqa)
+  fetchWeather().then(d => updateStripWx(d.mine.current.temperature_2m)).catch(() => {});
 </script>
 <script data-goatcounter="https://hayotus.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>

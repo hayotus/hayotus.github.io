@@ -473,7 +473,7 @@
   <div id="header">
     <button id="menuBtn" aria-label="Menyu">☰</button>
     <div class="head-title">
-      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.0</span></div>
+      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.1</span></div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
     </div>
     <button id="pointsBtn" title="Uber Pro ballar">⭐ <span id="pointsNum">--</span>.0</button>
@@ -547,7 +547,7 @@
   <div class="drawer-foot">
     <div class="drawer-foot-card">
       <div class="drawer-foot-name">NYC TLC Driver</div>
-      <div class="drawer-foot-ver" id="drawerVer">v3.0</div>
+      <div class="drawer-foot-ver" id="drawerVer">v3.1</div>
     </div>
   </div>
 </aside>
@@ -564,7 +564,7 @@
     <div class="set-row"><span class="set-label">⚠️ Tezlik ogohlantirishi</span><button class="set-toggle on" id="setSpeedWarn" role="switch" aria-checked="true">ON</button></div>
     <div class="set-row"><span class="set-label">🔄 Avtomatik yangilash</span><button class="set-toggle on" id="setAutoUpd" role="switch" aria-checked="true">ON</button></div>
     <button id="settingsRefresh" class="wx-btn" style="width:100%;margin-top:12px">🔄 Yangilash</button>
-    <p class="points-foot">Versiya: <span id="settingsVer">v3.0</span></p>
+    <p class="points-foot">Versiya: <span id="settingsVer">v3.1</span></p>
   </div>
 </div>
 
@@ -798,9 +798,9 @@
     lastQuotaPaint = now;
     const left = Math.max(0, TT_DAILY_LIMIT - ttUsage.routing - ttUsage.tiles);
     const dv = document.getElementById('drawerVer');
-    if (dv) dv.textContent = 'v3.0.' + left;
+    if (dv) dv.textContent = 'v3.1.' + left;
     const sv = document.getElementById('settingsVer');
-    if (sv) sv.textContent = 'v3.0.' + left;
+    if (sv) sv.textContent = 'v3.1.' + left;
     checkStale();
   }
 
@@ -1561,10 +1561,9 @@
 
   function initMap() {
     map = L.map('map', { zoomControl: false, attributionControl: true, maxZoom: 18, minZoom: 10 });
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-      subdomains: 'abcd',
-      maxZoom: 19,
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+      maxZoom: 16,
     }).addTo(map);
     map.setView([40.7308, -73.9973], 11);
 

@@ -356,11 +356,11 @@
   /* Location oynasi (restroom kabi suzuvchi panel) */
   #locMenu {
     display: none; position: fixed; top: 120px; right: 8px;
-    width: min(300px, calc(100vw - 16px)); padding: 6px; z-index: 1300;
-    background: rgba(17,24,39,0.97); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+    width: min(250px, calc(100vw - 32px)); padding: 4px; z-index: 1300;
+    background: rgba(17,24,39,0.55); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
     border: 1px solid rgba(255,255,255,0.12);
     border-radius: 16px; box-shadow: 0 12px 28px rgba(0,0,0,0.5);
-    max-height: min(320px, 55vh); overflow-y: auto;
+    max-height: min(240px, 42vh); overflow-y: auto;
   }
   #locMenu.open { display: block; }
   .location-option {
@@ -386,6 +386,10 @@
   .loc-badge.min { border-color: #30D158; }
   .loc-badge .v { color: #fff; font-size: 11px; font-weight: 800; line-height: 1; }
   .loc-badge .u { color: #8E8E93; font-size: 8px; font-weight: 600; margin-top: 1px; }
+  /* Location oynasi qatorlari: ixcham + shaffof */
+  #locMenu .location-option { padding: 4px 6px; margin: 2px 0; background: rgba(36,36,38,0.55); border-color: rgba(255,255,255,0.14); }
+  #locMenu .loc-badge { width: 28px; height: 28px; }
+  #locMenu .loc-badge .v { font-size: 10px; }
 
   /* Yon menyu (drawer) */
   #drawerOverlay {
@@ -508,7 +512,7 @@
   <div id="header">
     <button id="menuBtn" aria-label="Menyu">☰</button>
     <div class="head-title">
-      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.8</span></div>
+      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.9</span></div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
     </div>
     <button id="pointsBtn" title="Uber Pro ballar">⭐ <span id="pointsNum">--</span>.0</button>
@@ -576,7 +580,7 @@
   <div class="drawer-foot">
     <div class="drawer-foot-card">
       <div class="drawer-foot-name">NYC TLC Driver</div>
-      <div class="drawer-foot-ver" id="drawerVer">v3.8</div>
+      <div class="drawer-foot-ver" id="drawerVer">v3.9</div>
     </div>
   </div>
 </aside>
@@ -593,7 +597,7 @@
     <div class="set-row"><span class="set-label">⚠️ Tezlik ogohlantirishi</span><button class="set-toggle on" id="setSpeedWarn" role="switch" aria-checked="true">ON</button></div>
     <div class="set-row"><span class="set-label">🔄 Avtomatik yangilash</span><button class="set-toggle on" id="setAutoUpd" role="switch" aria-checked="true">ON</button></div>
     <button id="settingsRefresh" class="wx-btn" style="width:100%;margin-top:12px">🔄 Yangilash</button>
-    <p class="points-foot">Versiya: <span id="settingsVer">v3.8</span></p>
+    <p class="points-foot">Versiya: <span id="settingsVer">v3.9</span></p>
   </div>
 </div>
 
@@ -835,9 +839,9 @@
     lastQuotaPaint = now;
     const left = Math.max(0, TT_DAILY_LIMIT - ttUsage.routing - ttUsage.tiles);
     const dv = document.getElementById('drawerVer');
-    if (dv) dv.textContent = 'v3.8.' + left;
+    if (dv) dv.textContent = 'v3.9.' + left;
     const sv = document.getElementById('settingsVer');
-    if (sv) sv.textContent = 'v3.8.' + left;
+    if (sv) sv.textContent = 'v3.9.' + left;
     checkStale();
   }
 

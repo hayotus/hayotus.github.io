@@ -101,6 +101,7 @@
   }
   .strip-pill:active { transform: scale(0.96); }
   .strip-pill .tab-ic { font-size: 23px; line-height: 1.1; filter: grayscale(1); opacity: 0.45; }
+  .strip-pill .tab-ic svg { width: 27px; height: 27px; display: block; }
   .strip-pill .tab-lb {
     font-size: 10.5px; font-weight: 700; color: #9CA3AF;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
@@ -540,7 +541,7 @@
   <div id="header">
     <button id="menuBtn" aria-label="Menyu">☰</button>
     <div class="head-title">
-      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.19</span></div>
+      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.20</span></div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
     </div>
     <button id="pointsBtn" title="Uber Pro ballar">⭐ <span id="pointsNum">--</span>.0</button>
@@ -571,7 +572,7 @@
     <button class="strip-pill" id="stripLocations"><span class="tab-ic">📍</span><span class="tab-lb">Location</span></button>
     <button class="strip-pill" id="stripRestrooms"><span class="tab-ic">🚻</span><span class="tab-lb">Restrooms</span></button>
     <button class="strip-pill" id="stripWx"><span class="tab-ic">🌙</span><span class="tab-lb">—°F</span></button>
-    <button class="strip-pill" id="stripHotspots" aria-label="Tesla"><span class="tab-ic">⚡</span><span class="tab-lb">Tesla</span></button>
+    <button class="strip-pill" id="stripHotspots" aria-label="Tesla"><span class="tab-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#CC0000" d="m12 5.362l2.475-3.026s4.245.09 8.471 2.054c-1.082 1.636-3.231 2.438-3.231 2.438c-.146-1.439-1.154-1.79-4.354-1.79L12 24L8.619 5.034c-3.18 0-4.188.354-4.335 1.792c0 0-2.146-.795-3.229-2.43C5.28 2.431 9.525 2.34 9.525 2.34zl-.004.002H12zm0-3.899c3.415-.03 7.326.528 11.328 2.28c.535-.968.672-1.395.672-1.395C19.625.612 15.528.015 12 0C8.472.015 4.375.61 0 2.349c0 0 .195.525.672 1.396C4.674 1.989 8.585 1.435 12 1.46z"/></svg></span><span class="tab-lb">Tesla</span></button>
     <button class="strip-pill active" id="stripEzpass" aria-label="EZPass"><span class="tab-ic">🛣️</span><span class="tab-lb">EZPass ON</span></button>
   </div>
 </div>
@@ -610,7 +611,7 @@
   <div class="drawer-foot">
     <div class="drawer-foot-card">
       <div class="drawer-foot-name">NYC TLC Driver</div>
-      <div class="drawer-foot-ver" id="drawerVer">v3.19</div>
+      <div class="drawer-foot-ver" id="drawerVer">v3.20</div>
     </div>
   </div>
 </aside>
@@ -627,7 +628,7 @@
     <div class="set-row"><span class="set-label">⚠️ Tezlik ogohlantirishi</span><button class="set-toggle on" id="setSpeedWarn" role="switch" aria-checked="true">ON</button></div>
     <div class="set-row"><span class="set-label">🔄 Avtomatik yangilash</span><button class="set-toggle on" id="setAutoUpd" role="switch" aria-checked="true">ON</button></div>
     <button id="settingsRefresh" class="wx-btn" style="width:100%;margin-top:12px">🔄 Yangilash</button>
-    <p class="points-foot">Versiya: <span id="settingsVer">v3.19</span></p>
+    <p class="points-foot">Versiya: <span id="settingsVer">v3.20</span></p>
   </div>
 </div>
 
@@ -870,9 +871,9 @@
     lastQuotaPaint = now;
     const left = Math.max(0, TT_DAILY_LIMIT - ttUsage.routing - ttUsage.tiles);
     const dv = document.getElementById('drawerVer');
-    if (dv) dv.textContent = 'v3.19.' + left;
+    if (dv) dv.textContent = 'v3.20.' + left;
     const sv = document.getElementById('settingsVer');
-    if (sv) sv.textContent = 'v3.19.' + left;
+    if (sv) sv.textContent = 'v3.20.' + left;
     checkStale();
   }
 

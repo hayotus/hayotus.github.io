@@ -20,7 +20,6 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon.svg">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚕</text></svg>">
-<link rel="apple-touch-icon" href="icon.svg">
 <link rel="stylesheet" href="vendor/leaflet.css">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -581,9 +580,12 @@
   }
   .wx-btn:active { opacity: 0.85; }
 
+  #offlineBar { display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 4000; background: #b91c1c; color: #fff; text-align: center; font-size: 13px; font-weight: 700; padding: calc(env(safe-area-inset-top, 0px) + 6px) 8px 6px; }
+  #offlineBar.show { display: block; }
 </style>
 </head>
 <body>
+<div id="offlineBar">📴 Internet yo'q — eski ma'lumot ko'rsatilmoqda</div>
 
 
 <div id="map"></div>
@@ -597,7 +599,7 @@
   <div id="header">
     <button id="menuBtn" aria-label="Menyu">☰</button>
     <div class="head-title">
-      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.25</span></div>
+      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.26</span></div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
     </div>
     <button id="pointsBtn" title="Uber Pro ballar">⭐ <span id="pointsNum">--</span>.0</button>
@@ -679,7 +681,7 @@
   <div class="drawer-foot">
     <div class="drawer-foot-card">
       <div class="drawer-foot-name">NYC TLC Driver</div>
-      <div class="drawer-foot-ver" id="drawerVer">v3.25</div>
+      <div class="drawer-foot-ver" id="drawerVer">v3.26</div>
     </div>
   </div>
 </aside>
@@ -700,7 +702,7 @@
     <div class="set-row"><span class="set-label">☀️ Kunduzgi yorqin rejim</span><button class="set-toggle on" id="setBright" role="switch" aria-checked="true">ON</button></div>
     <div class="set-row"><span class="set-label">🔋 Batareya tejash</span><button class="set-toggle" id="setBattery" role="switch" aria-checked="false">OFF</button></div>
     <button id="settingsRefresh" class="wx-btn" style="width:100%;margin-top:12px">🔄 Yangilash</button>
-    <p class="points-foot">Versiya: <span id="settingsVer">v3.25</span></p>
+    <p class="points-foot">Versiya: <span id="settingsVer">v3.26</span></p>
   </div>
 </div>
 
@@ -873,6 +875,16 @@
   // Google Directions kaliti (kalit kelgach to'ldiriladi; bo'sh bo'lsa Google routing o'chirilgan)
   const _gk = ['AIzaSyAllWCzmo5-jCq1', '3g1AhvbQ0EafwblrXjg'];
   const GOOGLE_KEY = _gk[0] + _gk[1];
+  // Tashqi so'rovlar uchun timeout — osilib qolgan so'rov zaxiraga o'tishga xalaqit bermaydi
+  function fetchT(url, ms) {
+    const ctl = new AbortController();
+    const t = setTimeout(() => ctl.abort(), ms || 10000);
+    return fetch(url, { signal: ctl.signal }).finally(() => clearTimeout(t));
+  }
+  // Tashqi matnlarni HTML ga xavfsiz chiqarish (XSS himoyasi)
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
 
   let map, userMarker, autoZoom = true;
   let trafficLayer = null, trafficOn = settings.traffic;
@@ -922,11 +934,11 @@
     const now = Date.now();
     if (!force && now - lastQuotaPaint < 1500) return;
     lastQuotaPaint = now;
-    const left = googleLeft(); // Versiya suffiksi = Google kunlik limitdan qolgani (masalan v3.25.200 = 200 ta qoldi)
+    const left = googleLeft(); // Versiya suffiksi = Google kunlik limitdan qolgani (masalan v3.26.200 = 200 ta qoldi)
     const dv = document.getElementById('drawerVer');
-    if (dv) dv.textContent = 'v3.25.' + left;
+    if (dv) dv.textContent = 'v3.26.' + left;
     const sv = document.getElementById('settingsVer');
-    if (sv) sv.textContent = 'v3.25.' + left;
+    if (sv) sv.textContent = 'v3.26.' + left;
     checkStale();
   }
 
@@ -1127,7 +1139,7 @@
   // useGoogle=true faqat aeroport kartalar uchun (lokatsiya/restroom TomTom'da qoladi — kvota tejaladi)
   async function fetchRoute(uLat, uLon, airport, useGoogle) {
     if (useGoogle && GOOGLE_KEY && !googleDisabled) {
-      const gKey = airport.id + (trafficOn ? ':t' : ':f') + (ezpassOn ? ':ez' : ':free');
+      const gKey = airport.id + (trafficOn ? ':t' : ':f') + (ezpassOn ? ':ez' : ':free') + '@' + uLat.toFixed(3) + ',' + uLon.toFixed(3);
       const cached = googleCache[gKey];
       if (cached && Date.now() - cached.ts < GOOGLE_CACHE_TTL) return cached.data;
       if (googleLeft() > 0) {
@@ -1138,7 +1150,7 @@
     try {
       const url = `https://api.tomtom.com/routing/1/calculateRoute/${uLat},${uLon}:${airport.lat},${airport.lon}/json?key=${TOMTOM_KEY}&traffic=${trafficOn}&routeRepresentation=polyline&travelMode=car${ezpassOn ? '' : '&avoid=tollRoads'}`;
       ttCount('routing');
-      const res = await fetch(url);
+      const res = await fetchT(url);
       const data = await res.json();
       if (data.routes && data.routes.length > 0) {
         const route = data.routes[0];
@@ -1167,7 +1179,7 @@
   async function fetchRouteOSRM(uLat, uLon, airport) {
     try {
       const url = `https://router.project-osrm.org/route/v1/driving/${uLon},${uLat};${airport.lon},${airport.lat}?overview=full&geometries=geojson`;
-      const res = await fetch(url);
+      const res = await fetchT(url);
       const data = await res.json();
       if (data.routes && data.routes.length > 0) {
         const route = data.routes[0];
@@ -1218,13 +1230,13 @@
     if (restroomsLoaded) return;
     // 1) GitHub dagi tayyor baza — eng tez variant
     try {
-      const res = await fetch(RESTROOM_DB);
+      const res = await fetchT(RESTROOM_DB);
       const list = await res.json();
       if (Array.isArray(list) && list.length > 0) { RESTROOMS = list; restroomsLoaded = true; return; }
     } catch (e) { console.log('Restroom DB error:', e); }
     // 2) NYC Open Data API (zaxira)
     try {
-      const res = await fetch(RESTROOM_API);
+      const res = await fetchT(RESTROOM_API);
       const rows = await res.json();
       const list = [];
       rows.forEach((row, i) => {
@@ -1282,7 +1294,7 @@
       const btn = document.createElement('button');
       btn.className = 'location-option';
       btn.title = r.name;
-      btn.innerHTML = `<span class="loc-main"><span class="loc-name">${r.name}</span></span>` +
+      btn.innerHTML = `<span class="loc-main"><span class="loc-name">${esc(r.name)}</span></span>` +
         `<span class="loc-badges"><span class="loc-badge"><span class="v">${info ? info.dist : '--'}</span><span class="u">mi</span></span>` +
         `<span class="loc-badge min"><span class="v">${info ? info.mins : '--'}</span><span class="u">min</span></span></span>`;
       btn.addEventListener('click', () => openLocationNavigation(r));
@@ -1498,7 +1510,7 @@
       const btn = document.createElement('button');
       btn.className = 'location-option';
       btn.title = c.name;
-      btn.innerHTML = `<span class="loc-main"><span class="loc-name">⚡ ${c.name}</span></span>` +
+      btn.innerHTML = `<span class="loc-main"><span class="loc-name">⚡ ${esc(c.name)}</span></span>` +
         `<span class="loc-badges"><span class="loc-badge"><span class="v">${info ? info.dist : (c.km * 0.621371).toFixed(1)}</span><span class="u">mi</span></span>` +
         `<span class="loc-badge min"><span class="v">${info ? info.mins : '--'}</span><span class="u">min</span></span></span>`;
       btn.addEventListener('click', () => openNavigation(c));
@@ -1632,7 +1644,7 @@
   }
   async function loadCameras() {
     try {
-      const res = await fetch('cameras.json');
+      const res = await fetchT('cameras.json');
       const data = await res.json();
       if (data && Array.isArray(data.cams)) camList = data.cams;
     } catch (e) { if (!camList) camList = []; }
@@ -1958,15 +1970,17 @@
 
   // Tesla Supercharger (Photon / OpenStreetMap, kalitsiz)
   const CHG_CACHE_TTL = 30 * 60 * 1000; // 30 daqiqa
-  let chgCache = { at: 0, data: null };
+  let chgCache = { at: 0, data: null, lat: null, lon: null };
 
   async function fetchChargers() {
     const now = Date.now();
-    if (chgCache.data && now - chgCache.at < CHG_CACHE_TTL) return chgCache.data;
-    const lat = (userLat !== null) ? userLat : 40.7580;
-    const lon = (userLon !== null) ? userLon : -73.9855;
+    const cLat = (userLat !== null) ? userLat : 40.7580;
+    const cLon = (userLon !== null) ? userLon : -73.9855;
+    if (chgCache.data && now - chgCache.at < CHG_CACHE_TTL && chgCache.lat !== null && havKm(cLat, cLon, chgCache.lat, chgCache.lon) < 2) return chgCache.data;
+    const lat = cLat;
+    const lon = cLon;
     const url = 'https://photon.komoot.io/api/?q=' + encodeURIComponent('Tesla Supercharger') + '&lat=' + lat + '&lon=' + lon + '&limit=15';
-    const res = await fetch(url);
+    const res = await fetchT(url);
     const data = await res.json();
     const list = (data.features || [])
       .map(f => {
@@ -1981,7 +1995,7 @@
       .sort((a, b) => a.km - b.km)
       .slice(0, 5);
     const out = { list, at: now };
-    chgCache = { at: now, data: out };
+    chgCache = { at: now, data: out, lat: lat, lon: lon };
     return out;
   }
 
@@ -1994,8 +2008,8 @@
     const lon = (userLon !== null) ? userLon : -73.9855;
     const base = 'https://api.open-meteo.com/v1/forecast?current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m&hourly=temperature_2m,precipitation_probability,weather_code&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America%2FNew_York&forecast_days=2';
     const [mine, ports] = await Promise.all([
-      fetch(base + '&latitude=' + lat + '&longitude=' + lon).then(r => r.json()),
-      fetch(base + '&latitude=40.6413,40.7769,40.6895&longitude=-73.7781,-73.8740,-74.1745').then(r => r.json())
+      fetchT(base + '&latitude=' + lat + '&longitude=' + lon).then(r => r.json()),
+      fetchT(base + '&latitude=40.6413,40.7769,40.6895&longitude=-73.7781,-73.8740,-74.1745').then(r => r.json())
     ]);
     const data = { mine, ports: Array.isArray(ports) ? ports : [ports], at: now };
     wxCache = { at: now, data };
@@ -2071,7 +2085,7 @@
     const now = Date.now();
     if (now - liveFlightsCache.at < FLIGHTS_CACHE_TTL) return liveFlightsCache.flights;
     const url = 'https://airlabs.co/api/v9/flights?api_key=' + AIRLABS_KEY + '&_fields=flight_iata,arr_iata,dep_iata,lat,lng,alt,dir,speed,status';
-    const res = await fetch(url);
+    const res = await fetchT(url);
     const data = await res.json();
     if (!data || !Array.isArray(data.response)) throw new Error('bad response');
     liveFlightsCache = { at: now, flights: data.response };
@@ -2502,6 +2516,24 @@
     gpsWatchId = null;
     startGps();
   }
+  // Wake Lock — ilova ochiq turganda ekran o'chib qolmaydi (rulda qulay)
+  let wakeLock = null;
+  async function keepAwake() {
+    try { if ('wakeLock' in navigator && document.visibilityState === 'visible') wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {}
+  }
+  document.addEventListener('visibilitychange', keepAwake);
+  keepAwake();
+
+  // Offline banner — internet uzilsa/qaytsa
+  function syncOnline() {
+    const bar = document.getElementById('offlineBar');
+    if (bar) bar.classList.toggle('show', !navigator.onLine);
+    if (navigator.onLine) refreshRoutes(true);
+  }
+  window.addEventListener('offline', syncOnline);
+  window.addEventListener('online', syncOnline);
+  if (!navigator.onLine) { const b0 = document.getElementById('offlineBar'); if (b0) b0.classList.add('show'); }
+
   startGps();
 
   // GPS javobi kelmasa (ruxsat so'rovi javobsiz qolsa) loader 15 s dan keyin o'zi yopiladi

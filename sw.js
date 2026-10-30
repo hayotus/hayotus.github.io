@@ -1,7 +1,7 @@
 // NYC Airport Radar — service worker (v2.7)
 // Sayt qobig'ini keshlaydi: ilova tez ochiladi, oflayn ham qobiq ko'rinadi.
 // Jonli ma'lumotlar (TomTom, AirLabs) har doim tarmoqdan olinadi.
-const CACHE = 'nyc-radar-v3.3';
+const CACHE = 'nyc-radar-v3.4';
 const CORE = ['/', 'index.html', 'manifest.json', 'icon.svg', 'vendor/leaflet.css', 'vendor/leaflet.js'];
 
 self.addEventListener('install', e => {

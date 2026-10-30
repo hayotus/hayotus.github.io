@@ -224,6 +224,31 @@
   .p-row.now .p-now { display: inline; }
   .points-foot { font-size: 11px; color: #636366; line-height: 1.4; margin-top: 12px; }
 
+  /* TLC Renewal oynasi */
+  #tlcModal {
+    display: none; position: fixed; inset: 0; z-index: 2100;
+    background: rgba(0,0,0,0.72);
+    align-items: center; justify-content: center; padding: 16px;
+  }
+  #tlcModal.open { display: flex; }
+  #tlcClose {
+    width: 34px; height: 34px; border-radius: 50%; border: 1px solid #3A3A3C;
+    background: #1C1C1E; color: #fff; font-size: 14px; cursor: pointer;
+  }
+  .tlc-row {
+    display: flex; align-items: center; gap: 10px;
+    background: #1C1C1E; border: 1px solid #3A3A3C; border-radius: 12px;
+    padding: 10px 12px; margin: 6px 0; text-decoration: none;
+  }
+  .tlc-row:active { background: rgba(14,165,233,0.15); }
+  .tlc-txt { flex: 1; font-size: 14px; font-weight: 700; color: #fff; }
+  .tlc-btn {
+    flex: none; background: rgba(14,165,233,0.18); border: 1px solid rgba(14,165,233,0.5);
+    color: #38BDF8; border-radius: 999px; padding: 6px 10px;
+    font-size: 12px; font-weight: 800; white-space: nowrap;
+  }
+  .tlc-note { font-size: 11px; color: #636366; line-height: 1.4; margin-top: 10px; }
+
   /* Aeroport kartasidagi + tugmasi (reyslar) */
   .flightsBtn {
     position: absolute; top: -9px; right: -7px;
@@ -472,7 +497,7 @@
   <div id="header">
     <button id="menuBtn" aria-label="Menyu">☰</button>
     <div class="head-title">
-      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.3</span></div>
+      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.4</span></div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
     </div>
     <button id="pointsBtn" title="Uber Pro ballar">⭐ <span id="pointsNum">--</span>.0</button>
@@ -519,6 +544,7 @@
     <button class="drawer-item" id="drawerSurge">📈 Surge &amp; Demand Heatmap</button>
     <button class="drawer-item" id="drawerQueue">✈️ Airport Queue Tracker</button>
     <button class="drawer-item" id="drawerSettings">⚙️ Settings &amp; Preferences</button>
+    <button class="drawer-item" id="drawerTlc">🪪 TLC license yangilash</button>
   </nav>
   <div class="drawer-sec">Saqlangan joylar</div>
   <div id="locationMenu">
@@ -545,7 +571,7 @@
   <div class="drawer-foot">
     <div class="drawer-foot-card">
       <div class="drawer-foot-name">NYC TLC Driver</div>
-      <div class="drawer-foot-ver" id="drawerVer">v3.3</div>
+      <div class="drawer-foot-ver" id="drawerVer">v3.4</div>
     </div>
   </div>
 </aside>
@@ -562,7 +588,7 @@
     <div class="set-row"><span class="set-label">⚠️ Tezlik ogohlantirishi</span><button class="set-toggle on" id="setSpeedWarn" role="switch" aria-checked="true">ON</button></div>
     <div class="set-row"><span class="set-label">🔄 Avtomatik yangilash</span><button class="set-toggle on" id="setAutoUpd" role="switch" aria-checked="true">ON</button></div>
     <button id="settingsRefresh" class="wx-btn" style="width:100%;margin-top:12px">🔄 Yangilash</button>
-    <p class="points-foot">Versiya: <span id="settingsVer">v3.3</span></p>
+    <p class="points-foot">Versiya: <span id="settingsVer">v3.4</span></p>
   </div>
 </div>
 
@@ -622,6 +648,20 @@
       <div class="p-row" data-days="6,0" data-start="720" data-end="1440"><span class="p-ico">☀️</span><span class="p-time">12 – 00</span><span class="p-val">5 ball</span><span class="p-now">HOZIR</span><span class="p-next">KEYINGI</span></div>
     </div>
     <p class="points-foot">Uber ilovasidagi jadval asosida tuzilgan. Boshqa vaqtlarda har bir safar uchun 1 ball beriladi.</p>
+  </div>
+</div>
+
+<div id="tlcModal">
+  <div class="points-card">
+    <div class="points-head">
+      <span class="points-title">TLC Renewal — yangilandi</span>
+      <button id="tlcClose" aria-label="Yopish">✕</button>
+    </div>
+    <a class="tlc-row" href="https://a156-nauf.nyc.gov/tlcup/" target="_blank" rel="noopener"><span class="tlc-txt">1. TLC UP: muddat + hujjat</span><span class="tlc-btn">🌐 Ochish</span></a>
+    <a class="tlc-row" href="https://apps.nyc.gov/lars/" target="_blank" rel="noopener"><span class="tlc-txt">2. TLC payment: LARS, $252</span><span class="tlc-btn">💳 To'lov</span></a>
+    <a class="tlc-row" href="tel:+18009232624"><span class="tlc-txt">3. Drug test: LabCorp, $34</span><span class="tlc-btn">📞 Qo'ng'iroq</span></a>
+    <a class="tlc-row" href="tel:+19296992290"><span class="tlc-txt">4. Defensive course: cash $150+$70</span><span class="tlc-btn">📞 Qo'ng'iroq</span></a>
+    <p class="tlc-note">Barchasi bajarilgandan keyin 2 hafta ichida yangi TLC license uyga keladi.</p>
   </div>
 </div>
 
@@ -747,6 +787,10 @@
   const _tk = ['6OihyLXDxuOwymbh', 'mSqC20o8MjjwoCTJ'];
   const TOMTOM_KEY = _tk[0] + _tk[1];
 
+  // Google Directions kaliti (kalit kelgach to'ldiriladi; bo'sh bo'lsa Google routing o'chirilgan)
+  const _gk = ['', ''];
+  const GOOGLE_KEY = _gk[0] + _gk[1];
+
   let map, userMarker, autoZoom = true;
   let trafficLayer = null, trafficOn = settings.traffic;
   let userLat = null, userLon = null;
@@ -796,10 +840,105 @@
     lastQuotaPaint = now;
     const left = Math.max(0, TT_DAILY_LIMIT - ttUsage.routing - ttUsage.tiles);
     const dv = document.getElementById('drawerVer');
-    if (dv) dv.textContent = 'v3.3.' + left;
+    if (dv) dv.textContent = 'v3.4.' + left;
     const sv = document.getElementById('settingsVer');
-    if (sv) sv.textContent = 'v3.3.' + left;
+    if (sv) sv.textContent = 'v3.4.' + left;
     checkStale();
+  }
+
+  // --- Google Directions (faqat aeroport kartalar uchun): kunlik limit + 3 daqiqalik kesh ---
+  // Bepul limit: oyiga 10 000 ta; Cloud kvota 350/kun; sayt o'zi 300/kun bilan cheklaydi.
+  // Limit tugasa yoki Google ishlamasa — TomTom'ga qaytadi, to'lov chiqmaydi.
+  const GOOGLE_DAILY_CAP = 300;
+  const GOOGLE_CACHE_TTL = 180000; // 3 daqiqa
+  const googleCache = {};
+  let googleDisabled = false;
+  let googleMapsPromise = null;
+  let gUsage = { day: '', count: 0 };
+  try {
+    const savedG = JSON.parse(localStorage.getItem('gUsageV1') || 'null');
+    if (savedG && typeof savedG.count === 'number') gUsage = savedG;
+  } catch (e) {}
+
+  function gCount() {
+    const today = ttDayKey();
+    if (gUsage.day !== today) gUsage = { day: today, count: 0 };
+    gUsage.count++;
+    try { localStorage.setItem('gUsageV1', JSON.stringify(gUsage)); } catch (e) {}
+  }
+
+  function googleLeft() {
+    if (gUsage.day !== ttDayKey()) return GOOGLE_DAILY_CAP;
+    return Math.max(0, GOOGLE_DAILY_CAP - gUsage.count);
+  }
+
+  // Maps JavaScript API'ni faqat kerak bo'lganda yuklash (xarita yaratilmaydi — faqat DirectionsService)
+  function loadGoogleMaps() {
+    if (window.google && window.google.maps && window.google.maps.DirectionsService) return Promise.resolve(true);
+    if (googleMapsPromise) return googleMapsPromise;
+    googleMapsPromise = new Promise((resolve) => {
+      const cb = '__gmapsReady' + Date.now();
+      let done = false;
+      const finish = (ok) => {
+        if (done) return;
+        done = true;
+        try { delete window[cb]; } catch (e) {}
+        if (!ok) googleMapsPromise = null; // muvaffaqiyatsiz yuklashni keyingi safar qayta urinish uchun
+        resolve(ok);
+      };
+      window[cb] = () => finish(!!(window.google && window.google.maps));
+      const s = document.createElement('script');
+      s.src = 'https://maps.googleapis.com/maps/api/js?key=' + GOOGLE_KEY + '&v=weekly&callback=' + cb;
+      s.async = true; s.defer = true;
+      s.onerror = () => finish(false);
+      setTimeout(() => finish(!!(window.google && window.google.maps)), 15000);
+      document.head.appendChild(s);
+    });
+    return googleMapsPromise;
+  }
+
+  // Google DirectionsService orqali tirbandlikni hisobga olgan ETA (duration_in_traffic)
+  async function fetchRouteGoogle(uLat, uLon, airport) {
+    if (!GOOGLE_KEY || googleDisabled || googleLeft() <= 0) return null;
+    const ok = await loadGoogleMaps();
+    if (!ok || !window.google || !window.google.maps) return null;
+    gCount();
+    return new Promise((resolve) => {
+      let done = false;
+      const finish = (val) => { if (!done) { done = true; resolve(val); } };
+      setTimeout(() => finish(null), 10000);
+      try {
+        const svc = new google.maps.DirectionsService();
+        const req = {
+          origin: { lat: uLat, lng: uLon },
+          destination: { lat: airport.lat, lng: airport.lon },
+          travelMode: google.maps.TravelMode.DRIVING
+        };
+        if (trafficOn) {
+          req.drivingOptions = { departureTime: new Date(), trafficModel: google.maps.TrafficModel.BEST_GUESS };
+        }
+        svc.route(req, (res, status) => {
+          if (status === 'OK' && res.routes && res.routes.length > 0) {
+            const leg = res.routes[0].legs[0];
+            const secs = (leg.duration_in_traffic && leg.duration_in_traffic.value) || leg.duration.value;
+            const distanceMiles = (leg.distance.value * 0.000621371).toFixed(1);
+            const durationMins = Math.round(secs / 60);
+            let durationText = `${durationMins} min`;
+            if (durationMins >= 60) {
+              const h = Math.floor(durationMins / 60);
+              const m = durationMins % 60;
+              durationText = `${h}s ${m}m`;
+            }
+            const points = res.routes[0].overview_path.map(p => [p.lat(), p.lng()]);
+            finish({ points, distanceMiles, durationText, durationMins, src: 'google' });
+          } else {
+            console.log('Google route status:', status);
+            if (status === 'OVER_QUERY_LIMIT' || status === 'REQUEST_DENIED') googleDisabled = true;
+            finish(null);
+          }
+        });
+      } catch (e) { console.log('Google route error:', e); finish(null); }
+    });
   }
 
   // Ma'lumot 3 daqiqadan eski bo'lsa kartalar xiralashadi va ogohlantirish chiqadi
@@ -874,8 +1013,17 @@
     window.location.href = url;
   }
 
-  // --- TomTom orqali marshrut (TRAFFIC tugmasiga qarab: on = tirbandlik bilan, off = trafficsiz) ---
-  async function fetchRoute(uLat, uLon, airport) {
+  // --- Google (avval) / TomTom orqali marshrut (TRAFFIC tugmasiga qarab: on = tirbandlik bilan, off = trafficsiz) ---
+  // useGoogle=true faqat aeroport kartalar uchun (lokatsiya/restroom TomTom'da qoladi — kvota tejaladi)
+  async function fetchRoute(uLat, uLon, airport, useGoogle) {
+    if (useGoogle && GOOGLE_KEY && !googleDisabled) {
+      const cached = googleCache[airport.id];
+      if (cached && Date.now() - cached.ts < GOOGLE_CACHE_TTL) return cached.data;
+      if (googleLeft() > 0) {
+        const g = await fetchRouteGoogle(uLat, uLon, airport);
+        if (g) { googleCache[airport.id] = { data: g, ts: Date.now() }; return g; }
+      }
+    }
     try {
       const url = `https://api.tomtom.com/routing/1/calculateRoute/${uLat},${uLon}:${airport.lat},${airport.lon}/json?key=${TOMTOM_KEY}&traffic=${trafficOn}&routeRepresentation=polyline&travelMode=car`;
       ttCount('routing');
@@ -1161,7 +1309,7 @@
     lastFetchLat = userLat; lastFetchLon = userLon;
     let sawFallback = false, anyOk = false;
     for (const airport of ROUTE_TARGETS) {
-      const res = await fetchRoute(userLat, userLon, airport);
+      const res = await fetchRoute(userLat, userLon, airport, true);
       if (seq !== routeSeq) return;
       if (res) {
         anyOk = true;
@@ -1773,6 +1921,15 @@
   const pointsModal = document.getElementById('pointsModal');
   document.getElementById('pointsClose').addEventListener('click', () => pointsModal.classList.remove('open'));
   pointsModal.addEventListener('click', e => { if (e.target === pointsModal) pointsModal.classList.remove('open'); });
+
+  // TLC Renewal oynasi
+  const tlcModal = document.getElementById('tlcModal');
+  document.getElementById('drawerTlc').addEventListener('click', () => {
+    closeDrawer();
+    tlcModal.classList.add('open');
+  });
+  document.getElementById('tlcClose').addEventListener('click', () => tlcModal.classList.remove('open'));
+  tlcModal.addEventListener('click', e => { if (e.target === tlcModal) tlcModal.classList.remove('open'); });
   updatePointsCircle();
   setInterval(updatePointsCircle, 30000);
 

@@ -85,31 +85,37 @@
   #speedBadge.over .num, #speedBadge.over .unit { color: #fff; }
   #speedBadge.over .warn { display: block; }
 
-  /* Status strip — 4 ta shisha pill */
+  /* Pastki menyu paneli — airport kartalar tagida, tab uslubi: katta icon + tagida yozuv.
+     Aktiv tab: rangli icon, qora qalin yozuv va ustida sariq (amber) chiziqcha */
   #statusStrip {
-    display: flex; gap: 5px; pointer-events: auto; overflow-x: auto;
-    scrollbar-width: none; padding: 1px;
+    display: flex; pointer-events: auto; margin-top: 10px;
+    background: #FFFFFF; border-top: 3px solid #F5B301; border-radius: 16px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.45); overflow: hidden;
   }
-  #statusStrip::-webkit-scrollbar { display: none; }
   .strip-pill {
-    flex: none; background: rgba(255,255,255,0.92); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
-    border: 1px solid rgba(0,0,0,0.06); border-radius: 999px; padding: 7px 6px;
-    font-size: 12px; font-weight: 800; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.18);
-    white-space: nowrap; color: #111827;
+    flex: 1; min-width: 0; position: relative;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    background: transparent; border: none; cursor: pointer;
+    padding: 10px 2px 8px; -webkit-tap-highlight-color: transparent;
+    font-family: inherit;
   }
   .strip-pill:active { transform: scale(0.96); }
-  #stripTraffic { color: #059669; }
-  #stripTraffic.off { color: #6B7280; }
-  #stripHotspots { color: #D97706; }
-  #stripEzpass { color: #047857; }
-  #stripEzpass.off { color: #6B7280; }
-  #stripLocations { color: #DC2626; }
-  #stripRestrooms { color: #0284C7; }
-  #stripWx { color: #B45309; }
+  .strip-pill .tab-ic { font-size: 23px; line-height: 1.1; filter: grayscale(1); opacity: 0.45; }
+  .strip-pill .tab-lb {
+    font-size: 10.5px; font-weight: 700; color: #9CA3AF;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+  }
+  #stripEzpass .tab-lb { font-size: 10px; }
+  .strip-pill.active .tab-ic { filter: none; opacity: 1; }
+  .strip-pill.active .tab-lb { color: #111827; font-weight: 800; }
+  .strip-pill.active::before {
+    content: ''; position: absolute; top: 4px; left: 50%; transform: translateX(-50%);
+    width: 36px; height: 5px; border-radius: 3px; background: #F5B301;
+  }
 
   /* O'ng tomondagi markazlash tugmasi (pastda, kartalar ustida) */
   #sideBtns {
-    position: absolute; right: 12px; bottom: 265px; z-index: 1000;
+    position: absolute; right: 12px; bottom: 335px; z-index: 1000;
     display: flex; flex-direction: column; gap: 10px;
   }
   .side-btn {
@@ -462,7 +468,7 @@
 
   /* Toast (kichik xabar) */
   #toast {
-    position: fixed; left: 50%; bottom: 240px; z-index: 3000;
+    position: fixed; left: 50%; bottom: 312px; z-index: 3000;
     transform: translateX(-50%) translateY(8px);
     background: rgba(17,24,39,0.96); color: #fff; font-size: 13px; font-weight: 700;
     padding: 11px 18px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.14);
@@ -517,7 +523,7 @@
   <div id="header">
     <button id="menuBtn" aria-label="Menyu">☰</button>
     <div class="head-title">
-      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.16</span></div>
+      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.17</span></div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
     </div>
     <button id="pointsBtn" title="Uber Pro ballar">⭐ <span id="pointsNum">--</span>.0</button>
@@ -526,14 +532,6 @@
       <span class="unit">MPH</span>
       <div class="warn">LIMIT 30!</div>
     </div>
-  </div>
-  <div id="statusStrip">
-    <button class="strip-pill" id="stripTraffic">🚦 Traffic</button>
-    <button class="strip-pill" id="stripLocations">📍 Location</button>
-    <button class="strip-pill" id="stripRestrooms">🚻 Restrooms</button>
-    <button class="strip-pill" id="stripWx">🌙 —°F</button>
-    <button class="strip-pill" id="stripHotspots" aria-label="Hotspots">⚡</button>
-    <button class="strip-pill" id="stripEzpass" aria-label="EZPass">EZPass ON</button>
   </div>
 </div>
 
@@ -550,6 +548,14 @@
     <span id="autoStatus">● Auto Updating</span>
   </div>
   <div id="etaCards"></div>
+  <div id="statusStrip">
+    <button class="strip-pill active" id="stripTraffic"><span class="tab-ic">🚦</span><span class="tab-lb">Traffic</span></button>
+    <button class="strip-pill" id="stripLocations"><span class="tab-ic">📍</span><span class="tab-lb">Location</span></button>
+    <button class="strip-pill" id="stripRestrooms"><span class="tab-ic">🚻</span><span class="tab-lb">Restrooms</span></button>
+    <button class="strip-pill" id="stripWx"><span class="tab-ic">🌙</span><span class="tab-lb">—°F</span></button>
+    <button class="strip-pill" id="stripHotspots" aria-label="Hotspots"><span class="tab-ic">⚡</span><span class="tab-lb">Hotspots</span></button>
+    <button class="strip-pill active" id="stripEzpass" aria-label="EZPass"><span class="tab-ic">🛣️</span><span class="tab-lb">EZPass ON</span></button>
+  </div>
 </div>
 
 <div id="drawerOverlay"></div>
@@ -586,7 +592,7 @@
   <div class="drawer-foot">
     <div class="drawer-foot-card">
       <div class="drawer-foot-name">NYC TLC Driver</div>
-      <div class="drawer-foot-ver" id="drawerVer">v3.16</div>
+      <div class="drawer-foot-ver" id="drawerVer">v3.17</div>
     </div>
   </div>
 </aside>
@@ -603,7 +609,7 @@
     <div class="set-row"><span class="set-label">⚠️ Tezlik ogohlantirishi</span><button class="set-toggle on" id="setSpeedWarn" role="switch" aria-checked="true">ON</button></div>
     <div class="set-row"><span class="set-label">🔄 Avtomatik yangilash</span><button class="set-toggle on" id="setAutoUpd" role="switch" aria-checked="true">ON</button></div>
     <button id="settingsRefresh" class="wx-btn" style="width:100%;margin-top:12px">🔄 Yangilash</button>
-    <p class="points-foot">Versiya: <span id="settingsVer">v3.16</span></p>
+    <p class="points-foot">Versiya: <span id="settingsVer">v3.17</span></p>
   </div>
 </div>
 
@@ -846,9 +852,9 @@
     lastQuotaPaint = now;
     const left = Math.max(0, TT_DAILY_LIMIT - ttUsage.routing - ttUsage.tiles);
     const dv = document.getElementById('drawerVer');
-    if (dv) dv.textContent = 'v3.16.' + left;
+    if (dv) dv.textContent = 'v3.17.' + left;
     const sv = document.getElementById('settingsVer');
-    if (sv) sv.textContent = 'v3.16.' + left;
+    if (sv) sv.textContent = 'v3.17.' + left;
     checkStale();
   }
 
@@ -962,10 +968,9 @@
   function updateTrafficLabel() {
     const strip = document.getElementById('stripTraffic');
     if (strip) {
-      let label = '🚦 Traffic';
-      if (trafficOn && (routeDegraded || tileDegraded)) label += ' ⚠';
-      strip.textContent = label;
-      strip.classList.toggle('off', !trafficOn);
+      const lb = strip.querySelector('.tab-lb');
+      if (lb) lb.textContent = 'Traffic' + ((trafficOn && (routeDegraded || tileDegraded)) ? ' ⚠' : '');
+      strip.classList.toggle('active', trafficOn);
     }
   }
 
@@ -988,8 +993,9 @@
   function updateEzpassLabel() {
     const strip = document.getElementById('stripEzpass');
     if (strip) {
-      strip.textContent = ezpassOn ? 'EZPass ON' : 'EZPass OFF';
-      strip.classList.toggle('off', !ezpassOn);
+      const lb = strip.querySelector('.tab-lb');
+      if (lb) lb.textContent = ezpassOn ? 'EZPass ON' : 'EZPass OFF';
+      strip.classList.toggle('active', ezpassOn);
     }
   }
 
@@ -1007,11 +1013,17 @@
     showToast(ezpassOn ? 'EZPass ON — pullik yo\'llar bilan' : 'EZPass OFF — faqat tollsiz yo\'llar');
   }
 
-  // Menyu o'z tugmasining tagidan ochiladi (har qanday ekranda tugmalarni yopmaydi)
+  // Menyu tugma yonidan ochiladi: tugma ekran pastida bo'lsa — yuqoriga, tepada bo'lsa — pastga
   function placeMenuUnderButton(menu, toggle) {
     if (!menu || !toggle) return;
     const r = toggle.getBoundingClientRect();
-    menu.style.top = (r.bottom + 6) + 'px';
+    if (r.top > window.innerHeight / 2) {
+      menu.style.top = 'auto';
+      menu.style.bottom = (window.innerHeight - r.top + 6) + 'px';
+    } else {
+      menu.style.bottom = 'auto';
+      menu.style.top = (r.bottom + 6) + 'px';
+    }
   }
 
   function restoreSavedView() {
@@ -1231,7 +1243,7 @@
     if (!map || userLat === null) return;
     const dLat = 805 / 111320;
     const dLon = 805 / (111320 * Math.cos(userLat * Math.PI / 180));
-    map.fitBounds([[userLat - dLat, userLon - dLon], [userLat + dLat, userLon + dLon]], { paddingTopLeft: [30, 130], paddingBottomRight: [30, 250] });
+    map.fitBounds([[userLat - dLat, userLon - dLon], [userLat + dLat, userLon + dLon]], { paddingTopLeft: [30, 130], paddingBottomRight: [30, 320] });
   }
 
   // Locations menyusi ochiq paytda uning metkalari ham ko'rinadi
@@ -1350,7 +1362,7 @@
     if (!map) return;
     const pts = SAVED_LOCATIONS.map(l => [l.lat, l.lon]);
     if (userLat !== null) pts.push([userLat, userLon]);
-    map.fitBounds(L.latLngBounds(pts), { paddingTopLeft: [30, 130], paddingBottomRight: [30, 250] });
+    map.fitBounds(L.latLngBounds(pts), { paddingTopLeft: [30, 130], paddingBottomRight: [30, 320] });
   }
 
   function initLocMenu() {
@@ -1359,9 +1371,10 @@
     if (!toggle || !menu) return;
     toggle.addEventListener('click', () => {
       const isOpen = menu.classList.toggle('open');
+      toggle.classList.toggle('active', isOpen);
       if (isOpen) {
         const rm = document.getElementById('restroomMenu');
-        if (rm && rm.classList.contains('open')) { rm.classList.remove('open'); syncRestroomMarkers(false); restoreSavedView(); }
+        if (rm && rm.classList.contains('open')) { rm.classList.remove('open'); document.getElementById('stripRestrooms').classList.remove('active'); syncRestroomMarkers(false); restoreSavedView(); }
         placeMenuUnderButton(menu, toggle);
         if (map) savedView = { center: map.getCenter(), zoom: map.getZoom() };
         zoomToLocations();
@@ -1379,10 +1392,11 @@
     const menu = document.getElementById('restroomMenu');
     toggle.addEventListener('click', () => {
       const isOpen = menu.classList.toggle('open');
+      toggle.classList.toggle('active', isOpen);
       syncLocationMarkers(false);
       if (isOpen) {
         const lm = document.getElementById('locMenu');
-        if (lm && lm.classList.contains('open')) { lm.classList.remove('open'); restoreSavedView(); }
+        if (lm && lm.classList.contains('open')) { lm.classList.remove('open'); document.getElementById('stripLocations').classList.remove('active'); restoreSavedView(); }
         placeMenuUnderButton(menu, toggle);
         restroomVisibleCount = 5;
         if (map) savedView = { center: map.getCenter(), zoom: map.getZoom() };
@@ -1452,7 +1466,7 @@
   function fitAll() {
     if (!map || userLat === null || !autoZoom) return;
     const pts = [[userLat, userLon], ...AIRPORTS.map(a => [a.lat, a.lon])];
-    map.fitBounds(L.latLngBounds(pts), { paddingTopLeft: [45, 140], paddingBottomRight: [45, 250] });
+    map.fitBounds(L.latLngBounds(pts), { paddingTopLeft: [45, 140], paddingBottomRight: [45, 320] });
   }
 
   function updateCard(airport) {
@@ -1643,7 +1657,10 @@
     if (!el) return;
     const h = new Date().getHours();
     const ico = (h >= 6 && h < 20) ? '☀️' : '🌙';
-    el.textContent = ico + ' ' + Math.round(tempF) + '°F';
+    const ic = el.querySelector('.tab-ic');
+    const lb = el.querySelector('.tab-lb');
+    if (ic) ic.textContent = ico;
+    if (lb) lb.textContent = Math.round(tempF) + '°F';
   }
 
   async function showWeather() {
@@ -1940,12 +1957,14 @@
     const rm = document.getElementById('restroomMenu');
     if (rm && rm.classList.contains('open')) {
       rm.classList.remove('open');
+      document.getElementById('stripRestrooms').classList.remove('active');
       syncRestroomMarkers(false);
       restoreSavedView();
     }
     const lm = document.getElementById('locMenu');
     if (lm && lm.classList.contains('open')) {
       lm.classList.remove('open');
+      document.getElementById('stripLocations').classList.remove('active');
       syncLocationMarkers(false);
       restoreSavedView();
     }

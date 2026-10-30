@@ -518,6 +518,18 @@
   }
   .drawer-link:active { background: rgba(14,165,233,0.15); }
   .drawer-link .dl-ico { font-size: 16px; }
+  /* Tezkor havolalar bo'limlari (ochilib-yopiladigan) */
+  .drawer-group-head {
+    display: flex; align-items: center; gap: 10px; width: 100%;
+    padding: 12px; margin-top: 4px;
+    color: #fff; font-size: 14px; font-weight: 800; text-align: left;
+    background: rgba(245,179,1,0.13); border: 1px solid rgba(245,179,1,0.35); border-radius: 12px;
+    cursor: pointer;
+  }
+  .drawer-group-head .dg-arrow { margin-left: auto; font-size: 12px; color: #F5B301; transition: transform 0.2s ease; }
+  .drawer-group-head.open .dg-arrow { transform: rotate(180deg); }
+  .drawer-group { display: none; flex-direction: column; gap: 6px; padding-left: 10px; }
+  .drawer-group.open { display: flex; }
   .drawer-foot {
     margin-top: auto; padding-top: 18px;
   }
@@ -585,7 +597,7 @@
   <div id="header">
     <button id="menuBtn" aria-label="Menyu">☰</button>
     <div class="head-title">
-      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.23</span></div>
+      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.24</span></div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
     </div>
     <button id="pointsBtn" title="Uber Pro ballar">⭐ <span id="pointsNum">--</span>.0</button>
@@ -643,22 +655,31 @@
   <div class="drawer-div"></div>
   <div class="drawer-sec">Tezkor havolalar</div>
   <div class="drawer-links">
-    <a class="drawer-link" href="#" id="drawerTlcLink"><span class="dl-ico">📋</span>TLC license yangilash</a>
-    <a class="drawer-link" href="https://dmv.ny.gov/mydmv/sign-in-to-mydmv" target="_blank" rel="noopener"><span class="dl-ico">🪪</span>Driver License Tekshirish</a>
-    <a class="drawer-link" href="https://www.nyc.gov/site/finance/vehicles/vehicles.page" target="_blank" rel="noopener"><span class="dl-ico">💳</span>Ticket Tolash</a>
-    <a class="drawer-link" href="https://www.howsmydrivingny.nyc/" target="_blank" rel="noopener"><span class="dl-ico">🔍</span>Plate Ticket Tekshirish</a>
-    <a class="drawer-link" href="https://www.nyc.gov/site/tlc/drivers/check-license-status.page" target="_blank" rel="noopener"><span class="dl-ico">🚕</span>TLC Plate Tekshirish</a>
-    <a class="drawer-link" href="https://a156-nauf.nyc.gov/tlcup/" target="_blank" rel="noopener"><span class="dl-ico">🏛️</span>TLC UP Portal</a>
-    <a class="drawer-link" href="https://apps.nyc.gov/lars/" target="_blank" rel="noopener"><span class="dl-ico">🔄</span>TLC LARS Portal</a>
-    <a class="drawer-link" href="https://dmv.ny.gov/points-and-penalties/the-new-york-state-driver-point-system" target="_blank" rel="noopener"><span class="dl-ico">⭐</span>Pointlar Ro'yxati</a>
-    <a class="drawer-link" href="https://www.nyc.gov/site/finance/vehicles/dispute-a-ticket.page" target="_blank" rel="noopener"><span class="dl-ico">⚖️</span>Ticket Dispute</a>
-    <a class="drawer-link" href="https://nycserv.nyc.gov/NYCServWeb/PVO_Find_Towed_Vehicle.jsp" target="_blank" rel="noopener"><span class="dl-ico">🚗</span>Towing Car Location</a>
-    <a class="drawer-link" href="https://nyctmc.org/" target="_blank" rel="noopener"><span class="dl-ico">📹</span>Webcamera Live New York</a>
+    <button class="drawer-group-head open" data-group="grpTlc"><span class="dl-ico">🚕</span>TLC section<span class="dg-arrow">▾</span></button>
+    <div class="drawer-group open" id="grpTlc">
+      <a class="drawer-link" href="#" id="drawerTlcLink"><span class="dl-ico">📋</span>TLC license yangilash</a>
+      <a class="drawer-link" href="https://www.nyc.gov/site/tlc/drivers/check-license-status.page" target="_blank" rel="noopener"><span class="dl-ico">🚕</span>TLC Plate Tekshirish</a>
+      <a class="drawer-link" href="https://a156-nauf.nyc.gov/tlcup/" target="_blank" rel="noopener"><span class="dl-ico">🏛️</span>TLC UP Portal</a>
+      <a class="drawer-link" href="https://apps.nyc.gov/lars/" target="_blank" rel="noopener"><span class="dl-ico">🔄</span>TLC LARS Portal</a>
+    </div>
+    <button class="drawer-group-head" data-group="grpDmv"><span class="dl-ico">🪪</span>DMV section<span class="dg-arrow">▾</span></button>
+    <div class="drawer-group" id="grpDmv">
+      <a class="drawer-link" href="https://dmv.ny.gov/mydmv/sign-in-to-mydmv" target="_blank" rel="noopener"><span class="dl-ico">🪪</span>Driver License Tekshirish</a>
+      <a class="drawer-link" href="https://www.nyc.gov/site/finance/vehicles/vehicles.page" target="_blank" rel="noopener"><span class="dl-ico">💳</span>Ticket Tolash</a>
+      <a class="drawer-link" href="https://www.nyc.gov/site/finance/vehicles/dispute-a-ticket.page" target="_blank" rel="noopener"><span class="dl-ico">⚖️</span>Ticket Dispute</a>
+      <a class="drawer-link" href="https://dmv.ny.gov/points-and-penalties/the-new-york-state-driver-point-system" target="_blank" rel="noopener"><span class="dl-ico">⭐</span>Pointlar Ro'yxati</a>
+      <a class="drawer-link" href="https://www.howsmydrivingny.nyc/" target="_blank" rel="noopener"><span class="dl-ico">🔍</span>Plate Ticket Tekshirish</a>
+    </div>
+    <button class="drawer-group-head" data-group="grpInfo"><span class="dl-ico">ℹ️</span>Kerakli ma'lumotlar<span class="dg-arrow">▾</span></button>
+    <div class="drawer-group" id="grpInfo">
+      <a class="drawer-link" href="https://nycserv.nyc.gov/NYCServWeb/PVO_Find_Towed_Vehicle.jsp" target="_blank" rel="noopener"><span class="dl-ico">🚗</span>Towing Car Location</a>
+      <a class="drawer-link" href="https://nyctmc.org/" target="_blank" rel="noopener"><span class="dl-ico">📹</span>Webcamera Live New York</a>
+    </div>
   </div>
   <div class="drawer-foot">
     <div class="drawer-foot-card">
       <div class="drawer-foot-name">NYC TLC Driver</div>
-      <div class="drawer-foot-ver" id="drawerVer">v3.23</div>
+      <div class="drawer-foot-ver" id="drawerVer">v3.24</div>
     </div>
   </div>
 </aside>
@@ -679,7 +700,7 @@
     <div class="set-row"><span class="set-label">☀️ Kunduzgi yorqin rejim</span><button class="set-toggle on" id="setBright" role="switch" aria-checked="true">ON</button></div>
     <div class="set-row"><span class="set-label">🔋 Batareya tejash</span><button class="set-toggle" id="setBattery" role="switch" aria-checked="false">OFF</button></div>
     <button id="settingsRefresh" class="wx-btn" style="width:100%;margin-top:12px">🔄 Yangilash</button>
-    <p class="points-foot">Versiya: <span id="settingsVer">v3.23</span></p>
+    <p class="points-foot">Versiya: <span id="settingsVer">v3.24</span></p>
   </div>
 </div>
 
@@ -901,11 +922,11 @@
     const now = Date.now();
     if (!force && now - lastQuotaPaint < 1500) return;
     lastQuotaPaint = now;
-    const left = googleLeft(); // Versiya suffiksi = Google kunlik limitdan qolgani (masalan v3.23.200 = 200 ta qoldi)
+    const left = googleLeft(); // Versiya suffiksi = Google kunlik limitdan qolgani (masalan v3.24.200 = 200 ta qoldi)
     const dv = document.getElementById('drawerVer');
-    if (dv) dv.textContent = 'v3.23.' + left;
+    if (dv) dv.textContent = 'v3.24.' + left;
     const sv = document.getElementById('settingsVer');
-    if (sv) sv.textContent = 'v3.23.' + left;
+    if (sv) sv.textContent = 'v3.24.' + left;
     checkStale();
   }
 
@@ -2429,6 +2450,15 @@
   const pointsModal = document.getElementById('pointsModal');
   document.getElementById('pointsClose').addEventListener('click', () => pointsModal.classList.remove('open'));
   pointsModal.addEventListener('click', e => { if (e.target === pointsModal) pointsModal.classList.remove('open'); });
+
+  // Tezkor havolalar bo'limlari: sarlavha bosilsa ochilib-yopiladi
+  document.querySelectorAll('.drawer-group-head').forEach(head => {
+    head.addEventListener('click', () => {
+      const grp = document.getElementById(head.dataset.group);
+      const open = grp ? grp.classList.toggle('open') : false;
+      head.classList.toggle('open', open);
+    });
+  });
 
   // TLC Renewal oynasi
   const tlcModal = document.getElementById('tlcModal');

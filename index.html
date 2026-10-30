@@ -523,7 +523,7 @@
   <div id="header">
     <button id="menuBtn" aria-label="Menyu">☰</button>
     <div class="head-title">
-      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.17</span></div>
+      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.18</span></div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
     </div>
     <button id="pointsBtn" title="Uber Pro ballar">⭐ <span id="pointsNum">--</span>.0</button>
@@ -592,7 +592,7 @@
   <div class="drawer-foot">
     <div class="drawer-foot-card">
       <div class="drawer-foot-name">NYC TLC Driver</div>
-      <div class="drawer-foot-ver" id="drawerVer">v3.17</div>
+      <div class="drawer-foot-ver" id="drawerVer">v3.18</div>
     </div>
   </div>
 </aside>
@@ -609,7 +609,7 @@
     <div class="set-row"><span class="set-label">⚠️ Tezlik ogohlantirishi</span><button class="set-toggle on" id="setSpeedWarn" role="switch" aria-checked="true">ON</button></div>
     <div class="set-row"><span class="set-label">🔄 Avtomatik yangilash</span><button class="set-toggle on" id="setAutoUpd" role="switch" aria-checked="true">ON</button></div>
     <button id="settingsRefresh" class="wx-btn" style="width:100%;margin-top:12px">🔄 Yangilash</button>
-    <p class="points-foot">Versiya: <span id="settingsVer">v3.17</span></p>
+    <p class="points-foot">Versiya: <span id="settingsVer">v3.18</span></p>
   </div>
 </div>
 
@@ -852,9 +852,9 @@
     lastQuotaPaint = now;
     const left = Math.max(0, TT_DAILY_LIMIT - ttUsage.routing - ttUsage.tiles);
     const dv = document.getElementById('drawerVer');
-    if (dv) dv.textContent = 'v3.17.' + left;
+    if (dv) dv.textContent = 'v3.18.' + left;
     const sv = document.getElementById('settingsVer');
-    if (sv) sv.textContent = 'v3.17.' + left;
+    if (sv) sv.textContent = 'v3.18.' + left;
     checkStale();
   }
 
@@ -1606,6 +1606,7 @@
     const modal = document.getElementById('chargeModal');
     const body = document.getElementById('chargeBody');
     modal.classList.add('open');
+    document.getElementById('stripHotspots').classList.add('active');
     body.innerHTML = '<p class="points-note">Yuklanmoqda...</p>';
     try {
       const data = await fetchChargers();
@@ -1667,6 +1668,7 @@
     const modal = document.getElementById('weatherModal');
     const body = document.getElementById('weatherBody');
     modal.classList.add('open');
+    document.getElementById('stripWx').classList.add('active');
     body.innerHTML = '<p class="points-note">Yuklanmoqda...</p>';
     try {
       const data = await fetchWeather();
@@ -2069,13 +2071,13 @@
 
   // Tesla zaryadlash oynasi
   const chargeModal = document.getElementById('chargeModal');
-  document.getElementById('chargeClose').addEventListener('click', () => chargeModal.classList.remove('open'));
-  chargeModal.addEventListener('click', e => { if (e.target === chargeModal) chargeModal.classList.remove('open'); });
+  document.getElementById('chargeClose').addEventListener('click', () => { chargeModal.classList.remove('open'); document.getElementById('stripHotspots').classList.remove('active'); });
+  chargeModal.addEventListener('click', e => { if (e.target === chargeModal) { chargeModal.classList.remove('open'); document.getElementById('stripHotspots').classList.remove('active'); } });
 
   // Ob-havo oynasi
   const weatherModal = document.getElementById('weatherModal');
-  document.getElementById('weatherClose').addEventListener('click', () => weatherModal.classList.remove('open'));
-  weatherModal.addEventListener('click', e => { if (e.target === weatherModal) weatherModal.classList.remove('open'); });
+  document.getElementById('weatherClose').addEventListener('click', () => { weatherModal.classList.remove('open'); document.getElementById('stripWx').classList.remove('active'); });
+  weatherModal.addEventListener('click', e => { if (e.target === weatherModal) { weatherModal.classList.remove('open'); document.getElementById('stripWx').classList.remove('active'); } });
 
   // Reyslar oynasi
   const flightsModal = document.getElementById('flightsModal');

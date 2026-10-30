@@ -514,7 +514,7 @@
   <div id="header">
     <button id="menuBtn" aria-label="Menyu">☰</button>
     <div class="head-title">
-      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.11</span></div>
+      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.12</span></div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
     </div>
     <button id="pointsBtn" title="Uber Pro ballar">⭐ <span id="pointsNum">--</span>.0</button>
@@ -582,7 +582,7 @@
   <div class="drawer-foot">
     <div class="drawer-foot-card">
       <div class="drawer-foot-name">NYC TLC Driver</div>
-      <div class="drawer-foot-ver" id="drawerVer">v3.11</div>
+      <div class="drawer-foot-ver" id="drawerVer">v3.12</div>
     </div>
   </div>
 </aside>
@@ -599,7 +599,7 @@
     <div class="set-row"><span class="set-label">⚠️ Tezlik ogohlantirishi</span><button class="set-toggle on" id="setSpeedWarn" role="switch" aria-checked="true">ON</button></div>
     <div class="set-row"><span class="set-label">🔄 Avtomatik yangilash</span><button class="set-toggle on" id="setAutoUpd" role="switch" aria-checked="true">ON</button></div>
     <button id="settingsRefresh" class="wx-btn" style="width:100%;margin-top:12px">🔄 Yangilash</button>
-    <p class="points-foot">Versiya: <span id="settingsVer">v3.11</span></p>
+    <p class="points-foot">Versiya: <span id="settingsVer">v3.12</span></p>
   </div>
 </div>
 
@@ -789,7 +789,7 @@
   const TOMTOM_KEY = _tk[0] + _tk[1];
 
   // Google Directions kaliti (kalit kelgach to'ldiriladi; bo'sh bo'lsa Google routing o'chirilgan)
-  const _gk = ['', ''];
+  const _gk = ['AIzaSyAllWCzmo5-jCq1', '3g1AhvbQ0EafwblrXjg'];
   const GOOGLE_KEY = _gk[0] + _gk[1];
 
   let map, userMarker, autoZoom = true;
@@ -841,9 +841,9 @@
     lastQuotaPaint = now;
     const left = Math.max(0, TT_DAILY_LIMIT - ttUsage.routing - ttUsage.tiles);
     const dv = document.getElementById('drawerVer');
-    if (dv) dv.textContent = 'v3.11.' + left;
+    if (dv) dv.textContent = 'v3.12.' + left;
     const sv = document.getElementById('settingsVer');
-    if (sv) sv.textContent = 'v3.11.' + left;
+    if (sv) sv.textContent = 'v3.12.' + left;
     checkStale();
   }
 

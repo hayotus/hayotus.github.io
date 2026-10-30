@@ -353,6 +353,16 @@
   @media (max-height: 520px) {
     #restroomMenu { max-height: 180px; }
   }
+  /* Location oynasi (restroom kabi suzuvchi panel) */
+  #locMenu {
+    display: none; position: fixed; top: 120px; right: 8px;
+    width: min(300px, calc(100vw - 16px)); padding: 6px; z-index: 1300;
+    background: rgba(17,24,39,0.97); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px; box-shadow: 0 12px 28px rgba(0,0,0,0.5);
+    max-height: min(320px, 55vh); overflow-y: auto;
+  }
+  #locMenu.open { display: block; }
   .location-option {
     display: flex; align-items: center; gap: 6px;
     width: 100%; margin: 3px 0; padding: 6px 8px;
@@ -498,7 +508,7 @@
   <div id="header">
     <button id="menuBtn" aria-label="Menyu">☰</button>
     <div class="head-title">
-      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.5</span></div>
+      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.6</span></div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
     </div>
     <button id="pointsBtn" title="Uber Pro ballar">⭐ <span id="pointsNum">--</span>.0</button>
@@ -522,6 +532,7 @@
 </div>
 
 <div id="restroomMenu"></div>
+<div id="locMenu"></div>
 
 <div id="etaSection">
   <div id="etaHead">
@@ -546,19 +557,11 @@
     <button class="drawer-item" id="drawerSurge">📈 Surge &amp; Demand Heatmap</button>
     <button class="drawer-item" id="drawerQueue">✈️ Airport Queue Tracker</button>
     <button class="drawer-item" id="drawerSettings">⚙️ Settings &amp; Preferences</button>
-    <button class="drawer-item" id="drawerTlc">🪪 TLC license yangilash</button>
   </nav>
-  <div class="drawer-sec">Saqlangan joylar</div>
-  <div id="locationMenu">
-    <button class="location-option" data-location="2"><span class="loc-main"><span class="loc-name">Office 40w St</span><span class="loc-addr">360 W 40th St, New York, NY 10018</span></span><span class="loc-badges"><span class="loc-badge"><span class="v" id="locmi-2">--</span><span class="u">mi</span></span><span class="loc-badge min"><span class="v" id="locmin-2">--</span><span class="u">min</span></span></span></button>
-    <button class="location-option" data-location="3"><span class="loc-main"><span class="loc-name">Office 10e St</span><span class="loc-addr">277 E 10th St, New York, NY 10009</span></span><span class="loc-badges"><span class="loc-badge"><span class="v" id="locmi-3">--</span><span class="u">mi</span></span><span class="loc-badge min"><span class="v" id="locmin-3">--</span><span class="u">min</span></span></span></button>
-    <button class="location-option" data-location="4"><span class="loc-main"><span class="loc-name">Virgin Hotel</span><span class="loc-addr">1227 Broadway, New York, NY 10001</span></span><span class="loc-badges"><span class="loc-badge"><span class="v" id="locmi-4">--</span><span class="u">mi</span></span><span class="loc-badge min"><span class="v" id="locmin-4">--</span><span class="u">min</span></span></span></button>
-    <button class="location-option" data-location="5"><span class="loc-main"><span class="loc-name">Times square</span><span class="loc-addr">Times Square, Manhattan, NY</span></span><span class="loc-badges"><span class="loc-badge"><span class="v" id="locmi-5">--</span><span class="u">mi</span></span><span class="loc-badge min"><span class="v" id="locmin-5">--</span><span class="u">min</span></span></span></button>
-    <button class="location-option" data-location="6"><span class="loc-main"><span class="loc-name">Exit 13</span><span class="loc-addr">1689 Remsen Ave, Brooklyn, NY 11236</span></span><span class="loc-badges"><span class="loc-badge"><span class="v" id="locmi-6">--</span><span class="u">mi</span></span><span class="loc-badge min"><span class="v" id="locmin-6">--</span><span class="u">min</span></span></span></button>
-  </div>
   <div class="drawer-div"></div>
   <div class="drawer-sec">Tezkor havolalar</div>
   <div class="drawer-links">
+    <a class="drawer-link" href="#" id="drawerTlcLink"><span class="dl-ico">📋</span>TLC license yangilash</a>
     <a class="drawer-link" href="https://dmv.ny.gov/mydmv/sign-in-to-mydmv" target="_blank" rel="noopener"><span class="dl-ico">🪪</span>Driver License Tekshirish</a>
     <a class="drawer-link" href="https://www.nyc.gov/site/finance/vehicles/vehicles.page" target="_blank" rel="noopener"><span class="dl-ico">💳</span>Ticket Tolash</a>
     <a class="drawer-link" href="https://www.howsmydrivingny.nyc/" target="_blank" rel="noopener"><span class="dl-ico">🔍</span>Plate Ticket Tekshirish</a>
@@ -573,7 +576,7 @@
   <div class="drawer-foot">
     <div class="drawer-foot-card">
       <div class="drawer-foot-name">NYC TLC Driver</div>
-      <div class="drawer-foot-ver" id="drawerVer">v3.5</div>
+      <div class="drawer-foot-ver" id="drawerVer">v3.6</div>
     </div>
   </div>
 </aside>
@@ -590,7 +593,7 @@
     <div class="set-row"><span class="set-label">⚠️ Tezlik ogohlantirishi</span><button class="set-toggle on" id="setSpeedWarn" role="switch" aria-checked="true">ON</button></div>
     <div class="set-row"><span class="set-label">🔄 Avtomatik yangilash</span><button class="set-toggle on" id="setAutoUpd" role="switch" aria-checked="true">ON</button></div>
     <button id="settingsRefresh" class="wx-btn" style="width:100%;margin-top:12px">🔄 Yangilash</button>
-    <p class="points-foot">Versiya: <span id="settingsVer">v3.5</span></p>
+    <p class="points-foot">Versiya: <span id="settingsVer">v3.6</span></p>
   </div>
 </div>
 
@@ -776,16 +779,6 @@
     try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch (e) {}
   }
 
-  function initLocationMenu() {
-    // Saqlangan joylar ro'yxati drawer ichida turadi — bosilsa navigatsiya ochiladi
-    document.querySelectorAll('#locationMenu .location-option').forEach(button => {
-      button.addEventListener('click', () => {
-        const location = SAVED_LOCATIONS.find(item => item.id === Number(button.dataset.location));
-        if (location) openLocationNavigation(location);
-      });
-    });
-  }
-
   const _tk = ['6OihyLXDxuOwymbh', 'mSqC20o8MjjwoCTJ'];
   const TOMTOM_KEY = _tk[0] + _tk[1];
 
@@ -842,9 +835,9 @@
     lastQuotaPaint = now;
     const left = Math.max(0, TT_DAILY_LIMIT - ttUsage.routing - ttUsage.tiles);
     const dv = document.getElementById('drawerVer');
-    if (dv) dv.textContent = 'v3.5.' + left;
+    if (dv) dv.textContent = 'v3.6.' + left;
     const sv = document.getElementById('settingsVer');
-    if (sv) sv.textContent = 'v3.5.' + left;
+    if (sv) sv.textContent = 'v3.6.' + left;
     checkStale();
   }
 
@@ -1091,10 +1084,7 @@
         if (seq !== locSeq) return;
         if (res) {
           locationInfo[loc.id] = { dist: res.distanceMiles, mins: res.durationMins };
-          const mi = document.getElementById('locmi-' + loc.id);
-          const mn = document.getElementById('locmin-' + loc.id);
-          if (mi) mi.textContent = res.distanceMiles;
-          if (mn) mn.textContent = res.durationMins;
+          renderLocations();
         }
       }
     }
@@ -1287,6 +1277,52 @@
     if (Date.now() - lastRstFetch > 120000 || (moved > 300 && Date.now() - lastRstFetch > 60000)) refreshRestroomRoutes();
   }
 
+  // --- Location oynasi: saqlangan joylar ro'yxati (restroom kabi), mapda metkalar bilan ---
+  function renderLocations() {
+    const menu = document.getElementById('locMenu');
+    if (!menu) return;
+    menu.innerHTML = '';
+    SAVED_LOCATIONS.forEach(loc => {
+      const info = locationInfo[loc.id];
+      const btn = document.createElement('button');
+      btn.className = 'location-option';
+      btn.title = loc.name;
+      btn.innerHTML = `<span class="loc-main"><span class="loc-name">${loc.name}</span><span class="loc-addr">${loc.address}</span></span>` +
+        `<span class="loc-badges"><span class="loc-badge"><span class="v">${info ? info.dist : '--'}</span><span class="u">mi</span></span>` +
+        `<span class="loc-badge min"><span class="v">${info ? info.mins : '--'}</span><span class="u">min</span></span></span>`;
+      btn.addEventListener('click', () => openLocationNavigation(loc));
+      menu.appendChild(btn);
+    });
+  }
+
+  // Location ochilganda xarita foydalanuvchi + barcha joylarni sig'diradi
+  function zoomToLocations() {
+    if (!map) return;
+    const pts = SAVED_LOCATIONS.map(l => [l.lat, l.lon]);
+    if (userLat !== null) pts.push([userLat, userLon]);
+    map.fitBounds(L.latLngBounds(pts), { paddingTopLeft: [30, 130], paddingBottomRight: [30, 250] });
+  }
+
+  function initLocMenu() {
+    const toggle = document.getElementById('stripLocations');
+    const menu = document.getElementById('locMenu');
+    if (!toggle || !menu) return;
+    toggle.addEventListener('click', () => {
+      const isOpen = menu.classList.toggle('open');
+      if (isOpen) {
+        const rm = document.getElementById('restroomMenu');
+        if (rm && rm.classList.contains('open')) { rm.classList.remove('open'); syncRestroomMarkers(false); restoreSavedView(); }
+        placeMenuUnderButton(menu, toggle);
+        if (map) savedView = { center: map.getCenter(), zoom: map.getZoom() };
+        zoomToLocations();
+        syncLocationMarkers(true);
+        renderLocations();
+        if (userLat !== null && Date.now() - lastLocFetch > 60000) refreshLocationRoutes();
+      }
+      else { syncLocationMarkers(false); restoreSavedView(); }
+    });
+  }
+
   function initRestroomMenu() {
     const toggle = document.getElementById('stripRestrooms');
     const menu = document.getElementById('restroomMenu');
@@ -1294,6 +1330,8 @@
       const isOpen = menu.classList.toggle('open');
       syncLocationMarkers(false);
       if (isOpen) {
+        const lm = document.getElementById('locMenu');
+        if (lm && lm.classList.contains('open')) { lm.classList.remove('open'); restoreSavedView(); }
         placeMenuUnderButton(menu, toggle);
         restroomVisibleCount = 5;
         if (map) savedView = { center: map.getCenter(), zoom: map.getZoom() };
@@ -1336,9 +1374,9 @@
       const dLonL = (userLon - lastLocLon) * 85000;
       locMoved = Math.sqrt(dLatL * dLatL + dLonL * dLonL);
     }
-    // Menyu (drawer) ochiq bo'lsa lokatsiyalar sekinroq (5 daq) yangilanadi — limit tejaladi
-    const drawerEl = document.getElementById('drawer');
-    const locInterval = (drawerEl && drawerEl.classList.contains('open')) ? 120000 : 300000;
+    // Location oynasi ochiq bo'lsa lokatsiyalar tezroq (2 daq) yangilanadi — limit tejaladi
+    const locMenuEl = document.getElementById('locMenu');
+    const locInterval = (locMenuEl && locMenuEl.classList.contains('open')) ? 120000 : 300000;
     if (force || nowL - lastLocFetch > locInterval || (locMoved > 500 && nowL - lastLocFetch > 60000)) {
       refreshLocationRoutes();
     }
@@ -1741,9 +1779,6 @@
     document.getElementById('stripHotspots').addEventListener('click', () => {
       showChargers();
     });
-    document.getElementById('stripLocations').addEventListener('click', () => {
-      openDrawer();
-    });
     document.getElementById('stripWx').addEventListener('click', () => {
       showWeather();
     });
@@ -1814,7 +1849,7 @@
   setInterval(evaluateTrafficDemand, 60000);
   buildCards();
   initMap();
-  initLocationMenu();
+  initLocMenu();
   initRestroomMenu();
   renderRestrooms();
 
@@ -1837,15 +1872,18 @@
       syncRestroomMarkers(false);
       restoreSavedView();
     }
+    const lm = document.getElementById('locMenu');
+    if (lm && lm.classList.contains('open')) {
+      lm.classList.remove('open');
+      syncLocationMarkers(false);
+      restoreSavedView();
+    }
     document.getElementById('drawer').classList.add('open');
     document.getElementById('drawerOverlay').classList.add('open');
-    syncLocationMarkers(true);
-    if (userLat !== null) refreshLocationRoutes();
   }
   function closeDrawer() {
     document.getElementById('drawer').classList.remove('open');
     document.getElementById('drawerOverlay').classList.remove('open');
-    syncLocationMarkers(false);
   }
   document.getElementById('menuBtn').addEventListener('click', openDrawer);
   document.getElementById('drawerClose').addEventListener('click', closeDrawer);
@@ -1929,7 +1967,8 @@
 
   // TLC Renewal oynasi
   const tlcModal = document.getElementById('tlcModal');
-  document.getElementById('drawerTlc').addEventListener('click', () => {
+  document.getElementById('drawerTlcLink').addEventListener('click', (e) => {
+    e.preventDefault();
     closeDrawer();
     tlcModal.classList.add('open');
   });

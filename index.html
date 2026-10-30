@@ -585,7 +585,7 @@
   <div id="header">
     <button id="menuBtn" aria-label="Menyu">☰</button>
     <div class="head-title">
-      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.22</span></div>
+      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.23</span></div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
     </div>
     <button id="pointsBtn" title="Uber Pro ballar">⭐ <span id="pointsNum">--</span>.0</button>
@@ -658,7 +658,7 @@
   <div class="drawer-foot">
     <div class="drawer-foot-card">
       <div class="drawer-foot-name">NYC TLC Driver</div>
-      <div class="drawer-foot-ver" id="drawerVer">v3.22</div>
+      <div class="drawer-foot-ver" id="drawerVer">v3.23</div>
     </div>
   </div>
 </aside>
@@ -679,7 +679,7 @@
     <div class="set-row"><span class="set-label">☀️ Kunduzgi yorqin rejim</span><button class="set-toggle on" id="setBright" role="switch" aria-checked="true">ON</button></div>
     <div class="set-row"><span class="set-label">🔋 Batareya tejash</span><button class="set-toggle" id="setBattery" role="switch" aria-checked="false">OFF</button></div>
     <button id="settingsRefresh" class="wx-btn" style="width:100%;margin-top:12px">🔄 Yangilash</button>
-    <p class="points-foot">Versiya: <span id="settingsVer">v3.22</span></p>
+    <p class="points-foot">Versiya: <span id="settingsVer">v3.23</span></p>
   </div>
 </div>
 
@@ -830,19 +830,9 @@
   let restroomsLoaded = false;
   const RESTROOM_SHOW = 20;
 
+  // Navigatsiya: HAMMA qurilmada faqat Google Maps (foydalanuvchi buyrug'i, 2026-10-30)
   function openLocationNavigation(location) {
-    const ua = navigator.userAgent || '';
-    const isIOS = /iPhone|iPad|iPod/i.test(ua);
-    const isAndroid = /Android/i.test(ua);
-    let url;
-    if (isIOS) {
-      url = `maps://?daddr=${location.lat},${location.lon}&dirflg=d`;
-    } else if (isAndroid) {
-      url = `geo:${location.lat},${location.lon}?q=${location.lat},${location.lon}(${encodeURIComponent(location.address)})`;
-    } else {
-      url = `https://www.google.com/maps/dir/?api=1&destination=${location.lat},${location.lon}`;
-    }
-    window.location.href = url;
+    window.location.href = `https://www.google.com/maps/dir/?api=1&destination=${location.lat},${location.lon}`;
   }
 
   // Sozlamalar (localStorage da saqlanadi)
@@ -911,11 +901,11 @@
     const now = Date.now();
     if (!force && now - lastQuotaPaint < 1500) return;
     lastQuotaPaint = now;
-    const left = googleLeft(); // Versiya suffiksi = Google kunlik limitdan qolgani (masalan v3.22.200 = 200 ta qoldi)
+    const left = googleLeft(); // Versiya suffiksi = Google kunlik limitdan qolgani (masalan v3.23.200 = 200 ta qoldi)
     const dv = document.getElementById('drawerVer');
-    if (dv) dv.textContent = 'v3.22.' + left;
+    if (dv) dv.textContent = 'v3.23.' + left;
     const sv = document.getElementById('settingsVer');
-    if (sv) sv.textContent = 'v3.22.' + left;
+    if (sv) sv.textContent = 'v3.23.' + left;
     checkStale();
   }
 
@@ -1109,18 +1099,7 @@
 
   // --- Navigatsiyani ochish (marker yoki doira bosilganda) ---
   function openNavigation(airport) {
-    const ua = navigator.userAgent || '';
-    const isIOS = /iPhone|iPad|iPod/i.test(ua);
-    const isAndroid = /Android/i.test(ua);
-    let url;
-    if (isIOS) {
-      url = `maps://?daddr=${airport.lat},${airport.lon}&dirflg=d`;
-    } else if (isAndroid) {
-      url = `geo:${airport.lat},${airport.lon}?q=${airport.lat},${airport.lon}(${encodeURIComponent(airport.name)})`;
-    } else {
-      url = `https://www.google.com/maps/dir/?api=1&destination=${airport.lat},${airport.lon}`;
-    }
-    window.location.href = url;
+    window.location.href = `https://www.google.com/maps/dir/?api=1&destination=${airport.lat},${airport.lon}`;
   }
 
   // --- Google (avval) / TomTom orqali marshrut (TRAFFIC tugmasiga qarab: on = tirbandlik bilan, off = trafficsiz) ---

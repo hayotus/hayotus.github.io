@@ -119,7 +119,7 @@
     display: flex; flex-direction: column; gap: 10px;
   }
   .side-btn {
-    width: 56px; height: 56px; border-radius: 50%;
+    width: 44px; height: 44px; border-radius: 50%;
     background: rgba(255,255,255,0.96); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
     border: 2px solid #0EA5E9; color: #0284C7;
     font-size: 20px; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.35);
@@ -334,6 +334,13 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.6); cursor: pointer;
   }
+  /* Tesla metkasi */
+  .tesla-marker {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(255,255,255,0.95); border: 2px solid #F59E0B;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.6); cursor: pointer;
+  }
   /* Foydalanuvchi nuqtasi (pulsatsiyalanuvchi halo) */
   .user-dot {
     position: relative; width: 20px; height: 20px; border-radius: 50%;
@@ -372,6 +379,16 @@
     max-height: min(350px, 55vh); overflow-y: auto;
   }
   #locMenu.open { display: block; }
+  /* Tesla oynasi (restroom kabi suzuvchi panel) */
+  #teslaMenu {
+    display: none; position: fixed; top: 120px; right: 8px;
+    width: min(250px, calc(100vw - 32px)); padding: 4px; z-index: 1300;
+    background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none;
+    border: none;
+    border-radius: 16px; box-shadow: none;
+    max-height: min(350px, 55vh); overflow-y: auto;
+  }
+  #teslaMenu.open { display: block; }
   .location-option {
     display: flex; align-items: center; gap: 6px;
     width: 100%; margin: 3px 0; padding: 6px 8px;
@@ -396,10 +413,10 @@
   .loc-badge .v { color: #fff; font-size: 11px; font-weight: 800; line-height: 1; }
   .loc-badge .u { color: #8E8E93; font-size: 8px; font-weight: 600; margin-top: 1px; }
   /* Location + Restroom oynalari: 70% shaffof, har qator ramkada — nom/masofa/vaqt aniq, orqada map ko'rinadi */
-  #locMenu .location-option, #restroomMenu .location-option { padding: 6px 8px; margin: 3px 0; background: rgba(17,24,39,0.30); border: 1.5px solid rgba(255,255,255,0.5); border-radius: 12px; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
-  #locMenu .loc-name, #restroomMenu .loc-name { font-size: 15px; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
-  #locMenu .loc-badge, #restroomMenu .loc-badge { width: 38px; height: 38px; background: rgba(28,28,30,0.55); }
-  #locMenu .loc-badge .v, #restroomMenu .loc-badge .v { font-size: 14px; color: #fff; }
+  #locMenu .location-option, #restroomMenu .location-option, #teslaMenu .location-option { padding: 6px 8px; margin: 3px 0; background: rgba(17,24,39,0.30); border: 1.5px solid rgba(255,255,255,0.5); border-radius: 12px; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+  #locMenu .loc-name, #restroomMenu .loc-name, #teslaMenu .loc-name { font-size: 15px; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+  #locMenu .loc-badge, #restroomMenu .loc-badge, #teslaMenu .loc-badge { width: 38px; height: 38px; background: rgba(28,28,30,0.55); }
+  #locMenu .loc-badge .v, #restroomMenu .loc-badge .v, #teslaMenu .loc-badge .v { font-size: 14px; color: #fff; }
   #locMenu .loc-badge .u, #restroomMenu .loc-badge .u { font-size: 9px; color: #D1D5DB; }
 
   /* Yon menyu (drawer) */
@@ -523,7 +540,7 @@
   <div id="header">
     <button id="menuBtn" aria-label="Menyu">☰</button>
     <div class="head-title">
-      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.18</span></div>
+      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.19</span></div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
     </div>
     <button id="pointsBtn" title="Uber Pro ballar">⭐ <span id="pointsNum">--</span>.0</button>
@@ -536,11 +553,12 @@
 </div>
 
 <div id="sideBtns">
-  <button class="side-btn" id="recenter" aria-label="Markazlash"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0284C7" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="1.6" fill="#0284C7" stroke="none"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/></svg></button>
+  <button class="side-btn" id="recenter" aria-label="Markazlash"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0284C7" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="1.6" fill="#0284C7" stroke="none"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/></svg></button>
 </div>
 
 <div id="restroomMenu"></div>
 <div id="locMenu"></div>
+<div id="teslaMenu"></div>
 
 <div id="etaSection">
   <div id="etaHead">
@@ -553,7 +571,7 @@
     <button class="strip-pill" id="stripLocations"><span class="tab-ic">📍</span><span class="tab-lb">Location</span></button>
     <button class="strip-pill" id="stripRestrooms"><span class="tab-ic">🚻</span><span class="tab-lb">Restrooms</span></button>
     <button class="strip-pill" id="stripWx"><span class="tab-ic">🌙</span><span class="tab-lb">—°F</span></button>
-    <button class="strip-pill" id="stripHotspots" aria-label="Hotspots"><span class="tab-ic">⚡</span><span class="tab-lb">Hotspots</span></button>
+    <button class="strip-pill" id="stripHotspots" aria-label="Tesla"><span class="tab-ic">⚡</span><span class="tab-lb">Tesla</span></button>
     <button class="strip-pill active" id="stripEzpass" aria-label="EZPass"><span class="tab-ic">🛣️</span><span class="tab-lb">EZPass ON</span></button>
   </div>
 </div>
@@ -592,7 +610,7 @@
   <div class="drawer-foot">
     <div class="drawer-foot-card">
       <div class="drawer-foot-name">NYC TLC Driver</div>
-      <div class="drawer-foot-ver" id="drawerVer">v3.18</div>
+      <div class="drawer-foot-ver" id="drawerVer">v3.19</div>
     </div>
   </div>
 </aside>
@@ -609,7 +627,7 @@
     <div class="set-row"><span class="set-label">⚠️ Tezlik ogohlantirishi</span><button class="set-toggle on" id="setSpeedWarn" role="switch" aria-checked="true">ON</button></div>
     <div class="set-row"><span class="set-label">🔄 Avtomatik yangilash</span><button class="set-toggle on" id="setAutoUpd" role="switch" aria-checked="true">ON</button></div>
     <button id="settingsRefresh" class="wx-btn" style="width:100%;margin-top:12px">🔄 Yangilash</button>
-    <p class="points-foot">Versiya: <span id="settingsVer">v3.18</span></p>
+    <p class="points-foot">Versiya: <span id="settingsVer">v3.19</span></p>
   </div>
 </div>
 
@@ -852,9 +870,9 @@
     lastQuotaPaint = now;
     const left = Math.max(0, TT_DAILY_LIMIT - ttUsage.routing - ttUsage.tiles);
     const dv = document.getElementById('drawerVer');
-    if (dv) dv.textContent = 'v3.18.' + left;
+    if (dv) dv.textContent = 'v3.19.' + left;
     const sv = document.getElementById('settingsVer');
-    if (sv) sv.textContent = 'v3.18.' + left;
+    if (sv) sv.textContent = 'v3.19.' + left;
     checkStale();
   }
 
@@ -986,6 +1004,8 @@
     refreshRoutes(true);
     const rm = document.getElementById('restroomMenu');
     if (rm && rm.classList.contains('open')) refreshRestroomRoutes();
+    const tm = document.getElementById('teslaMenu');
+    if (tm && tm.classList.contains('open')) refreshChargerRoutes();
   }
 
   // EZPass tugmasi: ON = pullik (toll) yo'llar ham ruxsat, OFF = faqat tollsiz yo'llar
@@ -1010,6 +1030,8 @@
     refreshRoutes(true);
     const rm = document.getElementById('restroomMenu');
     if (rm && rm.classList.contains('open')) refreshRestroomRoutes();
+    const tm = document.getElementById('teslaMenu');
+    if (tm && tm.classList.contains('open')) refreshChargerRoutes();
     showToast(ezpassOn ? 'EZPass ON — pullik yo\'llar bilan' : 'EZPass OFF — faqat tollsiz yo\'llar');
   }
 
@@ -1407,6 +1429,111 @@
     });
   }
 
+  // --- Tesla oynasi: restroom kabi suzuvchi panel + mapda ⚡ metkalar ---
+  let chargerList = null; // null = hali yuklanmagan
+  let chargerInfo = {};
+  let chargerLayer = null;
+  let chgSeq = 0;
+
+  function renderChargerMenu() {
+    const menu = document.getElementById('teslaMenu');
+    if (!menu) return;
+    menu.innerHTML = '';
+    if (!chargerList) {
+      menu.innerHTML = '<div class="location-option" style="cursor:default"><span class="loc-main"><span class="loc-name">Yuklanmoqda...</span></span></div>';
+      return;
+    }
+    if (!chargerList.length) {
+      menu.innerHTML = '<div class="location-option" style="cursor:default"><span class="loc-main"><span class="loc-name">Yaqin atrofda (50 km) Supercharger topilmadi</span></span></div>';
+      return;
+    }
+    chargerList.forEach((c, i) => {
+      const info = chargerInfo[i];
+      const btn = document.createElement('button');
+      btn.className = 'location-option';
+      btn.title = c.name;
+      btn.innerHTML = `<span class="loc-main"><span class="loc-name">⚡ ${c.name}</span></span>` +
+        `<span class="loc-badges"><span class="loc-badge"><span class="v">${info ? info.dist : (c.km * 0.621371).toFixed(1)}</span><span class="u">mi</span></span>` +
+        `<span class="loc-badge min"><span class="v">${info ? info.mins : '--'}</span><span class="u">min</span></span></span>`;
+      btn.addEventListener('click', () => openNavigation(c));
+      menu.appendChild(btn);
+    });
+  }
+
+  // Tesla menyusi ochiq paytda xaritada ⚡ metkalar ko'rinadi, yopilganda yashiriladi
+  function syncChargerMarkers(show) {
+    if (!map) return;
+    if (!show) {
+      if (chargerLayer) { map.removeLayer(chargerLayer); chargerLayer = null; }
+      return;
+    }
+    if (!chargerList) return;
+    if (!chargerLayer) chargerLayer = L.layerGroup().addTo(map);
+    chargerLayer.clearLayers();
+    chargerList.forEach(c => {
+      const icon = L.divIcon({ className: '', html: '<div class="tesla-marker">⚡</div>', iconSize: [28, 28], iconAnchor: [14, 14] });
+      const m = L.marker([c.lat, c.lon], { icon: icon });
+      m.bindTooltip('<b>' + c.name + '</b>', { direction: 'top', offset: [0, -14] });
+      m.on('click', () => openNavigation(c));
+      chargerLayer.addLayer(m);
+    });
+  }
+
+  function zoomToChargers() {
+    if (!map || !chargerList || !chargerList.length) return;
+    const pts = chargerList.map(c => [c.lat, c.lon]);
+    if (userLat !== null) pts.push([userLat, userLon]);
+    map.fitBounds(L.latLngBounds(pts), { paddingTopLeft: [30, 130], paddingBottomRight: [30, 320] });
+  }
+
+  async function refreshChargerRoutes() {
+    if (userLat === null || !chargerList || !chargerList.length) return;
+    const seq = ++chgSeq;
+    await Promise.all(chargerList.map(async (c, i) => {
+      const res = await fetchRoute(userLat, userLon, c);
+      if (seq !== chgSeq) return;
+      if (res) { chargerInfo[i] = { dist: res.distanceMiles, mins: res.durationMins }; renderChargerMenu(); }
+    }));
+  }
+
+  async function loadChargerMenu() {
+    try {
+      const data = await fetchChargers();
+      chargerList = data.list;
+    } catch (e) { chargerList = []; }
+    chargerInfo = {};
+    renderChargerMenu();
+    const tm = document.getElementById('teslaMenu');
+    if (tm && tm.classList.contains('open')) {
+      zoomToChargers();
+      syncChargerMarkers(true);
+      refreshChargerRoutes();
+    }
+  }
+
+  function initTeslaMenu() {
+    const toggle = document.getElementById('stripHotspots');
+    const menu = document.getElementById('teslaMenu');
+    if (!toggle || !menu) return;
+    toggle.addEventListener('click', () => {
+      const isOpen = menu.classList.toggle('open');
+      toggle.classList.toggle('active', isOpen);
+      syncLocationMarkers(false);
+      if (isOpen) {
+        const lm = document.getElementById('locMenu');
+        if (lm && lm.classList.contains('open')) { lm.classList.remove('open'); document.getElementById('stripLocations').classList.remove('active'); restoreSavedView(); }
+        const rm = document.getElementById('restroomMenu');
+        if (rm && rm.classList.contains('open')) { rm.classList.remove('open'); document.getElementById('stripRestrooms').classList.remove('active'); syncRestroomMarkers(false); restoreSavedView(); }
+        placeMenuUnderButton(menu, toggle);
+        if (map) savedView = { center: map.getCenter(), zoom: map.getZoom() };
+        renderChargerMenu();
+        if (chargerList) { zoomToChargers(); syncChargerMarkers(true); refreshChargerRoutes(); }
+        loadChargerMenu();
+      }
+      else { syncChargerMarkers(false); restoreSavedView(); }
+    });
+  }
+
   async function refreshRoutes(force) {
     if (userLat === null) return;
     const seq = ++routeSeq;
@@ -1458,6 +1585,8 @@
     lastLocFetch = 0;
     lastRstFetch = 0;
     refreshRoutes(true);
+    const tmEl = document.getElementById('teslaMenu');
+    if (tmEl && tmEl.classList.contains('open')) loadChargerMenu();
     updatePointsCircle();
     fetchWeather().then(d => updateStripWx(d.mine.current.temperature_2m)).catch(() => {});
     showToast('Hammasi yangilandi');
@@ -1864,9 +1993,6 @@
       refreshAll();
     });
     document.getElementById('stripTraffic').addEventListener('click', toggleTraffic);
-    document.getElementById('stripHotspots').addEventListener('click', () => {
-      showChargers();
-    });
     document.getElementById('stripEzpass').addEventListener('click', toggleEzpass);
     document.getElementById('stripWx').addEventListener('click', () => {
       showWeather();
@@ -1941,6 +2067,7 @@
   initMap();
   initLocMenu();
   initRestroomMenu();
+  initTeslaMenu();
   renderRestrooms();
 
   // --- Toast (kichik xabar) ---
@@ -1968,6 +2095,13 @@
       lm.classList.remove('open');
       document.getElementById('stripLocations').classList.remove('active');
       syncLocationMarkers(false);
+      restoreSavedView();
+    }
+    const tm = document.getElementById('teslaMenu');
+    if (tm && tm.classList.contains('open')) {
+      tm.classList.remove('open');
+      document.getElementById('stripHotspots').classList.remove('active');
+      syncChargerMarkers(false);
       restoreSavedView();
     }
     document.getElementById('drawer').classList.add('open');

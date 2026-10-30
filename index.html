@@ -101,6 +101,8 @@
   #stripTraffic { color: #059669; }
   #stripTraffic.off { color: #6B7280; }
   #stripHotspots { color: #D97706; }
+  #stripEzpass { color: #047857; }
+  #stripEzpass.off { color: #6B7280; }
   #stripLocations { color: #DC2626; }
   #stripRestrooms { color: #0284C7; }
   #stripWx { color: #B45309; }
@@ -515,7 +517,7 @@
   <div id="header">
     <button id="menuBtn" aria-label="Menyu">☰</button>
     <div class="head-title">
-      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.15</span></div>
+      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.16</span></div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
     </div>
     <button id="pointsBtn" title="Uber Pro ballar">⭐ <span id="pointsNum">--</span>.0</button>
@@ -531,6 +533,7 @@
     <button class="strip-pill" id="stripRestrooms">🚻 Restrooms</button>
     <button class="strip-pill" id="stripWx">🌙 —°F</button>
     <button class="strip-pill" id="stripHotspots" aria-label="Hotspots">⚡</button>
+    <button class="strip-pill" id="stripEzpass" aria-label="EZPass">EZPass ON</button>
   </div>
 </div>
 
@@ -583,7 +586,7 @@
   <div class="drawer-foot">
     <div class="drawer-foot-card">
       <div class="drawer-foot-name">NYC TLC Driver</div>
-      <div class="drawer-foot-ver" id="drawerVer">v3.15</div>
+      <div class="drawer-foot-ver" id="drawerVer">v3.16</div>
     </div>
   </div>
 </aside>
@@ -600,7 +603,7 @@
     <div class="set-row"><span class="set-label">⚠️ Tezlik ogohlantirishi</span><button class="set-toggle on" id="setSpeedWarn" role="switch" aria-checked="true">ON</button></div>
     <div class="set-row"><span class="set-label">🔄 Avtomatik yangilash</span><button class="set-toggle on" id="setAutoUpd" role="switch" aria-checked="true">ON</button></div>
     <button id="settingsRefresh" class="wx-btn" style="width:100%;margin-top:12px">🔄 Yangilash</button>
-    <p class="points-foot">Versiya: <span id="settingsVer">v3.15</span></p>
+    <p class="points-foot">Versiya: <span id="settingsVer">v3.16</span></p>
   </div>
 </div>
 
@@ -777,10 +780,10 @@
 
   // Sozlamalar (localStorage da saqlanadi)
   const SETTINGS_KEY = 'radarSettingsV1';
-  let settings = { traffic: true, speedWarn: true, autoUpdate: true };
+  let settings = { traffic: true, speedWarn: true, autoUpdate: true, ezpass: true };
   try {
     const savedSet = JSON.parse(localStorage.getItem(SETTINGS_KEY) || 'null');
-    if (savedSet) settings = { traffic: true, speedWarn: true, autoUpdate: true, ...savedSet };
+    if (savedSet) settings = { traffic: true, speedWarn: true, autoUpdate: true, ezpass: true, ...savedSet };
   } catch (e) {}
   function saveSettings() {
     try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch (e) {}
@@ -795,6 +798,7 @@
 
   let map, userMarker, autoZoom = true;
   let trafficLayer = null, trafficOn = settings.traffic;
+  let ezpassOn = settings.ezpass;
   let userLat = null, userLon = null;
   let lastRouteFetch = 0, lastFetchLat = null, lastFetchLon = null;
   const routeLines = {};
@@ -842,9 +846,9 @@
     lastQuotaPaint = now;
     const left = Math.max(0, TT_DAILY_LIMIT - ttUsage.routing - ttUsage.tiles);
     const dv = document.getElementById('drawerVer');
-    if (dv) dv.textContent = 'v3.15.' + left;
+    if (dv) dv.textContent = 'v3.16.' + left;
     const sv = document.getElementById('settingsVer');
-    if (sv) sv.textContent = 'v3.15.' + left;
+    if (sv) sv.textContent = 'v3.16.' + left;
     checkStale();
   }
 
@@ -916,6 +920,7 @@
           destination: { lat: airport.lat, lng: airport.lon },
           travelMode: google.maps.TravelMode.DRIVING
         };
+        if (!ezpassOn) req.avoidTolls = true;
         if (trafficOn) {
           req.drivingOptions = { departureTime: new Date(), trafficModel: google.maps.TrafficModel.BEST_GUESS };
         }
@@ -978,6 +983,30 @@
     if (rm && rm.classList.contains('open')) refreshRestroomRoutes();
   }
 
+  // EZPass tugmasi: ON = pullik (toll) yo'llar ham ruxsat, OFF = faqat tollsiz yo'llar
+  // Barcha marshrutlar shu bitta fetchRoute orqali o'tadi (aeroportlar, lokatsiyalar, restroom, zaryadlash)
+  function updateEzpassLabel() {
+    const strip = document.getElementById('stripEzpass');
+    if (strip) {
+      strip.textContent = ezpassOn ? 'EZPass ON' : 'EZPass OFF';
+      strip.classList.toggle('off', !ezpassOn);
+    }
+  }
+
+  function toggleEzpass() {
+    ezpassOn = !ezpassOn;
+    settings.ezpass = ezpassOn;
+    saveSettings();
+    Object.keys(googleCache).forEach(k => delete googleCache[k]);
+    updateEzpassLabel();
+    lastLocFetch = 0;
+    lastRstFetch = 0;
+    refreshRoutes(true);
+    const rm = document.getElementById('restroomMenu');
+    if (rm && rm.classList.contains('open')) refreshRestroomRoutes();
+    showToast(ezpassOn ? 'EZPass ON — pullik yo\'llar bilan' : 'EZPass OFF — faqat tollsiz yo\'llar');
+  }
+
   // Menyu o'z tugmasining tagidan ochiladi (har qanday ekranda tugmalarni yopmaydi)
   function placeMenuUnderButton(menu, toggle) {
     if (!menu || !toggle) return;
@@ -1020,7 +1049,7 @@
   // useGoogle=true faqat aeroport kartalar uchun (lokatsiya/restroom TomTom'da qoladi — kvota tejaladi)
   async function fetchRoute(uLat, uLon, airport, useGoogle) {
     if (useGoogle && GOOGLE_KEY && !googleDisabled) {
-      const gKey = airport.id + (trafficOn ? ':t' : ':f');
+      const gKey = airport.id + (trafficOn ? ':t' : ':f') + (ezpassOn ? ':ez' : ':free');
       const cached = googleCache[gKey];
       if (cached && Date.now() - cached.ts < GOOGLE_CACHE_TTL) return cached.data;
       if (googleLeft() > 0) {
@@ -1029,7 +1058,7 @@
       }
     }
     try {
-      const url = `https://api.tomtom.com/routing/1/calculateRoute/${uLat},${uLon}:${airport.lat},${airport.lon}/json?key=${TOMTOM_KEY}&traffic=${trafficOn}&routeRepresentation=polyline&travelMode=car`;
+      const url = `https://api.tomtom.com/routing/1/calculateRoute/${uLat},${uLon}:${airport.lat},${airport.lon}/json?key=${TOMTOM_KEY}&traffic=${trafficOn}&routeRepresentation=polyline&travelMode=car${ezpassOn ? '' : '&avoid=tollRoads'}`;
       ttCount('routing');
       const res = await fetch(url);
       const data = await res.json();
@@ -1819,6 +1848,7 @@
     document.getElementById('stripHotspots').addEventListener('click', () => {
       showChargers();
     });
+    document.getElementById('stripEzpass').addEventListener('click', toggleEzpass);
     document.getElementById('stripWx').addEventListener('click', () => {
       showWeather();
     });
@@ -1830,6 +1860,7 @@
     );
     if (trafficOn) trafficLayer.addTo(map);
     updateTrafficLabel();
+    updateEzpassLabel();
     let tileErrCount = 0;
     trafficLayer.on('tileerror', () => {
       tileErrCount++;

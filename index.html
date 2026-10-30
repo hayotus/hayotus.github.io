@@ -508,7 +508,7 @@
   <div id="header">
     <button id="menuBtn" aria-label="Menyu">☰</button>
     <div class="head-title">
-      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.7</span></div>
+      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.8</span></div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
     </div>
     <button id="pointsBtn" title="Uber Pro ballar">⭐ <span id="pointsNum">--</span>.0</button>
@@ -576,7 +576,7 @@
   <div class="drawer-foot">
     <div class="drawer-foot-card">
       <div class="drawer-foot-name">NYC TLC Driver</div>
-      <div class="drawer-foot-ver" id="drawerVer">v3.7</div>
+      <div class="drawer-foot-ver" id="drawerVer">v3.8</div>
     </div>
   </div>
 </aside>
@@ -593,7 +593,7 @@
     <div class="set-row"><span class="set-label">⚠️ Tezlik ogohlantirishi</span><button class="set-toggle on" id="setSpeedWarn" role="switch" aria-checked="true">ON</button></div>
     <div class="set-row"><span class="set-label">🔄 Avtomatik yangilash</span><button class="set-toggle on" id="setAutoUpd" role="switch" aria-checked="true">ON</button></div>
     <button id="settingsRefresh" class="wx-btn" style="width:100%;margin-top:12px">🔄 Yangilash</button>
-    <p class="points-foot">Versiya: <span id="settingsVer">v3.7</span></p>
+    <p class="points-foot">Versiya: <span id="settingsVer">v3.8</span></p>
   </div>
 </div>
 
@@ -835,9 +835,9 @@
     lastQuotaPaint = now;
     const left = Math.max(0, TT_DAILY_LIMIT - ttUsage.routing - ttUsage.tiles);
     const dv = document.getElementById('drawerVer');
-    if (dv) dv.textContent = 'v3.7.' + left;
+    if (dv) dv.textContent = 'v3.8.' + left;
     const sv = document.getElementById('settingsVer');
-    if (sv) sv.textContent = 'v3.7.' + left;
+    if (sv) sv.textContent = 'v3.8.' + left;
     checkStale();
   }
 
@@ -1287,7 +1287,7 @@
       const btn = document.createElement('button');
       btn.className = 'location-option';
       btn.title = loc.name;
-      btn.innerHTML = `<span class="loc-main"><span class="loc-name">${loc.name}</span><span class="loc-addr">${loc.address}</span></span>` +
+      btn.innerHTML = `<span class="loc-main"><span class="loc-name">${loc.name}</span></span>` +
         `<span class="loc-badges"><span class="loc-badge"><span class="v">${info ? info.dist : '--'}</span><span class="u">mi</span></span>` +
         `<span class="loc-badge min"><span class="v">${info ? info.mins : '--'}</span><span class="u">min</span></span></span>`;
       btn.addEventListener('click', () => openLocationNavigation(loc));

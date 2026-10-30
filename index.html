@@ -348,7 +348,7 @@
     background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none;
     border: none;
     border-radius: 16px; box-shadow: none;
-    max-height: min(240px, 42vh); overflow-y: auto;
+    max-height: min(350px, 55vh); overflow-y: auto;
   }
   #restroomMenu.open { display: block; }
   @media (max-height: 520px) {
@@ -361,7 +361,7 @@
     background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none;
     border: none;
     border-radius: 16px; box-shadow: none;
-    max-height: min(240px, 42vh); overflow-y: auto;
+    max-height: min(350px, 55vh); overflow-y: auto;
   }
   #locMenu.open { display: block; }
   .location-option {
@@ -515,7 +515,7 @@
   <div id="header">
     <button id="menuBtn" aria-label="Menyu">☰</button>
     <div class="head-title">
-      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.14</span></div>
+      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.15</span></div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
     </div>
     <button id="pointsBtn" title="Uber Pro ballar">⭐ <span id="pointsNum">--</span>.0</button>
@@ -583,7 +583,7 @@
   <div class="drawer-foot">
     <div class="drawer-foot-card">
       <div class="drawer-foot-name">NYC TLC Driver</div>
-      <div class="drawer-foot-ver" id="drawerVer">v3.14</div>
+      <div class="drawer-foot-ver" id="drawerVer">v3.15</div>
     </div>
   </div>
 </aside>
@@ -600,7 +600,7 @@
     <div class="set-row"><span class="set-label">⚠️ Tezlik ogohlantirishi</span><button class="set-toggle on" id="setSpeedWarn" role="switch" aria-checked="true">ON</button></div>
     <div class="set-row"><span class="set-label">🔄 Avtomatik yangilash</span><button class="set-toggle on" id="setAutoUpd" role="switch" aria-checked="true">ON</button></div>
     <button id="settingsRefresh" class="wx-btn" style="width:100%;margin-top:12px">🔄 Yangilash</button>
-    <p class="points-foot">Versiya: <span id="settingsVer">v3.14</span></p>
+    <p class="points-foot">Versiya: <span id="settingsVer">v3.15</span></p>
   </div>
 </div>
 
@@ -842,9 +842,9 @@
     lastQuotaPaint = now;
     const left = Math.max(0, TT_DAILY_LIMIT - ttUsage.routing - ttUsage.tiles);
     const dv = document.getElementById('drawerVer');
-    if (dv) dv.textContent = 'v3.14.' + left;
+    if (dv) dv.textContent = 'v3.15.' + left;
     const sv = document.getElementById('settingsVer');
-    if (sv) sv.textContent = 'v3.14.' + left;
+    if (sv) sv.textContent = 'v3.15.' + left;
     checkStale();
   }
 
@@ -1287,11 +1287,14 @@
   }
 
   // --- Location oynasi: saqlangan joylar ro'yxati (restroom kabi), mapda metkalar bilan ---
+  let locVisibleCount = 5;
+
   function renderLocations() {
     const menu = document.getElementById('locMenu');
     if (!menu) return;
     menu.innerHTML = '';
-    SAVED_LOCATIONS.forEach(loc => {
+    const visible = SAVED_LOCATIONS.slice(0, locVisibleCount);
+    visible.forEach(loc => {
       const info = locationInfo[loc.id];
       const btn = document.createElement('button');
       btn.className = 'location-option';
@@ -1302,6 +1305,15 @@
       btn.addEventListener('click', () => openLocationNavigation(loc));
       menu.appendChild(btn);
     });
+    const more = document.createElement('button');
+    more.className = 'location-option';
+    more.style.justifyContent = 'center';
+    more.innerHTML = '<span class="loc-name">⬇ More</span>';
+    more.addEventListener('click', () => {
+      if (SAVED_LOCATIONS.length > locVisibleCount) { locVisibleCount += 5; renderLocations(); }
+      else showToast('Barcha ' + SAVED_LOCATIONS.length + ' joy ko\'rsatildi');
+    });
+    menu.appendChild(more);
   }
 
   // Location ochilganda xarita foydalanuvchi + barcha joylarni sig'diradi
@@ -1325,6 +1337,7 @@
         if (map) savedView = { center: map.getCenter(), zoom: map.getZoom() };
         zoomToLocations();
         syncLocationMarkers(true);
+        locVisibleCount = 5;
         renderLocations();
         if (userLat !== null && Date.now() - lastLocFetch > 60000) refreshLocationRoutes();
       }

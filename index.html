@@ -156,6 +156,7 @@
   .eta-min { color: #fff; font-size: 26px; font-weight: 900; line-height: 1.15; }
   .eta-min-u { font-size: 12px; font-weight: 600; color: #9CA3AF; margin-left: 2px; }
   .eta-mi { color: #9CA3AF; font-size: 12px; font-weight: 600; margin: 1px 0 8px; }
+  .eta-road { color: #C7CEDA; font-size: 10px; font-weight: 700; margin: -5px 0 7px; min-height: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .eta-go {
     width: 100%; border-radius: 12px; padding: 8px 0;
     font-size: 13px; font-weight: 900; letter-spacing: 1px; cursor: pointer;
@@ -514,7 +515,7 @@
   <div id="header">
     <button id="menuBtn" aria-label="Menyu">☰</button>
     <div class="head-title">
-      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.12</span></div>
+      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.13</span></div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
     </div>
     <button id="pointsBtn" title="Uber Pro ballar">⭐ <span id="pointsNum">--</span>.0</button>
@@ -582,7 +583,7 @@
   <div class="drawer-foot">
     <div class="drawer-foot-card">
       <div class="drawer-foot-name">NYC TLC Driver</div>
-      <div class="drawer-foot-ver" id="drawerVer">v3.12</div>
+      <div class="drawer-foot-ver" id="drawerVer">v3.13</div>
     </div>
   </div>
 </aside>
@@ -599,7 +600,7 @@
     <div class="set-row"><span class="set-label">⚠️ Tezlik ogohlantirishi</span><button class="set-toggle on" id="setSpeedWarn" role="switch" aria-checked="true">ON</button></div>
     <div class="set-row"><span class="set-label">🔄 Avtomatik yangilash</span><button class="set-toggle on" id="setAutoUpd" role="switch" aria-checked="true">ON</button></div>
     <button id="settingsRefresh" class="wx-btn" style="width:100%;margin-top:12px">🔄 Yangilash</button>
-    <p class="points-foot">Versiya: <span id="settingsVer">v3.12</span></p>
+    <p class="points-foot">Versiya: <span id="settingsVer">v3.13</span></p>
   </div>
 </div>
 
@@ -841,9 +842,9 @@
     lastQuotaPaint = now;
     const left = Math.max(0, TT_DAILY_LIMIT - ttUsage.routing - ttUsage.tiles);
     const dv = document.getElementById('drawerVer');
-    if (dv) dv.textContent = 'v3.12.' + left;
+    if (dv) dv.textContent = 'v3.13.' + left;
     const sv = document.getElementById('settingsVer');
-    if (sv) sv.textContent = 'v3.12.' + left;
+    if (sv) sv.textContent = 'v3.13.' + left;
     checkStale();
   }
 
@@ -931,7 +932,7 @@
               durationText = `${h}s ${m}m`;
             }
             const points = res.routes[0].overview_path.map(p => [p.lat(), p.lng()]);
-            finish({ points, distanceMiles, durationText, durationMins, src: 'google' });
+            finish({ points, distanceMiles, durationText, durationMins, src: 'google', road: res.routes[0].summary || '' });
           } else {
             console.log('Google route status:', status);
             if (status === 'OVER_QUERY_LIMIT' || status === 'REQUEST_DENIED') googleDisabled = true;
@@ -966,6 +967,7 @@
   // Traffic qatlamni yoqish/o'chirish (strip pill va sozlamadan chaqiriladi)
   function toggleTraffic() {
     trafficOn = !trafficOn;
+    Object.keys(googleCache).forEach(k => delete googleCache[k]);
     if (map && trafficLayer) {
       if (trafficOn) trafficLayer.addTo(map); else map.removeLayer(trafficLayer);
     }
@@ -1018,11 +1020,12 @@
   // useGoogle=true faqat aeroport kartalar uchun (lokatsiya/restroom TomTom'da qoladi — kvota tejaladi)
   async function fetchRoute(uLat, uLon, airport, useGoogle) {
     if (useGoogle && GOOGLE_KEY && !googleDisabled) {
-      const cached = googleCache[airport.id];
+      const gKey = airport.id + (trafficOn ? ':t' : ':f');
+      const cached = googleCache[gKey];
       if (cached && Date.now() - cached.ts < GOOGLE_CACHE_TTL) return cached.data;
       if (googleLeft() > 0) {
         const g = await fetchRouteGoogle(uLat, uLon, airport);
-        if (g) { googleCache[airport.id] = { data: g, ts: Date.now() }; return g; }
+        if (g) { googleCache[gKey] = { data: g, ts: Date.now() }; return g; }
       }
     }
     try {
@@ -1070,7 +1073,7 @@
           const m = durationMins % 60;
           durationText = `${h}s ${m}m`;
         }
-        return { points, distanceMiles, durationText, durationMins, src: 'osrm' };
+        return { points, distanceMiles, durationText, durationMins, src: 'osrm', road: (route.legs && route.legs[0] && route.legs[0].summary) || '' };
       }
     } catch (e) { console.log('Route error:', e); }
     return null;
@@ -1360,7 +1363,7 @@
       if (res) {
         anyOk = true;
         if (res.src === 'osrm') sawFallback = true;
-        airportInfo[airport.id] = { dist: res.distanceMiles, time: res.durationText, mins: res.durationMins };
+        airportInfo[airport.id] = { dist: res.distanceMiles, time: res.durationText, mins: res.durationMins, road: res.road || '' };
         if (routeLines[airport.id]) {
           routeLines[airport.id].setLatLngs(res.points);
         } else {
@@ -1416,6 +1419,8 @@
     const dl = document.getElementById('dist-' + airport.id);
     if (el) el.textContent = (typeof info.mins === 'number') ? info.mins : '—';
     if (dl) dl.textContent = (info.dist && info.dist !== '--') ? info.dist + ' mi' : '—';
+    const rd = document.getElementById('road-' + airport.id);
+    if (rd) rd.textContent = (!trafficOn && info.road) ? 'via ' + info.road : '';
   }
 
   // Eng yaqin (eng kam daqiqali) kartani ajratib ko'rsatish
@@ -1496,6 +1501,7 @@
         <div class="eta-code" style="color:${a.color}">${a.code}</div>
         <div class="eta-min"><span id="time-${a.id}">—</span><span class="eta-min-u">min</span></div>
         <div class="eta-mi" id="dist-${a.id}">—</div>
+        <div class="eta-road" id="road-${a.id}"></div>
         <button class="eta-go" style="background:${hexA(a.color, 0.22)};color:${a.color};border-color:${hexA(a.color, 0.55)}">GO</button>`;
       card.addEventListener('click', () => openNavigation(a));
       card.querySelector('.eta-go').addEventListener('click', e => { e.stopPropagation(); openNavigation(a); });

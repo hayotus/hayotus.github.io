@@ -597,7 +597,7 @@
   <div id="header">
     <button id="menuBtn" aria-label="Menyu">☰</button>
     <div class="head-title">
-      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.24</span></div>
+      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.25</span></div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
     </div>
     <button id="pointsBtn" title="Uber Pro ballar">⭐ <span id="pointsNum">--</span>.0</button>
@@ -655,8 +655,8 @@
   <div class="drawer-div"></div>
   <div class="drawer-sec">Tezkor havolalar</div>
   <div class="drawer-links">
-    <button class="drawer-group-head open" data-group="grpTlc"><span class="dl-ico">🚕</span>TLC section<span class="dg-arrow">▾</span></button>
-    <div class="drawer-group open" id="grpTlc">
+    <button class="drawer-group-head" data-group="grpTlc"><span class="dl-ico">🚕</span>TLC section<span class="dg-arrow">▾</span></button>
+    <div class="drawer-group" id="grpTlc">
       <a class="drawer-link" href="#" id="drawerTlcLink"><span class="dl-ico">📋</span>TLC license yangilash</a>
       <a class="drawer-link" href="https://www.nyc.gov/site/tlc/drivers/check-license-status.page" target="_blank" rel="noopener"><span class="dl-ico">🚕</span>TLC Plate Tekshirish</a>
       <a class="drawer-link" href="https://a156-nauf.nyc.gov/tlcup/" target="_blank" rel="noopener"><span class="dl-ico">🏛️</span>TLC UP Portal</a>
@@ -679,7 +679,7 @@
   <div class="drawer-foot">
     <div class="drawer-foot-card">
       <div class="drawer-foot-name">NYC TLC Driver</div>
-      <div class="drawer-foot-ver" id="drawerVer">v3.24</div>
+      <div class="drawer-foot-ver" id="drawerVer">v3.25</div>
     </div>
   </div>
 </aside>
@@ -700,7 +700,7 @@
     <div class="set-row"><span class="set-label">☀️ Kunduzgi yorqin rejim</span><button class="set-toggle on" id="setBright" role="switch" aria-checked="true">ON</button></div>
     <div class="set-row"><span class="set-label">🔋 Batareya tejash</span><button class="set-toggle" id="setBattery" role="switch" aria-checked="false">OFF</button></div>
     <button id="settingsRefresh" class="wx-btn" style="width:100%;margin-top:12px">🔄 Yangilash</button>
-    <p class="points-foot">Versiya: <span id="settingsVer">v3.24</span></p>
+    <p class="points-foot">Versiya: <span id="settingsVer">v3.25</span></p>
   </div>
 </div>
 
@@ -922,11 +922,11 @@
     const now = Date.now();
     if (!force && now - lastQuotaPaint < 1500) return;
     lastQuotaPaint = now;
-    const left = googleLeft(); // Versiya suffiksi = Google kunlik limitdan qolgani (masalan v3.24.200 = 200 ta qoldi)
+    const left = googleLeft(); // Versiya suffiksi = Google kunlik limitdan qolgani (masalan v3.25.200 = 200 ta qoldi)
     const dv = document.getElementById('drawerVer');
-    if (dv) dv.textContent = 'v3.24.' + left;
+    if (dv) dv.textContent = 'v3.25.' + left;
     const sv = document.getElementById('settingsVer');
-    if (sv) sv.textContent = 'v3.24.' + left;
+    if (sv) sv.textContent = 'v3.25.' + left;
     checkStale();
   }
 

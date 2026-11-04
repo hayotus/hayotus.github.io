@@ -1,8 +1,8 @@
 // NYC Airport Radar — service worker (v2.7)
 // Sayt qobig'ini keshlaydi: ilova tez ochiladi, oflayn ham qobiq ko'rinadi.
 // Jonli ma'lumotlar (TomTom, AirLabs) har doim tarmoqdan olinadi.
-const CACHE = 'nyc-radar-v3.27';
-const CORE = ['/', 'index.html', 'manifest.json', 'icon.svg', 'vendor/leaflet.css', 'vendor/leaflet.js'];
+const CACHE = 'nyc-radar-v3.28';
+const CORE = ['/', 'index.html', 'manifest.json', 'icon.svg', 'icon-180.png', 'icon-512.png', 'vendor/leaflet.css', 'vendor/leaflet.js'];
 
 self.addEventListener('install', e => {
   e.waitUntil(
@@ -23,12 +23,19 @@ self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET' || url.origin !== self.location.origin) return;
 
   // Sahifa (index.html): avval tarmoq — yangi versiya darhol kelsin; tarmoq bo'lmasa kesh.
+  // Tarmoq 3 soniyada javob bermasa — keshdagi sahifa ko'rsatiladi (osilib qolmaslik uchun).
+  // Keshlash faqat muvaffaqiyatli (r.ok) javoblarda.
   if (e.request.mode === 'navigate') {
     e.respondWith(
-      fetch(e.request)
+      Promise.race([
+        fetch(e.request),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('navigate timeout')), 3000))
+      ])
         .then(r => {
-          const c = r.clone();
-          caches.open(CACHE).then(cache => cache.put(e.request, c));
+          if (r.ok) {
+            const c = r.clone();
+            caches.open(CACHE).then(cache => cache.put(e.request, c));
+          }
           return r;
         })
         .catch(() => caches.match('index.html'))

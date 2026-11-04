@@ -10,15 +10,17 @@
   gtag('config', 'G-HMX2E9QSPB');
 </script>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>NYC Airport Radar 🚕</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>TLC Radar 🚕</title>
 <meta name="theme-color" content="#121212">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="NYC Radar">
+<meta name="apple-mobile-web-app-title" content="TLC Radar">
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚕</text></svg>">
 <link rel="stylesheet" href="vendor/leaflet.css">
 <style>
@@ -608,7 +610,7 @@
   <div id="header">
     <button id="menuBtn" aria-label="Menyu">☰</button>
     <div class="head-title">
-      <div class="title-row"><span id="title">NYC RADAR</span><span id="ver">v3.27</span></div>
+      <div class="title-row"><span id="title">TLC RADAR</span><span id="ver">v3.28</span></div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
     </div>
     <button id="pointsBtn" title="Uber Pro ballar">⭐ <span id="pointsNum">--</span>.0</button>
@@ -653,7 +655,7 @@
   <div class="drawer-head">
     <div class="drawer-logo">TLC</div>
     <div class="drawer-id">
-      <div class="drawer-name">NYC Driver Pro</div>
+      <div class="drawer-name">TLC Radar</div>
       <div class="drawer-status">● Active Online</div>
     </div>
     <button id="drawerClose" aria-label="Yopish">✕</button>
@@ -691,7 +693,7 @@
   <div class="drawer-foot">
     <div class="drawer-foot-card">
       <div class="drawer-foot-name">NYC TLC Driver</div>
-      <div class="drawer-foot-ver" id="drawerVer">v3.27</div>
+      <div class="drawer-foot-ver" id="drawerVer">v3.28</div>
     </div>
   </div>
 </aside>
@@ -712,7 +714,7 @@
     <div class="set-row"><span class="set-label">☀️ Kunduzgi yorqin rejim</span><button class="set-toggle on" id="setBright" role="switch" aria-checked="true">ON</button></div>
     <div class="set-row"><span class="set-label">🔋 Batareya tejash</span><button class="set-toggle" id="setBattery" role="switch" aria-checked="false">OFF</button></div>
     <button id="settingsRefresh" class="wx-btn" style="width:100%;margin-top:12px">🔄 Yangilash</button>
-    <p class="points-foot">Versiya: <span id="settingsVer">v3.27</span></p>
+    <p class="points-foot">Versiya: <span id="settingsVer">v3.28</span></p>
   </div>
 </div>
 
@@ -865,7 +867,7 @@
 
   // Navigatsiya: HAMMA qurilmada faqat Google Maps (foydalanuvchi buyrug'i, 2026-10-30)
   function openLocationNavigation(location) {
-    window.location.href = `https://www.google.com/maps/dir/?api=1&destination=${location.lat},${location.lon}`;
+    window.location.href = `https://www.google.com/maps/dir/?api=1&destination=${location.lat},${location.lon}&dir_action=navigate`;
   }
 
   // Sozlamalar (localStorage da saqlanadi)
@@ -946,9 +948,9 @@
     lastQuotaPaint = now;
     const left = googleLeft(); // Versiya suffiksi = Google kunlik limitdan qolgani (masalan v3.26.200 = 200 ta qoldi)
     const dv = document.getElementById('drawerVer');
-    if (dv) dv.textContent = 'v3.27.' + left;
+    if (dv) dv.textContent = 'v3.28.' + left;
     const sv = document.getElementById('settingsVer');
-    if (sv) sv.textContent = 'v3.27.' + left;
+    if (sv) sv.textContent = 'v3.28.' + left;
     checkStale();
   }
 
@@ -1072,6 +1074,10 @@
   // Traffic qatlamni yoqish/o'chirish (strip pill va sozlamadan chaqiriladi)
   function toggleTraffic() {
     trafficOn = !trafficOn;
+    // Holat sozlamalarda saqlanadi — sahifa qayta ochilganda tiklanadi
+    settings.traffic = trafficOn;
+    saveSettings();
+    setToggleUI('setTraffic', settings.traffic);
     Object.keys(googleCache).forEach(k => delete googleCache[k]);
     if (map && trafficLayer) {
       if (trafficOn) trafficLayer.addTo(map); else map.removeLayer(trafficLayer);
@@ -1142,7 +1148,7 @@
 
   // --- Navigatsiyani ochish (marker yoki doira bosilganda) ---
   function openNavigation(airport) {
-    window.location.href = `https://www.google.com/maps/dir/?api=1&destination=${airport.lat},${airport.lon}`;
+    window.location.href = `https://www.google.com/maps/dir/?api=1&destination=${airport.lat},${airport.lon}&dir_action=navigate`;
   }
 
   // --- Google (avval) / TomTom orqali marshrut (TRAFFIC tugmasiga qarab: on = tirbandlik bilan, off = trafficsiz) ---
@@ -1347,7 +1353,7 @@
     SAVED_LOCATIONS.forEach(loc => {
       const icon = L.divIcon({ className: '', html: '<div class="location-marker">📍</div>', iconSize: [28, 28], iconAnchor: [14, 14] });
       const m = L.marker([loc.lat, loc.lon], { icon: icon });
-      m.bindTooltip('<b>' + loc.name + '</b>', { direction: 'top', offset: [0, -14] });
+      m.bindTooltip('<b>' + esc(loc.name) + '</b>', { direction: 'top', offset: [0, -14] });
       m.on('click', () => openLocationNavigation(loc));
       locationLayer.addLayer(m);
     });
@@ -1366,7 +1372,7 @@
     visibleRestrooms().forEach(r => {
       const icon = L.divIcon({ className: '', html: '<div class="restroom-marker">🚻</div>', iconSize: [28, 28], iconAnchor: [14, 14] });
       const m = L.marker([r.lat, r.lon], { icon: icon });
-      m.bindTooltip('<b>' + r.name + '</b>', { direction: 'top', offset: [0, -14] });
+      m.bindTooltip('<b>' + esc(r.name) + '</b>', { direction: 'top', offset: [0, -14] });
       m.on('click', () => openLocationNavigation(r));
       restroomLayer.addLayer(m);
     });
@@ -1463,6 +1469,8 @@
       if (isOpen) {
         const rm = document.getElementById('restroomMenu');
         if (rm && rm.classList.contains('open')) { rm.classList.remove('open'); document.getElementById('stripRestrooms').classList.remove('active'); syncRestroomMarkers(false); restoreSavedView(); }
+        const tm = document.getElementById('teslaMenu');
+        if (tm && tm.classList.contains('open')) { tm.classList.remove('open'); document.getElementById('stripHotspots').classList.remove('active'); syncChargerMarkers(false); restoreSavedView(); }
         closeTochkaMenu();
         placeMenuUnderButton(menu, toggle);
         if (map) savedView = { center: map.getCenter(), zoom: map.getZoom() };
@@ -1486,6 +1494,8 @@
       if (isOpen) {
         const lm = document.getElementById('locMenu');
         if (lm && lm.classList.contains('open')) { lm.classList.remove('open'); document.getElementById('stripLocations').classList.remove('active'); restoreSavedView(); }
+        const tm = document.getElementById('teslaMenu');
+        if (tm && tm.classList.contains('open')) { tm.classList.remove('open'); document.getElementById('stripHotspots').classList.remove('active'); syncChargerMarkers(false); restoreSavedView(); }
         closeTochkaMenu();
         placeMenuUnderButton(menu, toggle);
         restroomVisibleCount = 5;
@@ -1541,7 +1551,7 @@
     chargerList.forEach(c => {
       const icon = L.divIcon({ className: '', html: '<div class="tesla-marker">⚡</div>', iconSize: [28, 28], iconAnchor: [14, 14] });
       const m = L.marker([c.lat, c.lon], { icon: icon });
-      m.bindTooltip('<b>' + c.name + '</b>', { direction: 'top', offset: [0, -14] });
+      m.bindTooltip('<b>' + esc(c.name) + '</b>', { direction: 'top', offset: [0, -14] });
       m.on('click', () => openNavigation(c));
       chargerLayer.addLayer(m);
     });
@@ -1652,6 +1662,24 @@
       });
     } catch (e) {}
   }
+  // Audio unlock: brauzerlar ovozni faqat foydalanuvchi harakatidan (gesture) keyin ruxsat beradi.
+  // Birinchi tap/klavda AudioContext uyg'otiladi, ovozli ogohlantirishlar tayyorlanadi.
+  let audioUnlocked = false;
+  function unlockAudio() {
+    if (audioUnlocked) return;
+    audioUnlocked = true;
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    } catch (e) {}
+    try { if ('speechSynthesis' in window) speechSynthesis.getVoices(); } catch (e) {}
+    document.removeEventListener('pointerdown', unlockAudio);
+    document.removeEventListener('touchend', unlockAudio);
+    document.removeEventListener('keydown', unlockAudio);
+  }
+  document.addEventListener('pointerdown', unlockAudio);
+  document.addEventListener('touchend', unlockAudio);
+  document.addEventListener('keydown', unlockAudio);
   async function loadCameras() {
     try {
       const res = await fetchT('cameras.json');
@@ -1739,7 +1767,7 @@
     TOCHKAS.forEach(t => {
       const icon = L.divIcon({ className: '', html: '<div class="tochka-marker">' + t.hotels + '</div>', iconSize: [28, 28], iconAnchor: [14, 14] });
       const m = L.marker([t.lat, t.lon], { icon: icon });
-      m.bindTooltip('<b>T' + t.rank + ' — ' + t.name + '</b><br>' + t.hotels + ' mehmonxona', { direction: 'top', offset: [0, -14] });
+      m.bindTooltip('<b>T' + t.rank + ' — ' + esc(t.name) + '</b><br>' + t.hotels + ' mehmonxona', { direction: 'top', offset: [0, -14] });
       m.on('click', () => openNavigation(t));
       tochkaLayer.addLayer(m);
     });
@@ -2208,7 +2236,8 @@
     map = L.map('map', { zoomControl: false, attributionControl: true, maxZoom: 18, minZoom: 10 });
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
-      maxZoom: 16,
+      maxZoom: 18,
+      maxNativeZoom: 16,
     }).addTo(map);
     map.setView([40.7308, -73.9973], 11);
 
@@ -2219,7 +2248,7 @@
         iconSize: [56, 56], iconAnchor: [28, 28],
       });
       const marker = L.marker([a.lat, a.lon], { icon }).addTo(map);
-      marker.bindTooltip(`<b>${a.code} Terminal</b><br>Rideshare Pickup Zone`, { direction: 'top', offset: [0, -30] });
+      marker.bindTooltip(`<b>${esc(a.code)} Terminal</b><br>Rideshare Pickup Zone`, { direction: 'top', offset: [0, -30] });
       marker.on('click', () => showFlights(a));
     });
 
@@ -2299,8 +2328,13 @@
   }
 
   function onPositionError(err) {
+    // Xato matni err.code bo'yicha: 1=PERMISSION_DENIED, 2=POSITION_UNAVAILABLE, 3=TIMEOUT
+    let msg = 'Joylashuv aniqlanmadi. Brauzer sozlamalarini tekshirib, sahifani yangilang.';
+    if (err && err.code === 1) msg = 'GPS ruxsati berilmadi. Brauzer sozlamalaridan joylashuvga ruxsat bering va sahifani yangilang.';
+    else if (err && err.code === 2) msg = 'Joylashuv hozir topilmadi (signal yo\'q). Ochiqroq joyga chiqib, sahifani yangilab qayta urining.';
+    else if (err && err.code === 3) msg = 'Joylashuv so\'rovi uzoq davom etdi (timeout). Sahifani yangilab qayta urining.';
     const p = document.querySelector('#loader p');
-    if (p) p.textContent = 'GPS ruxsati berilmadi. Brauzer sozlamalaridan joylashuvga ruxsat bering va sahifani yangilang.';
+    if (p) p.textContent = msg;
     console.log('Location error:', err);
     // Xarita baribir ko'rinsin — loader 2.5 s dan keyin yopiladi
     setTimeout(() => {

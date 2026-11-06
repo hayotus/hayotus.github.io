@@ -600,7 +600,7 @@
   <div id="header">
     <button id="menuBtn" aria-label="Menyu">☰</button>
     <div class="head-title">
-      <div class="title-row"><span id="title">TLC RADAR</span><span id="ver">v3.30</span></div>
+      <div class="title-row"><span id="title">TLC RADAR</span><span id="ver">v3.31</span></div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
     </div>
     <button id="pointsBtn" title="TLC Pro ballar">⭐ <span id="pointsNum">--</span>.0</button>
@@ -681,7 +681,7 @@
   <div class="drawer-foot">
     <div class="drawer-foot-card">
       <div class="drawer-foot-name">NYC TLC Driver</div>
-      <div class="drawer-foot-ver" id="drawerVer">v3.30</div>
+      <div class="drawer-foot-ver" id="drawerVer">v3.31</div>
     </div>
   </div>
 </aside>
@@ -702,7 +702,7 @@
     <div class="set-row"><span class="set-label">☀️ Kunduzgi yorqin rejim</span><button class="set-toggle on" id="setBright" role="switch" aria-checked="true">ON</button></div>
     <div class="set-row"><span class="set-label">🔋 Batareya tejash</span><button class="set-toggle" id="setBattery" role="switch" aria-checked="false">OFF</button></div>
     <button id="settingsRefresh" class="wx-btn" style="width:100%;margin-top:12px">🔄 Yangilash</button>
-    <p class="points-foot">Versiya: <span id="settingsVer">v3.30</span></p>
+    <p class="points-foot">Versiya: <span id="settingsVer">v3.31</span></p>
   </div>
 </div>
 
@@ -936,9 +936,9 @@
     lastQuotaPaint = now;
     const left = googleLeft(); // Versiya suffiksi = Google kunlik limitdan qolgani (masalan v3.26.200 = 200 ta qoldi)
     const dv = document.getElementById('drawerVer');
-    if (dv) dv.textContent = 'v3.30.' + left;
+    if (dv) dv.textContent = 'v3.31.' + left;
     const sv = document.getElementById('settingsVer');
-    if (sv) sv.textContent = 'v3.30.' + left;
+    if (sv) sv.textContent = 'v3.31.' + left;
     checkStale();
   }
 

@@ -400,16 +400,6 @@
     max-height: min(350px, 55vh); overflow-y: auto;
   }
   #teslaMenu.open { display: block; }
-  /* Tochka oynasi (restroom kabi suzuvchi panel) */
-  #tochkaMenu {
-    display: none; position: fixed; top: 120px; right: 8px;
-    width: min(250px, calc(100vw - 32px)); padding: 4px; z-index: 1300;
-    background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none;
-    border: none;
-    border-radius: 16px; box-shadow: none;
-    max-height: min(350px, 55vh); overflow-y: auto;
-  }
-  #tochkaMenu.open { display: block; }
   .location-option {
     display: flex; align-items: center; gap: 6px;
     width: 100%; margin: 3px 0; padding: 6px 8px;
@@ -610,7 +600,7 @@
   <div id="header">
     <button id="menuBtn" aria-label="Menyu">☰</button>
     <div class="head-title">
-      <div class="title-row"><span id="title">TLC RADAR</span><span id="ver">v3.29</span></div>
+      <div class="title-row"><span id="title">TLC RADAR</span><span id="ver">v3.30</span></div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
     </div>
     <button id="pointsBtn" title="TLC Pro ballar">⭐ <span id="pointsNum">--</span>.0</button>
@@ -630,7 +620,6 @@
 <div id="restroomMenu"></div>
 <div id="locMenu"></div>
 <div id="teslaMenu"></div>
-<div id="tochkaMenu"></div>
 <div id="camAlert">📷 Tezlik kamerasi oldinda!</div>
 
 <div id="etaSection">
@@ -644,7 +633,6 @@
     <button class="strip-pill" id="stripLocations"><span class="tab-ic">📍</span><span class="tab-lb">Location</span></button>
     <button class="strip-pill" id="stripRestrooms"><span class="tab-ic">🚻</span><span class="tab-lb">Restrooms</span></button>
     <button class="strip-pill" id="stripHotspots" aria-label="Tesla"><span class="tab-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#CC0000" d="m12 5.362l2.475-3.026s4.245.09 8.471 2.054c-1.082 1.636-3.231 2.438-3.231 2.438c-.146-1.439-1.154-1.79-4.354-1.79L12 24L8.619 5.034c-3.18 0-4.188.354-4.335 1.792c0 0-2.146-.795-3.229-2.43C5.28 2.431 9.525 2.34 9.525 2.34zl-.004.002H12zm0-3.899c3.415-.03 7.326.528 11.328 2.28c.535-.968.672-1.395.672-1.395C19.625.612 15.528.015 12 0C8.472.015 4.375.61 0 2.349c0 0 .195.525.672 1.396C4.674 1.989 8.585 1.435 12 1.46z"/></svg></span><span class="tab-lb">Tesla</span></button>
-    <button class="strip-pill" id="stripTochka" aria-label="Tochka"><span class="tab-ic">🎯</span><span class="tab-lb">Tochka</span></button>
     <button class="strip-pill active" id="stripEzpass" aria-label="EZPass"><span class="tab-ic">🛣️</span><span class="tab-lb">EZPass ON</span></button>
     <a class="strip-pill uberpro-pill" href="https://hayotus.github.io/uber" target="_blank" rel="noopener" aria-label="TLC Pro"><span class="tab-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="5.5" width="13" height="13" rx="2" transform="rotate(45 12 12)" fill="#276EF1"/></svg></span><span class="tab-lb up-lb">TLC <span class="up-pro">Pro</span></span></a>
   </div>
@@ -693,7 +681,7 @@
   <div class="drawer-foot">
     <div class="drawer-foot-card">
       <div class="drawer-foot-name">NYC TLC Driver</div>
-      <div class="drawer-foot-ver" id="drawerVer">v3.29</div>
+      <div class="drawer-foot-ver" id="drawerVer">v3.30</div>
     </div>
   </div>
 </aside>
@@ -714,7 +702,7 @@
     <div class="set-row"><span class="set-label">☀️ Kunduzgi yorqin rejim</span><button class="set-toggle on" id="setBright" role="switch" aria-checked="true">ON</button></div>
     <div class="set-row"><span class="set-label">🔋 Batareya tejash</span><button class="set-toggle" id="setBattery" role="switch" aria-checked="false">OFF</button></div>
     <button id="settingsRefresh" class="wx-btn" style="width:100%;margin-top:12px">🔄 Yangilash</button>
-    <p class="points-foot">Versiya: <span id="settingsVer">v3.29</span></p>
+    <p class="points-foot">Versiya: <span id="settingsVer">v3.30</span></p>
   </div>
 </div>
 
@@ -948,9 +936,9 @@
     lastQuotaPaint = now;
     const left = googleLeft(); // Versiya suffiksi = Google kunlik limitdan qolgani (masalan v3.26.200 = 200 ta qoldi)
     const dv = document.getElementById('drawerVer');
-    if (dv) dv.textContent = 'v3.29.' + left;
+    if (dv) dv.textContent = 'v3.30.' + left;
     const sv = document.getElementById('settingsVer');
-    if (sv) sv.textContent = 'v3.29.' + left;
+    if (sv) sv.textContent = 'v3.30.' + left;
     checkStale();
   }
 
@@ -1346,6 +1334,7 @@
     if (!map) return;
     if (!show) {
       if (locationLayer) { map.removeLayer(locationLayer); locationLayer = null; }
+      syncTochkaMarkers(false);
       return;
     }
     if (!locationLayer) locationLayer = L.layerGroup().addTo(map);
@@ -1428,16 +1417,30 @@
     const menu = document.getElementById('locMenu');
     if (!menu) return;
     menu.innerHTML = '';
-    const visible = SAVED_LOCATIONS.slice(0, locVisibleCount);
-    visible.forEach(loc => {
-      const info = locationInfo[loc.id];
+    // Birlashtirilgan ro'yxat: saqlangan joylar + Tochka nuqtalari
+    const all = SAVED_LOCATIONS.map(loc => ({ kind: 'loc', loc }))
+      .concat(TOCHKAS.map(t => ({ kind: 'tochka', t })));
+    const visible = all.slice(0, locVisibleCount);
+    visible.forEach(item => {
       const btn = document.createElement('button');
       btn.className = 'location-option';
-      btn.title = loc.name;
-      btn.innerHTML = `<span class="loc-main"><span class="loc-name">${loc.name}</span></span>` +
-        `<span class="loc-badges"><span class="loc-badge"><span class="v">${info ? info.dist : '--'}</span><span class="u">mi</span></span>` +
-        `<span class="loc-badge min"><span class="v">${info ? info.mins : '--'}</span><span class="u">min</span></span></span>`;
-      btn.addEventListener('click', () => openLocationNavigation(loc));
+      if (item.kind === 'loc') {
+        const loc = item.loc;
+        const info = locationInfo[loc.id];
+        btn.title = loc.name;
+        btn.innerHTML = `<span class="loc-main"><span class="loc-name">${loc.name}</span></span>` +
+          `<span class="loc-badges"><span class="loc-badge"><span class="v">${info ? info.dist : '--'}</span><span class="u">mi</span></span>` +
+          `<span class="loc-badge min"><span class="v">${info ? info.mins : '--'}</span><span class="u">min</span></span></span>`;
+        btn.addEventListener('click', () => openLocationNavigation(loc));
+      } else {
+        const t = item.t;
+        const info = tochkaInfo[t.rank];
+        btn.title = t.name;
+        btn.innerHTML = `<span class="loc-main"><span class="loc-name">🎯 ${t.name}</span><span style="display:block;font-size:11px;color:rgba(255,255,255,0.78);margin-top:1px">${t.hotels} mehmonxona • ~${t.rooms.toLocaleString('en-US')} xona</span></span>` +
+          `<span class="loc-badges"><span class="loc-badge"><span class="v">${info ? info.dist : (userLat !== null ? (havKm(userLat, userLon, t.lat, t.lon) * 0.621371).toFixed(1) : '--')}</span><span class="u">mi</span></span>` +
+          `<span class="loc-badge min"><span class="v">${info ? info.mins : '--'}</span><span class="u">min</span></span></span>`;
+        btn.addEventListener('click', () => openNavigation(t));
+      }
       menu.appendChild(btn);
     });
     const more = document.createElement('button');
@@ -1445,8 +1448,8 @@
     more.style.justifyContent = 'center';
     more.innerHTML = '<span class="loc-name">⬇ More</span>';
     more.addEventListener('click', () => {
-      if (SAVED_LOCATIONS.length > locVisibleCount) { locVisibleCount += 5; renderLocations(); }
-      else showToast('Barcha ' + SAVED_LOCATIONS.length + ' joy ko\'rsatildi');
+      if (all.length > locVisibleCount) { locVisibleCount += 5; renderLocations(); }
+      else showToast('Barcha ' + all.length + ' joy ko\'rsatildi');
     });
     menu.appendChild(more);
   }
@@ -1454,7 +1457,7 @@
   // Location ochilganda xarita foydalanuvchi + barcha joylarni sig'diradi
   function zoomToLocations() {
     if (!map) return;
-    const pts = SAVED_LOCATIONS.map(l => [l.lat, l.lon]);
+    const pts = SAVED_LOCATIONS.map(l => [l.lat, l.lon]).concat(TOCHKAS.map(t => [t.lat, t.lon]));
     if (userLat !== null) pts.push([userLat, userLon]);
     map.fitBounds(L.latLngBounds(pts), { paddingTopLeft: [30, 130], paddingBottomRight: [30, 320] });
   }
@@ -1471,16 +1474,16 @@
         if (rm && rm.classList.contains('open')) { rm.classList.remove('open'); document.getElementById('stripRestrooms').classList.remove('active'); syncRestroomMarkers(false); restoreSavedView(); }
         const tm = document.getElementById('teslaMenu');
         if (tm && tm.classList.contains('open')) { tm.classList.remove('open'); document.getElementById('stripHotspots').classList.remove('active'); syncChargerMarkers(false); restoreSavedView(); }
-        closeTochkaMenu();
         placeMenuUnderButton(menu, toggle);
         if (map) savedView = { center: map.getCenter(), zoom: map.getZoom() };
         zoomToLocations();
         syncLocationMarkers(true);
+        syncTochkaMarkers(true);
         locVisibleCount = 5;
         renderLocations();
-        if (userLat !== null && Date.now() - lastLocFetch > 60000) refreshLocationRoutes();
+        if (userLat !== null && Date.now() - lastLocFetch > 60000) { refreshLocationRoutes(); refreshTochkaRoutes(); }
       }
-      else { syncLocationMarkers(false); restoreSavedView(); }
+      else { syncLocationMarkers(false); syncTochkaMarkers(false); restoreSavedView(); }
     });
   }
 
@@ -1496,7 +1499,6 @@
         if (lm && lm.classList.contains('open')) { lm.classList.remove('open'); document.getElementById('stripLocations').classList.remove('active'); restoreSavedView(); }
         const tm = document.getElementById('teslaMenu');
         if (tm && tm.classList.contains('open')) { tm.classList.remove('open'); document.getElementById('stripHotspots').classList.remove('active'); syncChargerMarkers(false); restoreSavedView(); }
-        closeTochkaMenu();
         placeMenuUnderButton(menu, toggle);
         restroomVisibleCount = 5;
         if (map) savedView = { center: map.getCenter(), zoom: map.getZoom() };
@@ -1602,7 +1604,6 @@
         if (lm && lm.classList.contains('open')) { lm.classList.remove('open'); document.getElementById('stripLocations').classList.remove('active'); restoreSavedView(); }
         const rm = document.getElementById('restroomMenu');
         if (rm && rm.classList.contains('open')) { rm.classList.remove('open'); document.getElementById('stripRestrooms').classList.remove('active'); syncRestroomMarkers(false); restoreSavedView(); }
-        closeTochkaMenu();
         placeMenuUnderButton(menu, toggle);
         if (map) savedView = { center: map.getCenter(), zoom: map.getZoom() };
         renderChargerMenu();
@@ -1725,7 +1726,7 @@
     speak('Oldinda tezlik kamerasi. Tezlikni pasaytiring.');
   }
 
-  // --- Tochka oynasi: TOP-5 (0.3 milya driving ichidagi mehmonxonalar, NYC Open Data) ---
+  // --- Tochka nuqtalari: TOP-5 (0.3 milya driving ichidagi mehmonxonalar, NYC Open Data) — Location menyusiga birlashtirilgan ---
   const TOCHKAS = [
     { rank: 1, name: 'W 39th St & 8th Ave', lat: 40.75526, lon: -73.99241, hotels: 14, rooms: 2905 },
     { rank: 2, name: 'W 37th St & 6th Ave', lat: 40.75091, lon: -73.98472, hotels: 9, rooms: 1585 },
@@ -1736,25 +1737,6 @@
   let tochkaInfo = {};
   let tochkaLayer = null;
   let tchSeq = 0;
-
-  function renderTochkaMenu() {
-    const menu = document.getElementById('tochkaMenu');
-    if (!menu) return;
-    menu.innerHTML = '';
-    const list = TOCHKAS.slice();
-    if (userLat !== null) list.sort((a, b) => havKm(userLat, userLon, a.lat, a.lon) - havKm(userLat, userLon, b.lat, b.lon));
-    list.forEach(t => {
-      const info = tochkaInfo[t.rank];
-      const btn = document.createElement('button');
-      btn.className = 'location-option';
-      btn.title = t.name;
-      btn.innerHTML = `<span class="loc-main"><span class="loc-name">🎯 ${t.name}</span><span style="display:block;font-size:11px;color:rgba(255,255,255,0.78);margin-top:1px">${t.hotels} mehmonxona • ~${t.rooms.toLocaleString('en-US')} xona</span></span>` +
-        `<span class="loc-badges"><span class="loc-badge"><span class="v">${info ? info.dist : (userLat !== null ? (havKm(userLat, userLon, t.lat, t.lon) * 0.621371).toFixed(1) : '--')}</span><span class="u">mi</span></span>` +
-        `<span class="loc-badge min"><span class="v">${info ? info.mins : '--'}</span><span class="u">min</span></span></span>`;
-      btn.addEventListener('click', () => openNavigation(t));
-      menu.appendChild(btn);
-    });
-  }
 
   function syncTochkaMarkers(show) {
     if (!map) return;
@@ -1773,56 +1755,14 @@
     });
   }
 
-  function zoomToTochkas() {
-    if (!map) return;
-    const pts = TOCHKAS.map(t => [t.lat, t.lon]);
-    if (userLat !== null) pts.push([userLat, userLon]);
-    map.fitBounds(L.latLngBounds(pts), { paddingTopLeft: [30, 130], paddingBottomRight: [30, 320] });
-  }
-
   async function refreshTochkaRoutes() {
     if (userLat === null) return;
     const seq = ++tchSeq;
     await Promise.all(TOCHKAS.map(async t => {
       const res = await fetchRoute(userLat, userLon, t);
       if (seq !== tchSeq) return;
-      if (res) { tochkaInfo[t.rank] = { dist: res.distanceMiles, mins: res.durationMins }; renderTochkaMenu(); }
+      if (res) { tochkaInfo[t.rank] = { dist: res.distanceMiles, mins: res.durationMins }; renderLocations(); }
     }));
-  }
-
-  function closeTochkaMenu() {
-    const m = document.getElementById('tochkaMenu');
-    if (m && m.classList.contains('open')) {
-      m.classList.remove('open');
-      document.getElementById('stripTochka').classList.remove('active');
-      syncTochkaMarkers(false);
-    }
-  }
-
-  function initTochkaMenu() {
-    const toggle = document.getElementById('stripTochka');
-    const menu = document.getElementById('tochkaMenu');
-    if (!toggle || !menu) return;
-    toggle.addEventListener('click', () => {
-      const isOpen = menu.classList.toggle('open');
-      toggle.classList.toggle('active', isOpen);
-      syncLocationMarkers(false);
-      if (isOpen) {
-        const lm = document.getElementById('locMenu');
-        if (lm && lm.classList.contains('open')) { lm.classList.remove('open'); document.getElementById('stripLocations').classList.remove('active'); restoreSavedView(); }
-        const rm = document.getElementById('restroomMenu');
-        if (rm && rm.classList.contains('open')) { rm.classList.remove('open'); document.getElementById('stripRestrooms').classList.remove('active'); syncRestroomMarkers(false); restoreSavedView(); }
-        const tm = document.getElementById('teslaMenu');
-        if (tm && tm.classList.contains('open')) { tm.classList.remove('open'); document.getElementById('stripHotspots').classList.remove('active'); syncChargerMarkers(false); restoreSavedView(); }
-        placeMenuUnderButton(menu, toggle);
-        if (map) savedView = { center: map.getCenter(), zoom: map.getZoom() };
-        renderTochkaMenu();
-        zoomToTochkas();
-        syncTochkaMarkers(true);
-        refreshTochkaRoutes();
-      }
-      else { syncTochkaMarkers(false); restoreSavedView(); }
-    });
   }
 
   // --- Kunduzgi yorqin rejim (07:00–19:00 avtomatik) ---
@@ -1886,8 +1826,8 @@
     refreshRoutes(true);
     const tmEl = document.getElementById('teslaMenu');
     if (tmEl && tmEl.classList.contains('open')) loadChargerMenu();
-    const tkEl = document.getElementById('tochkaMenu');
-    if (tkEl && tkEl.classList.contains('open')) refreshTochkaRoutes();
+    const lcEl2 = document.getElementById('locMenu');
+    if (lcEl2 && lcEl2.classList.contains('open')) refreshTochkaRoutes();
     applyDayMode();
     updatePointsCircle();
     fetchWeather().then(d => updateStripWx(d.mine.current.temperature_2m)).catch(() => {});
@@ -2351,7 +2291,6 @@
   initLocMenu();
   initRestroomMenu();
   initTeslaMenu();
-  initTochkaMenu();
   applyDayMode();
   setInterval(applyDayMode, 60000);
   loadCameras();
@@ -2391,7 +2330,6 @@
       syncChargerMarkers(false);
       restoreSavedView();
     }
-    closeTochkaMenu();
     document.getElementById('drawer').classList.add('open');
     document.getElementById('drawerOverlay').classList.add('open');
   }

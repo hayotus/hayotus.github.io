@@ -666,7 +666,7 @@
 <div id="topbar">
   <div id="header">
     <div class="head-title">
-      <div class="title-row"><span id="title">TLC RADAR</span><span id="ver">v3.40</span></div>
+      <div class="title-row"><span id="title">TLC RADAR</span><span id="ver">v3.41</span></div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
     </div>
     <button id="pointsBtn" title="TLC Pro ballar">⭐ <span id="pointsNum">--</span>.0</button>
@@ -763,7 +763,7 @@
   <div class="drawer-foot">
     <div class="drawer-foot-card">
       <div class="drawer-foot-name">NYC TLC Driver</div>
-      <div class="drawer-foot-ver" id="drawerVer">v3.40</div>
+      <div class="drawer-foot-ver" id="drawerVer">v3.41</div>
     </div>
   </div>
 </aside>
@@ -784,7 +784,7 @@
     <div class="set-row"><span class="set-label">☀️ Kunduzgi yorqin rejim</span><button class="set-toggle on" id="setBright" role="switch" aria-checked="true">ON</button></div>
     <div class="set-row"><span class="set-label">🔋 Batareya tejash</span><button class="set-toggle" id="setBattery" role="switch" aria-checked="false">OFF</button></div>
     <button id="settingsRefresh" class="wx-btn" style="width:100%;margin-top:12px">🔄 Yangilash</button>
-    <p class="points-foot">Versiya: <span id="settingsVer">v3.40</span></p>
+    <p class="points-foot">Versiya: <span id="settingsVer">v3.41</span></p>
   </div>
 </div>
 
@@ -1044,9 +1044,9 @@
     lastQuotaPaint = now;
     const left = googleLeft(); // Versiya suffiksi = Google kunlik limitdan qolgani (masalan v3.26.200 = 200 ta qoldi)
     const dv = document.getElementById('drawerVer');
-    if (dv) dv.textContent = 'v3.40.' + left;
+    if (dv) dv.textContent = 'v3.41.' + left;
     const sv = document.getElementById('settingsVer');
-    if (sv) sv.textContent = 'v3.40.' + left;
+    if (sv) sv.textContent = 'v3.41.' + left;
     checkStale();
   }
 
@@ -1250,13 +1250,70 @@
     window.location.href = `https://www.google.com/maps/dir/?api=1&destination=${airport.lat},${airport.lon}&dir_action=navigate`;
   }
 
-  // v3.40: Cruise qatoridagi ⓘ — yangi oynada shu terminaldagi kruizlarning kelish
-  // jadvali (CruiseMapper, New York porti — Manhattan + Brooklyn bitta jadvalda).
-  // Qatorning o'zi bosilsa navigatsiya ochiladi, ⓘ esa jadval sahifasini ochadi.
+  // v3.41: Cruise qatoridagi ⓘ — ilova ichida modal oyna (aeroport "+" dagi
+  // flightsModal kabi): shu terminaldagi kruizlar — nomi, sanasi, vaqti.
+  // Jonli olishning iloji yo'q (CruiseMapper CORS bermaydi, proksi ham
+  // ishlamaydi — v3.41 da tekshirilgan), shuning uchun jadval ilovaga
+  // joylangan: CruiseMapper (kelish/ketish vaqtlari) + rasmiy jadval
+  // (terminal bo'yicha; NYCInfo/cruisedayguide, 2026-11-15 holatiga).
+  // "01 Jan, 02:00" — CruiseMapper dagi noma'lum ketish belgisi, bo'sh deb olingan.
+  const CRUISE_SCHEDULE = {
+    cruise1: [ // Manhattan Cruise Terminal (Pier 88/90)
+      { d: '2026-11-21', ship: 'Norwegian Bliss', arr: '07:00', dep: '16:00' },
+      { d: '2026-11-22', ship: 'Volendam', arr: '07:00', dep: '17:00' },
+      { d: '2026-11-26', ship: 'Volendam', arr: '', dep: '', depDay: true },
+      { d: '2026-11-29', ship: 'Norwegian Bliss', arr: '07:00', dep: '16:00' },
+      { d: '2026-12-04', ship: 'Europa', arr: '07:00', dep: '' },
+      { d: '2026-12-05', ship: 'Europa', arr: '', dep: '22:00' },
+      { d: '2026-12-09', ship: 'Costa Deliziosa', arr: '08:00', dep: '' },
+      { d: '2026-12-09', ship: 'Europa 2', arr: '', dep: '', depDay: true },
+      { d: '2026-12-10', ship: 'Costa Deliziosa', arr: '', dep: '18:00' },
+      { d: '2026-12-10', ship: 'Europa 2', arr: '', dep: '', depDay: true },
+      { d: '2026-12-11', ship: 'Norwegian Bliss', arr: '07:00', dep: '16:00' },
+      { d: '2026-12-23', ship: 'Norwegian Bliss', arr: '07:00', dep: '16:00' }
+    ],
+    cruise2: [ // Brooklyn Cruise Terminal (Red Hook)
+      { d: '2026-11-17', ship: 'Queen Mary 2', arr: '', dep: '', depDay: true },
+      { d: '2026-11-28', ship: 'Queen Mary 2', arr: '', dep: '', depDay: true },
+      { d: '2026-12-19', ship: 'Queen Mary 2', arr: '', dep: '', depDay: true }
+    ]
+  };
+  const CRUISE_SCHEDULE_UPDATED = '2026-11-15';
+  // Qatorning o'zi bosilsa navigatsiya ochiladi, ⓘ esa shu modalni ochadi.
   function openTerminalInfo(t) {
+    const modal = document.getElementById('flightsModal');
+    const body = document.getElementById('flightsBody');
+    const short = t.id === 'cruise1' ? 'Manhattan' : 'Brooklyn';
+    document.getElementById('flightsTitle').textContent = '🚢 ' + short + ' — Kruizlar';
+    modal.classList.add('open');
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const upcoming = (CRUISE_SCHEDULE[t.id] || [])
+      .filter(r => new Date(r.d + 'T00:00:00') >= today)
+      .sort((a, b) => a.d < b.d ? -1 : 1);
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const rowHtml = r => {
+      const dt = new Date(r.d + 'T00:00:00');
+      const dateTxt = dt.getDate() + ' ' + months[dt.getMonth()] + ' · ' + DAYLBL[(dt.getDay() + 6) % 7];
+      const timeTxt = (r.arr && r.dep) ? 'Kelish ' + r.arr + ' · Ketish ' + r.dep
+        : r.arr ? 'Kelish ' + r.arr
+        : r.dep ? 'Ketish ' + r.dep
+        : (r.depDay ? 'Chiqish kuni' : '—');
+      return '<div class="f-row"><span class="f-time">' + dateTxt + '</span><span class="f-num">' + esc(r.ship) + '</span><span class="f-from">' + timeTxt + '</span></div>';
+    };
     const now = new Date();
     const ym = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
-    window.open(`https://www.cruisemapper.com/ports/new-york-port-98?month=${ym}#schedule`, '_blank', 'noopener');
+    let html = '<div class="flights-big">' + upcoming.length + '</div><div class="flights-sub">' + esc(t.name) + ' — keyingi kruizlar</div>';
+    if (upcoming.length > 0) {
+      html += '<div class="f-list">' + upcoming.map(rowHtml).join('') + '</div>';
+    } else {
+      html += '<p class="points-note">Bu terminalda yaqin kunlarda kruiz topilmadi.</p>';
+    }
+    html += '<p class="points-foot">Jadval ' + CRUISE_SCHEDULE_UPDATED + ' holatiga (CruiseMapper + rasmiy jadval). Vaqtlar o\'zgarishi mumkin.</p>';
+    html += '<div style="margin-top:10px"><button class="wx-btn" id="cruiseFull" style="width:100%">To\'liq jadval (CruiseMapper) ↗</button></div>';
+    body.innerHTML = html;
+    document.getElementById('cruiseFull').addEventListener('click', () => {
+      window.open('https://www.cruisemapper.com/ports/new-york-port-98?month=' + ym + '#schedule', '_blank', 'noopener');
+    });
   }
 
   // --- Google (avval) / TomTom orqali marshrut (TRAFFIC tugmasiga qarab: on = tirbandlik bilan, off = trafficsiz) ---

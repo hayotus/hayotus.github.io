@@ -34,10 +34,7 @@
   body { min-height: 100vh; min-height: 100dvh; }
   #map { position: fixed; inset: 0; background: #E8E8E8; }
   .leaflet-container { background: #E8E8E8; }
-  .leaflet-control-attribution { background: rgba(255,255,255,0.75); font-size: 9px; }
-  /* Attribution pastki ETA paneli tagida qolib ketmasin — kartalar + recenter
-     tugmasi ustiga ko'tariladi (--eta-h ni JS o'lchab qo'yadi). */
-  .leaflet-bottom.leaflet-right { bottom: calc(var(--eta-h, 320px) + 56px); }
+  /* v3.36: attribution o'chirildi (attributionControl: false) — bu ikki qoida endi keraksiz. */
 
   /* Yuklanish ekrani */
   #loader {
@@ -148,6 +145,13 @@
   }
   .side-btn svg { display: block; }
   .side-btn:active { transform: scale(0.93); }
+  /* Tungi xarita tugmasi (v3.36, TLC Pro dagi btnTheme — .mc-btn uslubi aynan) */
+  .mc-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 34px; height: 37px; background: #fff; border-bottom: 1px solid #ddd; text-decoration: none; position: relative; cursor: pointer; }
+  .mc-btn:last-child { border-bottom: none; }
+  .mc-btn .mc-ic { font-size: 17px; line-height: 1.1; filter: grayscale(1); opacity: .4; }
+  .mc-btn.on .mc-ic { filter: none; opacity: 1; }
+  .mc-state { font-size: 8px; font-weight: 800; line-height: 1.2; color: #555; }
+  .mc-btn.on .mc-state { color: #0a7d33; }
 
   /* Pastki ETA kartalar */
   /* v3.34: pastki oq menyu ekran chetiga tegsin — tagidagi qora bo'shliq
@@ -345,13 +349,6 @@
   .wx-hour .h-ic { font-size: 16px; }
   .wx-hour .h-temp { font-size: 12px; font-weight: 700; color: #fff; }
   .wx-hour .h-rain { font-size: 10px; color: #0A84FF; }
-  /* Location metkasi */
-  .location-marker {
-    width: 28px; height: 28px; border-radius: 50%;
-    background: #0A84FF; border: 2px solid #FFFFFF;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; box-shadow: 0 2px 8px rgba(0,0,0,0.6); cursor: pointer;
-  }
   /* Restroom metkasi */
   .restroom-marker {
     width: 28px; height: 28px; border-radius: 50%;
@@ -401,8 +398,8 @@
   @media (max-height: 520px) {
     #restroomMenu { max-height: 180px; }
   }
-  /* Location oynasi (restroom kabi suzuvchi panel) */
-  #locMenu {
+  /* Hotels oynasi (restroom kabi suzuvchi panel) */
+  #hotelMenu {
     display: none; position: fixed; top: 120px; right: 8px;
     width: min(250px, calc(100vw - 32px)); padding: 4px; z-index: 1300;
     background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none;
@@ -410,7 +407,7 @@
     border-radius: 16px; box-shadow: none;
     max-height: min(350px, 55vh); overflow-y: auto;
   }
-  #locMenu.open { display: block; }
+  #hotelMenu.open { display: block; }
   /* Tesla oynasi (restroom kabi suzuvchi panel) */
   #teslaMenu {
     display: none; position: fixed; top: 120px; right: 8px;
@@ -444,16 +441,16 @@
   .loc-badge.min { border-color: #30D158; }
   .loc-badge .v { color: #fff; font-size: 11px; font-weight: 800; line-height: 1; }
   .loc-badge .u { color: #8E8E93; font-size: 8px; font-weight: 600; margin-top: 1px; }
-  /* Location + Restroom oynalari: 70% shaffof, har qator ramkada — nom/masofa/vaqt aniq, orqada map ko'rinadi */
-  #locMenu .location-option, #restroomMenu .location-option, #teslaMenu .location-option, #tochkaMenu .location-option, #cruiseList .location-option { padding: 6px 8px; margin: 3px 0; background: rgba(17,24,39,0.30); border: 1.5px solid rgba(255,255,255,0.5); border-radius: 12px; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
-  #locMenu .loc-name, #restroomMenu .loc-name, #teslaMenu .loc-name, #tochkaMenu .loc-name, #cruiseList .loc-name { font-size: 15px; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
-  #locMenu .loc-badge, #restroomMenu .loc-badge, #teslaMenu .loc-badge, #tochkaMenu .loc-badge, #cruiseList .loc-badge { width: 38px; height: 38px; background: rgba(28,28,30,0.55); }
-  #locMenu .loc-badge .v, #restroomMenu .loc-badge .v, #teslaMenu .loc-badge .v, #tochkaMenu .loc-badge .v, #cruiseList .loc-badge .v { font-size: 14px; color: #fff; }
-  #locMenu .loc-badge .u, #restroomMenu .loc-badge .u, #tochkaMenu .loc-badge .u, #cruiseList .loc-badge .u { font-size: 9px; color: #D1D5DB; }
+  /* Hotels + Restroom oynalari: 70% shaffof, har qator ramkada — nom/masofa/vaqt aniq, orqada map ko'rinadi */
+  #hotelMenu .location-option, #restroomMenu .location-option, #teslaMenu .location-option, #cruiseList .location-option { padding: 6px 8px; margin: 3px 0; background: rgba(17,24,39,0.30); border: 1.5px solid rgba(255,255,255,0.5); border-radius: 12px; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+  #hotelMenu .loc-name, #restroomMenu .loc-name, #teslaMenu .loc-name, #cruiseList .loc-name { font-size: 15px; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+  #hotelMenu .loc-badge, #restroomMenu .loc-badge, #teslaMenu .loc-badge, #cruiseList .loc-badge { width: 38px; height: 38px; background: rgba(28,28,30,0.55); }
+  #hotelMenu .loc-badge .v, #restroomMenu .loc-badge .v, #teslaMenu .loc-badge .v, #cruiseList .loc-badge .v { font-size: 14px; color: #fff; }
+  #hotelMenu .loc-badge .u, #restroomMenu .loc-badge .u, #teslaMenu .loc-badge .u, #cruiseList .loc-badge .u { font-size: 9px; color: #D1D5DB; }
 
 
-  /* Tochka markeri: qizil doira, ichida mehmonxonlar soni */
-  .tochka-marker {
+  /* Hotels markeri (v3.36, TLC Pro dagi mk-tochka kabi): qizil doira, ichida mehmonxonalar soni */
+  .hotel-marker {
     width: 28px; height: 28px; border-radius: 50%;
     background: #E02424; border: 2px solid #fff; color: #fff;
     font-size: 13px; font-weight: 800;
@@ -479,8 +476,8 @@
   @keyframes camBlink { from { transform: translateX(-50%) scale(1); } to { transform: translateX(-50%) scale(1.07); } }
   /* Kunduzgi yorqin rejim: quyoshda yuqori kontrast */
   body.day-bright .leaflet-tile-pane { filter: brightness(1.06) contrast(1.15) saturate(1.12); }
-  body.day-bright #locMenu .location-option, body.day-bright #restroomMenu .location-option,
-  body.day-bright #teslaMenu .location-option, body.day-bright #tochkaMenu .location-option, body.day-bright #cruiseList .location-option {
+  body.day-bright #hotelMenu .location-option, body.day-bright #restroomMenu .location-option,
+  body.day-bright #teslaMenu .location-option, body.day-bright #cruiseList .location-option {
     background: rgba(10,14,24,0.62); border-color: rgba(255,255,255,0.85);
   }
   body.day-bright .etaCard { box-shadow: 0 2px 14px rgba(0,0,0,0.45); }
@@ -620,7 +617,7 @@
 <div id="topbar">
   <div id="header">
     <div class="head-title">
-      <div class="title-row"><span id="title">TLC RADAR</span><span id="ver">v3.35</span></div>
+      <div class="title-row"><span id="title">TLC RADAR</span><span id="ver">v3.36</span></div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
     </div>
     <button id="pointsBtn" title="TLC Pro ballar">⭐ <span id="pointsNum">--</span>.0</button>
@@ -635,10 +632,11 @@
     <span class="unit">MPH</span>
     <div class="warn">LIMIT 30!</div>
   </div>
+  <a href="#" id="themeBtn" class="mc-btn" title="Tungi xarita" aria-label="Tungi xarita"><span class="mc-ic">🌙</span><span class="mc-state">OFF</span></a>
 </div>
 
 <div id="restroomMenu"></div>
-<div id="locMenu"></div>
+<div id="hotelMenu"></div>
 <div id="teslaMenu"></div>
 <div id="camAlert">📷 Tezlik kamerasi oldinda!</div>
 
@@ -656,7 +654,7 @@
     <button class="strip-pill" id="menuBtn" aria-label="Menyu"><span class="tab-ic">☰</span></button>
     <button class="strip-pill active" id="stripTraffic"><span class="tab-ic">🚦</span><span class="tab-lb">Traffic</span></button>
     <button class="strip-pill" id="stripCruise" aria-label="Cruise"><span class="tab-ic">🚢</span><span class="tab-lb">Cruise</span></button>
-    <button class="strip-pill" id="stripLocations"><span class="tab-ic">📍</span><span class="tab-lb">Location</span></button>
+    <button class="strip-pill" id="stripHotels"><span class="tab-ic">🏨</span><span class="tab-lb">Hotels</span></button>
     <button class="strip-pill" id="stripRestrooms"><span class="tab-ic">🚻</span><span class="tab-lb">Restrooms</span></button>
     <button class="strip-pill" id="stripHotspots" aria-label="Tesla"><span class="tab-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#CC0000" d="m12 5.362l2.475-3.026s4.245.09 8.471 2.054c-1.082 1.636-3.231 2.438-3.231 2.438c-.146-1.439-1.154-1.79-4.354-1.79L12 24L8.619 5.034c-3.18 0-4.188.354-4.335 1.792c0 0-2.146-.795-3.229-2.43C5.28 2.431 9.525 2.34 9.525 2.34zl-.004.002H12zm0-3.899c3.415-.03 7.326.528 11.328 2.28c.535-.968.672-1.395.672-1.395C19.625.612 15.528.015 12 0C8.472.015 4.375.61 0 2.349c0 0 .195.525.672 1.396C4.674 1.989 8.585 1.435 12 1.46z"/></svg></span><span class="tab-lb">Tesla</span></button>
     <button class="strip-pill active" id="stripEzpass" aria-label="EZPass"><span class="tab-ic">🛣️</span><span class="tab-lb">EZPass ON</span></button>
@@ -707,7 +705,7 @@
   <div class="drawer-foot">
     <div class="drawer-foot-card">
       <div class="drawer-foot-name">NYC TLC Driver</div>
-      <div class="drawer-foot-ver" id="drawerVer">v3.35</div>
+      <div class="drawer-foot-ver" id="drawerVer">v3.36</div>
     </div>
   </div>
 </aside>
@@ -728,7 +726,7 @@
     <div class="set-row"><span class="set-label">☀️ Kunduzgi yorqin rejim</span><button class="set-toggle on" id="setBright" role="switch" aria-checked="true">ON</button></div>
     <div class="set-row"><span class="set-label">🔋 Batareya tejash</span><button class="set-toggle" id="setBattery" role="switch" aria-checked="false">OFF</button></div>
     <button id="settingsRefresh" class="wx-btn" style="width:100%;margin-top:12px">🔄 Yangilash</button>
-    <p class="points-foot">Versiya: <span id="settingsVer">v3.35</span></p>
+    <p class="points-foot">Versiya: <span id="settingsVer">v3.36</span></p>
   </div>
 </div>
 
@@ -804,7 +802,7 @@
     { id: '3', name: 'Newark Liberty',  code: 'EWR', lat: 40.6895, lon: -74.1745, color: '#A855F7' },
   ];
 
-  // Uy — pastda aeroportlar qatorida 4-karta bo'lib chiqadi (LOCATIONS menyusida emas).
+  // Uy — pastda aeroportlar qatorida 4-karta bo'lib chiqadi (Hotels menyusida emas).
   const HOME = { id: 'home', name: 'Go Home', code: 'HOME', lat: 40.5985, lon: -73.9965, color: '#0EA5E9' };
   const ROUTE_TARGETS = AIRPORTS.concat([HOME]);
 
@@ -856,13 +854,20 @@
   ];
 
 
-  // Saqlangan lokatsiyalar.
-  const SAVED_LOCATIONS = [
-    { id: 2, name: 'Office 40w St', address: '360 W 40th St, New York, NY 10018', lat: 40.75696, lon: -73.99338 },
-    { id: 3, name: 'Office 10e St', address: '277 E 10th St, New York, NY 10009', lat: 40.72818, lon: -73.98279 },
-    { id: 4, name: 'Virgin Hotel', address: '1227 Broadway, New York, NY 10001', lat: 40.74674, lon: -73.98865 },
-    { id: 5, name: 'Times square', address: 'Times Square, Manhattan, NY', lat: 40.7580, lon: -73.9855 },
-    { id: 6, name: 'Exit 13', address: '1689 Remsen Ave, Brooklyn, NY 11236', lat: 40.63072, lon: -73.89528 },
+  // HotelTochka (v3.36, TLC Pro dagi HOTEL_TOCHKA — bir xil nuqtalar, sonlar va ko'cha oraliqlari).
+  // Metod: NYC Open Data tjus-cn27 (2027), BIN bo'yicha unikal hotel binolari,
+  // har nuqta atrofidagi ~310x230 m oynada (4 blok) sanalgan; H8 yotoqxonalar chiqarilgan.
+  const HOTEL_TOCHKA = [
+    { n: 'Garment District', sub: '8th–9th Ave · W 36th–40th St', lat: 40.755212, lon: -73.992663, h: 25 },
+    { n: 'Herald Square', sub: '5th–6th Ave · W 35th–38th St', lat: 40.750346, lon: -73.985078, h: 18 },
+    { n: 'Times Square', sub: '6th–7th Ave · W 44th–47th St', lat: 40.757382, lon: -73.984074, h: 17 },
+    { n: 'Chelsea', sub: '6th–7th Ave · W 24th–28th St', lat: 40.745141, lon: -73.992284, h: 15 },
+    { n: 'Grand Central', sub: 'Lexington Ave · E 47th–50th St', lat: 40.755417, lon: -73.973034, h: 15 },
+    { n: 'Midtown (43rd–46th)', sub: '5th–6th Ave · W 43rd–46th St', lat: 40.755241, lon: -73.981305, h: 14 },
+    { n: 'NoMad', sub: '5th Ave / Madison · E 29th–W 33rd St', lat: 40.745995, lon: -73.984367, h: 13 },
+    { n: 'Midtown (48th–50th)', sub: '8th Ave / Broadway · W 48th–50th St', lat: 40.760725, lon: -73.985951, h: 13 },
+    { n: 'Bowery', sub: 'Bowery · Grand–Hester St', lat: 40.718232, lon: -73.994349, h: 11 },
+    { n: 'Midtown North (54th–58th)', sub: '7th Ave · W 54th–58th St', lat: 40.764252, lon: -73.979292, h: 11 },
   ];
 
   // Jamoat hojatxonalari — asosiy ro'yxat NYC Open Data API dan yuklanadi; bu zaxira ro'yxat.
@@ -897,10 +902,10 @@
 
   // Sozlamalar (localStorage da saqlanadi)
   const SETTINGS_KEY = 'radarSettingsV1';
-  let settings = { traffic: true, speedWarn: true, autoUpdate: true, ezpass: true, cameras: true, voice: false, brightAuto: true, batterySaver: false };
+  let settings = { traffic: true, speedWarn: true, autoUpdate: true, ezpass: true, cameras: true, voice: false, brightAuto: true, batterySaver: false, darkmap: false };
   try {
     const savedSet = JSON.parse(localStorage.getItem(SETTINGS_KEY) || 'null');
-    if (savedSet) settings = { traffic: true, speedWarn: true, autoUpdate: true, ezpass: true, cameras: true, voice: false, brightAuto: true, batterySaver: false, ...savedSet };
+    if (savedSet) settings = { traffic: true, speedWarn: true, autoUpdate: true, ezpass: true, cameras: true, voice: false, brightAuto: true, batterySaver: false, darkmap: false, ...savedSet };
   } catch (e) {}
   function saveSettings() {
     try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch (e) {}
@@ -930,13 +935,13 @@
   let lastRouteFetch = 0, lastFetchLat = null, lastFetchLon = null;
   const routeLines = {};
   const airportInfo = {};
-  const locationInfo = {};
+  const hotelInfo = {};
   let lastLocFetch = 0, lastLocLat = null, lastLocLon = null;
   const restroomInfo = {};
   let lastRstFetch = 0, lastRstLat = null, lastRstLon = null;
   // Zaxira (OSRM) rejimi belgisi va refresh poygasi himoyasi
   let routeDegraded = false, tileDegraded = false;
-  let routeSeq = 0, locSeq = 0, rstSeq = 0;
+  let routeSeq = 0, hotelSeq = 0, rstSeq = 0;
   let savedView = null;
   let lastRouteSuccess = 0;
 
@@ -973,9 +978,9 @@
     lastQuotaPaint = now;
     const left = googleLeft(); // Versiya suffiksi = Google kunlik limitdan qolgani (masalan v3.26.200 = 200 ta qoldi)
     const dv = document.getElementById('drawerVer');
-    if (dv) dv.textContent = 'v3.35.' + left;
+    if (dv) dv.textContent = 'v3.36.' + left;
     const sv = document.getElementById('settingsVer');
-    if (sv) sv.textContent = 'v3.35.' + left;
+    if (sv) sv.textContent = 'v3.36.' + left;
     checkStale();
   }
 
@@ -1239,25 +1244,20 @@
     return null;
   }
 
-  // --- Saqlangan lokatsiyalarga masofa/vaqt (kruglarda ko'rsatiladi) ---
-  async function refreshLocationRoutes() {
-    const seq = ++locSeq;
+  // --- Hotel nuqtalariga masofa/vaqt (kruglarda ko'rsatiladi, TLC Pro dagi kabi TomTom) ---
+  async function refreshHotelRoutes() {
+    if (userLat === null) return;
+    const seq = ++hotelSeq;
     lastLocFetch = Date.now();
     lastLocLat = userLat; lastLocLon = userLon;
-    // Parallel (3 tadan) — kruglar tayyor bo'lgani sari to'ladi
-    const queue = SAVED_LOCATIONS.slice();
-    async function worker() {
-      while (queue.length > 0) {
-        const loc = queue.shift();
-        const res = await fetchRoute(userLat, userLon, loc);
-        if (seq !== locSeq) return;
-        if (res) {
-          locationInfo[loc.id] = { dist: res.distanceMiles, mins: res.durationMins };
-          renderLocations();
-        }
+    await Promise.all(HOTEL_TOCHKA.map(async p => {
+      const res = await fetchRoute(userLat, userLon, p);
+      if (seq !== hotelSeq) return;
+      if (res) {
+        hotelInfo[p.n] = { dist: res.distanceMiles, mins: res.durationMins };
+        renderHotels();
       }
-    }
-    await Promise.all([worker(), worker(), worker()]);
+    }));
   }
 
   // --- Restroom menyusi: NYC Open Data dan jonli ro'yxat, eng yaqinidan saralanadi ---
@@ -1365,23 +1365,22 @@
     map.fitBounds([[userLat - dLat, userLon - dLon], [userLat + dLat, userLon + dLon]], { paddingTopLeft: [30, 130], paddingBottomRight: [30, 320] });
   }
 
-  // Locations menyusi ochiq paytda uning metkalari ham ko'rinadi
-  let locationLayer = null;
-  function syncLocationMarkers(show) {
+  // Hotels menyusi ochiq paytda uning metkalari ham ko'rinadi (TLC Pro dagi mk-tochka kabi — soni ichida)
+  let hotelLayer = null;
+  function syncHotelMarkers(show) {
     if (!map) return;
     if (!show) {
-      if (locationLayer) { map.removeLayer(locationLayer); locationLayer = null; }
-      syncTochkaMarkers(false);
+      if (hotelLayer) { map.removeLayer(hotelLayer); hotelLayer = null; }
       return;
     }
-    if (!locationLayer) locationLayer = L.layerGroup().addTo(map);
-    locationLayer.clearLayers();
-    SAVED_LOCATIONS.forEach(loc => {
-      const icon = L.divIcon({ className: '', html: '<div class="location-marker">📍</div>', iconSize: [28, 28], iconAnchor: [14, 14] });
-      const m = L.marker([loc.lat, loc.lon], { icon: icon });
-      m.bindTooltip('<b>' + esc(loc.name) + '</b>', { direction: 'top', offset: [0, -14] });
-      m.on('click', () => openLocationNavigation(loc));
-      locationLayer.addLayer(m);
+    if (!hotelLayer) hotelLayer = L.layerGroup().addTo(map);
+    hotelLayer.clearLayers();
+    HOTEL_TOCHKA.forEach(p => {
+      const icon = L.divIcon({ className: '', html: '<div class="hotel-marker">' + p.h + '</div>', iconSize: [28, 28], iconAnchor: [14, 14] });
+      const m = L.marker([p.lat, p.lon], { icon: icon });
+      m.bindTooltip('<b>' + esc(p.n) + '</b><br>' + p.h + ' ta hotel', { direction: 'top', offset: [0, -14] });
+      m.on('click', () => openNavigation(p));
+      hotelLayer.addLayer(m);
     });
   }
 
@@ -1447,61 +1446,49 @@
     if (Date.now() - lastRstFetch > 120000 || (moved > 300 && Date.now() - lastRstFetch > 60000)) refreshRestroomRoutes();
   }
 
-  // --- Location oynasi: saqlangan joylar ro'yxati (restroom kabi), mapda metkalar bilan ---
-  let locVisibleCount = 5;
+  // --- Hotels oynasi: TLC Pro dagi HotelTochka TOP-10 (hotel soni bo'yicha saralangan), mapda metkalar bilan ---
+  let hotelVisibleCount = 5;
 
-  function renderLocations() {
-    const menu = document.getElementById('locMenu');
+  function renderHotels() {
+    const menu = document.getElementById('hotelMenu');
     if (!menu) return;
     menu.innerHTML = '';
-    // Birlashtirilgan ro'yxat: saqlangan joylar + Tochka nuqtalari
-    const all = SAVED_LOCATIONS.map(loc => ({ kind: 'loc', loc }))
-      .concat(TOCHKAS.map(t => ({ kind: 'tochka', t })));
-    const visible = all.slice(0, locVisibleCount);
-    visible.forEach(item => {
+    // TLC Pro dagi kabi: hotel soni (h) bo'yicha kamayish tartibida; avval 5 ta, Next — keyingi 5 ta
+    const all = HOTEL_TOCHKA.slice().sort((a, b) => b.h - a.h);
+    const visible = all.slice(0, hotelVisibleCount);
+    visible.forEach(p => {
       const btn = document.createElement('button');
       btn.className = 'location-option';
-      if (item.kind === 'loc') {
-        const loc = item.loc;
-        const info = locationInfo[loc.id];
-        btn.title = loc.name;
-        btn.innerHTML = `<span class="loc-main"><span class="loc-name">${loc.name}</span></span>` +
-          `<span class="loc-badges"><span class="loc-badge"><span class="v">${info ? info.dist : '--'}</span><span class="u">mi</span></span>` +
-          `<span class="loc-badge min"><span class="v">${info ? info.mins : '--'}</span><span class="u">min</span></span></span>`;
-        btn.addEventListener('click', () => openLocationNavigation(loc));
-      } else {
-        const t = item.t;
-        const info = tochkaInfo[t.rank];
-        btn.title = t.name;
-        btn.innerHTML = `<span class="loc-main"><span class="loc-name">🎯 ${t.name}</span><span style="display:block;font-size:11px;color:rgba(255,255,255,0.78);margin-top:1px">${t.hotels} mehmonxona • ~${t.rooms.toLocaleString('en-US')} xona</span></span>` +
-          `<span class="loc-badges"><span class="loc-badge"><span class="v">${info ? info.dist : (userLat !== null ? (havKm(userLat, userLon, t.lat, t.lon) * 0.621371).toFixed(1) : '--')}</span><span class="u">mi</span></span>` +
-          `<span class="loc-badge min"><span class="v">${info ? info.mins : '--'}</span><span class="u">min</span></span></span>`;
-        btn.addEventListener('click', () => openNavigation(t));
-      }
+      const info = hotelInfo[p.n];
+      btn.title = p.n;
+      btn.innerHTML = `<span class="loc-main"><span class="loc-name">${esc(p.n)}</span><span class="loc-addr">${p.h} ta hotel · ${esc(p.sub)}</span></span>` +
+        `<span class="loc-badges"><span class="loc-badge"><span class="v">${info ? info.dist : '--'}</span><span class="u">mi</span></span>` +
+        `<span class="loc-badge min"><span class="v">${info ? info.mins : '--'}</span><span class="u">min</span></span></span>`;
+      btn.addEventListener('click', () => openNavigation(p));
       menu.appendChild(btn);
     });
     const more = document.createElement('button');
     more.className = 'location-option';
     more.style.justifyContent = 'center';
-    more.innerHTML = '<span class="loc-name">⬇ More</span>';
+    more.innerHTML = '<span class="loc-name">⬇ Next</span>';
     more.addEventListener('click', () => {
-      if (all.length > locVisibleCount) { locVisibleCount += 5; renderLocations(); }
-      else showToast('Barcha ' + all.length + ' joy ko\'rsatildi');
+      if (all.length > hotelVisibleCount) { hotelVisibleCount += 5; renderHotels(); }
+      else showToast('Barcha ' + all.length + ' hotel nuqtasi ko\'rsatildi');
     });
     menu.appendChild(more);
   }
 
-  // Location ochilganda xarita foydalanuvchi + barcha joylarni sig'diradi
-  function zoomToLocations() {
+  // Hotels ochilganda xarita foydalanuvchi + barcha nuqtalarni sig'diradi
+  function zoomToHotels() {
     if (!map) return;
-    const pts = SAVED_LOCATIONS.map(l => [l.lat, l.lon]).concat(TOCHKAS.map(t => [t.lat, t.lon]));
+    const pts = HOTEL_TOCHKA.map(p => [p.lat, p.lon]);
     if (userLat !== null) pts.push([userLat, userLon]);
     map.fitBounds(L.latLngBounds(pts), { paddingTopLeft: [30, 130], paddingBottomRight: [30, 320] });
   }
 
-  function initLocMenu() {
-    const toggle = document.getElementById('stripLocations');
-    const menu = document.getElementById('locMenu');
+  function initHotelMenu() {
+    const toggle = document.getElementById('stripHotels');
+    const menu = document.getElementById('hotelMenu');
     if (!toggle || !menu) return;
     toggle.addEventListener('click', () => {
       const isOpen = menu.classList.toggle('open');
@@ -1514,14 +1501,13 @@
         if (cruiseOn) closeCruise();
         placeMenuUnderButton(menu, toggle);
         if (map) savedView = { center: map.getCenter(), zoom: map.getZoom() };
-        zoomToLocations();
-        syncLocationMarkers(true);
-        syncTochkaMarkers(true);
-        locVisibleCount = 5;
-        renderLocations();
-        if (userLat !== null && Date.now() - lastLocFetch > 60000) { refreshLocationRoutes(); refreshTochkaRoutes(); }
+        zoomToHotels();
+        syncHotelMarkers(true);
+        hotelVisibleCount = 5;
+        renderHotels();
+        if (userLat !== null && Date.now() - lastLocFetch > 60000) { refreshHotelRoutes(); }
       }
-      else { syncLocationMarkers(false); syncTochkaMarkers(false); restoreSavedView(); }
+      else { syncHotelMarkers(false); restoreSavedView(); }
     });
   }
 
@@ -1531,10 +1517,10 @@
     toggle.addEventListener('click', () => {
       const isOpen = menu.classList.toggle('open');
       toggle.classList.toggle('active', isOpen);
-      syncLocationMarkers(false);
+      syncHotelMarkers(false);
       if (isOpen) {
-        const lm = document.getElementById('locMenu');
-        if (lm && lm.classList.contains('open')) { lm.classList.remove('open'); document.getElementById('stripLocations').classList.remove('active'); restoreSavedView(); }
+        const lm = document.getElementById('hotelMenu');
+        if (lm && lm.classList.contains('open')) { lm.classList.remove('open'); document.getElementById('stripHotels').classList.remove('active'); restoreSavedView(); }
         const tm = document.getElementById('teslaMenu');
         if (tm && tm.classList.contains('open')) { tm.classList.remove('open'); document.getElementById('stripHotspots').classList.remove('active'); syncChargerMarkers(false); restoreSavedView(); }
         if (cruiseOn) closeCruise();
@@ -1637,10 +1623,10 @@
     toggle.addEventListener('click', () => {
       const isOpen = menu.classList.toggle('open');
       toggle.classList.toggle('active', isOpen);
-      syncLocationMarkers(false);
+      syncHotelMarkers(false);
       if (isOpen) {
-        const lm = document.getElementById('locMenu');
-        if (lm && lm.classList.contains('open')) { lm.classList.remove('open'); document.getElementById('stripLocations').classList.remove('active'); restoreSavedView(); }
+        const lm = document.getElementById('hotelMenu');
+        if (lm && lm.classList.contains('open')) { lm.classList.remove('open'); document.getElementById('stripHotels').classList.remove('active'); restoreSavedView(); }
         const rm = document.getElementById('restroomMenu');
         if (rm && rm.classList.contains('open')) { rm.classList.remove('open'); document.getElementById('stripRestrooms').classList.remove('active'); syncRestroomMarkers(false); restoreSavedView(); }
         if (cruiseOn) closeCruise();
@@ -1770,8 +1756,8 @@
       const turningOn = !cruiseOn;
       if (turningOn) {
         // Boshqa floating menyularni yopish (ular ham bir-birini yopadi)
-        const lm = document.getElementById('locMenu');
-        if (lm && lm.classList.contains('open')) { lm.classList.remove('open'); document.getElementById('stripLocations').classList.remove('active'); syncLocationMarkers(false); restoreSavedView(); }
+        const lm = document.getElementById('hotelMenu');
+        if (lm && lm.classList.contains('open')) { lm.classList.remove('open'); document.getElementById('stripHotels').classList.remove('active'); syncHotelMarkers(false); restoreSavedView(); }
         const rm = document.getElementById('restroomMenu');
         if (rm && rm.classList.contains('open')) { rm.classList.remove('open'); document.getElementById('stripRestrooms').classList.remove('active'); syncRestroomMarkers(false); restoreSavedView(); }
         const tm = document.getElementById('teslaMenu');
@@ -1898,45 +1884,6 @@
     speak('Oldinda tezlik kamerasi. Tezlikni pasaytiring.');
   }
 
-  // --- Tochka nuqtalari: TOP-5 (0.3 milya driving ichidagi mehmonxonalar, NYC Open Data) — Location menyusiga birlashtirilgan ---
-  const TOCHKAS = [
-    { rank: 1, name: 'W 39th St & 8th Ave', lat: 40.75526, lon: -73.99241, hotels: 14, rooms: 2905 },
-    { rank: 2, name: 'W 37th St & 6th Ave', lat: 40.75091, lon: -73.98472, hotels: 9, rooms: 1585 },
-    { rank: 3, name: 'W 46th St & Broadway', lat: 40.75782, lon: -73.98367, hotels: 10, rooms: 1992 },
-    { rank: 4, name: '6th Ave & W 28th St', lat: 40.74619, lon: -73.99029, hotels: 14, rooms: 2755 },
-    { rank: 5, name: 'W 48th St & 8th Ave', lat: 40.76032, lon: -73.98579, hotels: 10, rooms: 6830 },
-  ];
-  let tochkaInfo = {};
-  let tochkaLayer = null;
-  let tchSeq = 0;
-
-  function syncTochkaMarkers(show) {
-    if (!map) return;
-    if (!show) {
-      if (tochkaLayer) { map.removeLayer(tochkaLayer); tochkaLayer = null; }
-      return;
-    }
-    if (!tochkaLayer) tochkaLayer = L.layerGroup().addTo(map);
-    tochkaLayer.clearLayers();
-    TOCHKAS.forEach(t => {
-      const icon = L.divIcon({ className: '', html: '<div class="tochka-marker">' + t.hotels + '</div>', iconSize: [28, 28], iconAnchor: [14, 14] });
-      const m = L.marker([t.lat, t.lon], { icon: icon });
-      m.bindTooltip('<b>T' + t.rank + ' — ' + esc(t.name) + '</b><br>' + t.hotels + ' mehmonxona', { direction: 'top', offset: [0, -14] });
-      m.on('click', () => openNavigation(t));
-      tochkaLayer.addLayer(m);
-    });
-  }
-
-  async function refreshTochkaRoutes() {
-    if (userLat === null) return;
-    const seq = ++tchSeq;
-    await Promise.all(TOCHKAS.map(async t => {
-      const res = await fetchRoute(userLat, userLon, t);
-      if (seq !== tchSeq) return;
-      if (res) { tochkaInfo[t.rank] = { dist: res.distanceMiles, mins: res.durationMins }; renderLocations(); }
-    }));
-  }
-
   // --- Kunduzgi yorqin rejim (07:00–19:00 avtomatik) ---
   function applyDayMode() {
     const h = new Date().getHours();
@@ -1977,11 +1924,11 @@
       const dLonL = (userLon - lastLocLon) * 85000;
       locMoved = Math.sqrt(dLatL * dLatL + dLonL * dLonL);
     }
-    // Location oynasi ochiq bo'lsa lokatsiyalar tezroq (2 daq) yangilanadi — limit tejaladi
-    const locMenuEl = document.getElementById('locMenu');
-    const locInterval = (locMenuEl && locMenuEl.classList.contains('open')) ? 120000 : 300000;
+    // Hotels oynasi ochiq bo'lsa hotellar tezroq (2 daq) yangilanadi — limit tejaladi
+    const hotelMenuEl = document.getElementById('hotelMenu');
+    const locInterval = (hotelMenuEl && hotelMenuEl.classList.contains('open')) ? 120000 : 300000;
     if (force || nowL - lastLocFetch > locInterval || (locMoved > 500 && nowL - lastLocFetch > 60000)) {
-      refreshLocationRoutes();
+      refreshHotelRoutes();
     }
     // Cruise ochiq bo'lsa uning marshrutlari ham yangilanadi (2 daqiqada ko'pi bilan 1 marta)
     if (cruiseOn) refreshCruiseRoutes(false);
@@ -2001,8 +1948,8 @@
     if (cruiseOn) refreshCruiseRoutes(true);
     const tmEl = document.getElementById('teslaMenu');
     if (tmEl && tmEl.classList.contains('open')) loadChargerMenu();
-    const lcEl2 = document.getElementById('locMenu');
-    if (lcEl2 && lcEl2.classList.contains('open')) refreshTochkaRoutes();
+    const lcEl2 = document.getElementById('hotelMenu');
+    if (lcEl2 && lcEl2.classList.contains('open')) refreshHotelRoutes();
     applyDayMode();
     updatePointsCircle();
     fetchWeather().then(d => updateStripWx(d.mine.current.temperature_2m)).catch(() => {});
@@ -2342,9 +2289,18 @@
     }
   }
 
+  // --- Tungi xarita tugmasi (v3.36, TLC Pro dagi btnTheme — bir xil funksiya va uslub) ---
+  // ON = qorong'u (tungi) plitkalar, OFF = ochiq (kunduzgi) plitkalar; holat saqlanadi.
+  const BASE_LIGHT = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}';
+  const BASE_DARK = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}';
+  let baseTileLayer = null;
+  function updateThemeUI(){const b=document.getElementById('themeBtn');if(b){b.classList.toggle('on',!!settings.darkmap);const tst=b.querySelector('.mc-state');if(tst)tst.textContent=settings.darkmap?'ON':'OFF'}}
+  function applyBaseTheme(){if(baseTileLayer){try{baseTileLayer.setUrl(settings.darkmap?BASE_DARK:BASE_LIGHT)}catch(e){}}updateThemeUI()}
+  function toggleTheme(){settings.darkmap=!settings.darkmap;saveSettings();applyBaseTheme();showToast(settings.darkmap?'Tungi xarita yoqildi':'Kunduzgi xarita yoqildi')}
+
   function initMap() {
-    map = L.map('map', { zoomControl: false, attributionControl: true, maxZoom: 18, minZoom: 10 });
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+    map = L.map('map', { zoomControl: false, attributionControl: false, maxZoom: 18, minZoom: 10 });
+    baseTileLayer = L.tileLayer(settings.darkmap ? BASE_DARK : BASE_LIGHT, {
       attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
       maxZoom: 18,
       maxNativeZoom: 16,
@@ -2376,6 +2332,8 @@
       fitAll();
       refreshAll();
     });
+    document.getElementById('themeBtn').addEventListener('click', e => { e.preventDefault(); toggleTheme(); });
+    updateThemeUI();
     document.getElementById('stripTraffic').addEventListener('click', toggleTraffic);
     document.getElementById('stripEzpass').addEventListener('click', toggleEzpass);
     document.getElementById('stripWx').addEventListener('click', () => {
@@ -2458,7 +2416,7 @@
   setInterval(evaluateTrafficDemand, 60000);
   buildCards();
   initMap();
-  initLocMenu();
+  initHotelMenu();
   initRestroomMenu();
   initTeslaMenu();
   initCruiseMenu();
@@ -2487,11 +2445,11 @@
       syncRestroomMarkers(false);
       restoreSavedView();
     }
-    const lm = document.getElementById('locMenu');
+    const lm = document.getElementById('hotelMenu');
     if (lm && lm.classList.contains('open')) {
       lm.classList.remove('open');
-      document.getElementById('stripLocations').classList.remove('active');
-      syncLocationMarkers(false);
+      document.getElementById('stripHotels').classList.remove('active');
+      syncHotelMarkers(false);
       restoreSavedView();
     }
     const tm = document.getElementById('teslaMenu');

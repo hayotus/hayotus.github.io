@@ -1,0 +1,133 @@
+{
+  "updated": "2026-11-15",
+  "source": "CruiseMapper + official schedule",
+  "cruise1": [
+    {
+      "d": "2026-11-21",
+      "ship": "Norwegian Bliss",
+      "arr": "07:00",
+      "dep": "16:00",
+      "cabins": 2069
+    },
+    {
+      "d": "2026-11-22",
+      "ship": "Volendam",
+      "arr": "07:00",
+      "dep": "17:00",
+      "cabins": 716
+    },
+    {
+      "d": "2026-11-29",
+      "ship": "Norwegian Bliss",
+      "arr": "07:00",
+      "dep": "16:00",
+      "cabins": 2069
+    },
+    {
+      "d": "2026-12-04",
+      "ship": "Europa",
+      "arr": "07:00",
+      "dep": "",
+      "cabins": 204
+    },
+    {
+      "d": "2026-12-05",
+      "ship": "Europa",
+      "arr": "",
+      "dep": "22:00",
+      "cabins": 204
+    },
+    {
+      "d": "2026-12-09",
+      "ship": "Costa Deliziosa",
+      "arr": "08:00",
+      "dep": "10 Dec, 18:00",
+      "cabins": 1130
+    },
+    {
+      "d": "2026-12-11",
+      "ship": "Norwegian Bliss",
+      "arr": "07:00",
+      "dep": "16:00",
+      "cabins": 2069
+    },
+    {
+      "d": "2026-12-23",
+      "ship": "Norwegian Bliss",
+      "arr": "07:00",
+      "dep": "16:00",
+      "cabins": 2069
+    },
+    {
+      "d": "2027-01-04",
+      "ship": "Norwegian Bliss",
+      "arr": "07:00",
+      "dep": "16:00",
+      "cabins": 2069
+    },
+    {
+      "d": "2027-01-16",
+      "ship": "Norwegian Bliss",
+      "arr": "07:00",
+      "dep": "16:00",
+      "cabins": 2069
+    },
+    {
+      "d": "2027-01-24",
+      "ship": "Norwegian Bliss",
+      "arr": "07:00",
+      "dep": "16:00",
+      "cabins": 2069
+    }
+  ],
+  "cruise2": [
+    {
+      "d": "2026-11-17",
+      "ship": "Queen Mary 2",
+      "arr": "",
+      "dep": "",
+      "depDay": true,
+      "cabins": 1363
+    },
+    {
+      "d": "2026-11-28",
+      "ship": "Queen Mary 2",
+      "arr": "",
+      "dep": "",
+      "depDay": true,
+      "cabins": 1363
+    },
+    {
+      "d": "2026-12-19",
+      "ship": "Queen Mary 2",
+      "arr": "",
+      "dep": "",
+      "depDay": true,
+      "cabins": 1363
+    },
+    {
+      "d": "2027-01-02",
+      "ship": "Queen Mary 2",
+      "arr": "",
+      "dep": "",
+      "depDay": true,
+      "cabins": 1363
+    },
+    {
+      "d": "2027-01-18",
+      "ship": "Queen Victoria",
+      "arr": "",
+      "dep": "",
+      "depDay": true,
+      "cabins": 1037
+    },
+    {
+      "d": "2027-01-19",
+      "ship": "Queen Victoria",
+      "arr": "",
+      "dep": "",
+      "depDay": true,
+      "cabins": 1037
+    }
+  ]
+}

@@ -60,10 +60,8 @@
     padding: 10px 12px; display: flex; align-items: center; gap: 10px;
     pointer-events: auto; box-shadow: 0 8px 24px rgba(0,0,0,0.35);
   }
-  /* v3.33: ☰ menyu tepadan pastki stripga ko'chdi — Traffic yonida, faqat icon */
-  #menuBtn { flex: none; width: 44px; justify-content: center; }
-  #menuBtn .tab-ic { filter: none; opacity: 1; color: #111827; font-size: 21px; }
-  #menuBtn:active { background: rgba(0,0,0,0.06); }
+  /* v3.43: ☰ menyu tugmasi endi pastki strip'dagi boshqa pill'lar kabi —
+     icon + "Menyu" yozuvi (avval faqat icon, 44px edi). */
   .head-title { flex: 1; min-width: 0; }
   .title-row { display: flex; align-items: center; gap: 7px; }
   #title { font-size: 16px; font-weight: 900; color: #fff; letter-spacing: 0.6px; white-space: nowrap; }
@@ -137,7 +135,9 @@
   }
   /* v3.38: chap ustun — 🕐 Vaqt va 🌙 Tungi xarita o'ngdan chapga ko'chdi
      (TLC Pro dagi kabi chap tomonda); o'ng ustunda Recenter + tezlik qoldi.
-     Pastki cheti layoutFullscreen() da #sideBtns bilan birga o'rnatiladi. */
+     Pastki cheti layoutFullscreen() da #sideBtns bilan birga o'rnatiladi.
+     v3.43: Recenter ham chap ustunga, eng pastga ko'chdi — o'ng ustunda
+     endi faqat tezlik badge'i qoldi. */
   #leftBtns {
     position: fixed; left: 12px; bottom: 335px; z-index: 1000;
     display: flex; flex-direction: column; align-items: center; gap: 10px;
@@ -151,29 +151,23 @@
   }
   .side-btn svg { display: block; }
   .side-btn:active { transform: scale(0.93); }
-  /* Tungi xarita tugmasi (v3.36, TLC Pro dagi btnTheme — .mc-btn uslubi aynan) */
-  .mc-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 34px; height: 37px; background: #fff; border-bottom: 1px solid #ddd; text-decoration: none; position: relative; cursor: pointer; }
-  .mc-btn:last-child { border-bottom: none; }
-  .mc-btn .mc-ic { font-size: 17px; line-height: 1.1; filter: grayscale(1); opacity: .4; }
-  .mc-btn.on .mc-ic { filter: none; opacity: 1; }
-  .mc-state { font-size: 8px; font-weight: 800; line-height: 1.2; color: #555; }
-  .mc-btn.on .mc-state { color: #0a7d33; }
-  /* v3.39: vertikal pill — pastki strip'dagi Traffic/EZPass/Cruise pill'lar
-     ko'rinishida (icon tepada, label pastda); ON bo'lganda sariq yonadi
-     (strip'dagi sariq chiziq bilan bir xil #F5B301 rang). */
-  .vpill { display: flex; flex-direction: column; align-items: center; gap: 3px; width: 52px; padding: 7px 2px 6px; background: #fff; border: 1px solid #ddd; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.35); cursor: pointer; font-family: inherit; -webkit-tap-highlight-color: transparent; }
-  .vpill:active { transform: scale(0.96); }
-  .vpill .vp-ic { font-size: 20px; line-height: 1.1; filter: grayscale(1); opacity: .45; }
-  .vpill .vp-lb { font-size: 10px; font-weight: 700; line-height: 1.2; color: #555; white-space: nowrap; }
-  .vpill.on { background: #F5B301; border-color: #F5B301; }
-  .vpill.on .vp-ic { filter: none; opacity: 1; }
-  .vpill.on .vp-lb { color: #111827; font-weight: 800; }
+  /* v3.43: chap ustun — barcha 4 tugma bir xil ko'rinishda (.lbtn).
+     O'lcham ikkalasining o'rtasi: mc-btn 34x37 va vpill 52x50 ning o'rtasi = 44x44.
+     ON = sariq #F5B301, OFF = oq; har birida ON/OFF yozuvi bor. */
+  .lbtn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; width: 44px; height: 44px; padding: 0; background: #fff; border: 1px solid #ddd; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.35); cursor: pointer; font-family: inherit; -webkit-tap-highlight-color: transparent; text-decoration: none; }
+  .lbtn:active { transform: scale(0.96); }
+  .lbtn .l-ic { font-size: 18px; line-height: 1.1; filter: grayscale(1); opacity: .45; }
+  .lbtn .l-st { font-size: 9px; font-weight: 800; line-height: 1.2; color: #555; }
+  .lbtn.on { background: #F5B301; border-color: #F5B301; }
+  .lbtn.on .l-ic { filter: none; opacity: 1; }
+  .lbtn.on .l-st { color: #111827; }
 
   /* Vaqt paneli (v3.37, TLC Pro dagi mapTimeBar + mapDayRow — bir xil ikki qatorli
      tuzilish; Radar'da #etaSection ustida suzuvchi panel, o'ng ustunni to'smaydi;
-     v3.39: left 76px — chap ustundagi eng enli tugma vpill (12px + 52px + 12px oraliq) to'silmaydi) */
+     v3.39: left 76px — chap ustundagi eng enli tugma vpill (12px + 52px + 12px oraliq) to'silmaydi;
+     v3.43: left 68px — chap ustun endi 44px (12px + 44px + 12px oraliq) */
   #timePanel {
-    display: none; position: fixed; left: 76px; right: 66px; bottom: calc(var(--eta-h) + 12px);
+    display: none; position: fixed; left: 68px; right: 66px; bottom: calc(var(--eta-h) + 12px);
     z-index: 1000; pointer-events: auto;
   }
   #mapTimeBar {
@@ -667,7 +661,7 @@
 <div id="topbar">
   <div id="header">
     <div class="head-title">
-      <div class="title-row"><span id="title">TLC RADAR</span><span id="ver">v3.42</span></div>
+      <div class="title-row"><span id="title">TLC RADAR</span><span id="ver">v3.43</span></div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
     </div>
     <button id="pointsBtn" title="TLC Pro ballar">⭐ <span id="pointsNum">--</span>.0</button>
@@ -676,14 +670,14 @@
 </div>
 
 <div id="leftBtns">
-  <a href="#" id="timeBtn" class="mc-btn" title="Vaqt" aria-label="Vaqt"><span class="mc-ic">🕐</span><span class="mc-state">OFF</span></a>
-  <a href="#" id="themeBtn" class="mc-btn" title="Tungi xarita" aria-label="Tungi xarita"><span class="mc-ic">🌙</span><span class="mc-state">OFF</span></a>
-  <button class="vpill on" id="trafficBtn" aria-label="Traffic"><span class="vp-ic">🚦</span><span class="vp-lb">Traffic</span></button>
-  <button class="vpill on" id="ezpassBtn" aria-label="EZPass"><span class="vp-ic">🛣️</span><span class="vp-lb">EZPass</span></button>
+  <a href="#" id="timeBtn" class="lbtn" title="Vaqt" aria-label="Vaqt"><span class="l-ic">🕐</span><span class="l-st">OFF</span></a>
+  <a href="#" id="themeBtn" class="lbtn" title="Tungi xarita" aria-label="Tungi xarita"><span class="l-ic">🌙</span><span class="l-st">OFF</span></a>
+  <button class="lbtn on" id="trafficBtn" title="Traffic" aria-label="Traffic"><span class="l-ic">🚦</span><span class="l-st">ON</span></button>
+  <button class="lbtn on" id="ezpassBtn" title="EZPass" aria-label="EZPass"><span class="l-ic">🛣️</span><span class="l-st">ON</span></button>
+  <button class="side-btn" id="recenter" title="Markazlash" aria-label="Markazlash"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0284C7" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="1.6" fill="#0284C7" stroke="none"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/></svg></button>
 </div>
 
 <div id="sideBtns">
-  <button class="side-btn" id="recenter" aria-label="Markazlash"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0284C7" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="1.6" fill="#0284C7" stroke="none"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/></svg></button>
   <div id="speedBadge">
     <span class="num" id="speedNum">0</span>
     <span class="unit">MPH</span>
@@ -712,7 +706,7 @@
     <div id="cruiseRows"></div>
   </div>
   <div id="statusStrip">
-    <button class="strip-pill" id="menuBtn" aria-label="Menyu"><span class="tab-ic">☰</span></button>
+    <button class="strip-pill" id="menuBtn" aria-label="Menyu"><span class="tab-ic">☰</span><span class="tab-lb">Menyu</span></button>
     <button class="strip-pill" id="stripCruise" aria-label="Cruise"><span class="tab-ic">🚢</span><span class="tab-lb">Cruise</span></button>
     <button class="strip-pill" id="stripHotels"><span class="tab-ic">🏨</span><span class="tab-lb">Hotels</span></button>
     <button class="strip-pill" id="stripRestrooms"><span class="tab-ic">🚻</span><span class="tab-lb">Restrooms</span></button>
@@ -764,7 +758,7 @@
   <div class="drawer-foot">
     <div class="drawer-foot-card">
       <div class="drawer-foot-name">NYC TLC Driver</div>
-      <div class="drawer-foot-ver" id="drawerVer">v3.42</div>
+      <div class="drawer-foot-ver" id="drawerVer">v3.43</div>
     </div>
   </div>
 </aside>
@@ -785,7 +779,7 @@
     <div class="set-row"><span class="set-label">☀️ Kunduzgi yorqin rejim</span><button class="set-toggle on" id="setBright" role="switch" aria-checked="true">ON</button></div>
     <div class="set-row"><span class="set-label">🔋 Batareya tejash</span><button class="set-toggle" id="setBattery" role="switch" aria-checked="false">OFF</button></div>
     <button id="settingsRefresh" class="wx-btn" style="width:100%;margin-top:12px">🔄 Yangilash</button>
-    <p class="points-foot">Versiya: <span id="settingsVer">v3.42</span></p>
+    <p class="points-foot">Versiya: <span id="settingsVer">v3.43</span></p>
   </div>
 </div>
 
@@ -1045,9 +1039,9 @@
     lastQuotaPaint = now;
     const left = googleLeft(); // Versiya suffiksi = Google kunlik limitdan qolgani (masalan v3.26.200 = 200 ta qoldi)
     const dv = document.getElementById('drawerVer');
-    if (dv) dv.textContent = 'v3.42.' + left;
+    if (dv) dv.textContent = 'v3.43.' + left;
     const sv = document.getElementById('settingsVer');
-    if (sv) sv.textContent = 'v3.42.' + left;
+    if (sv) sv.textContent = 'v3.43.' + left;
     checkStale();
   }
 
@@ -1164,12 +1158,12 @@
     }
   }
 
-  // v3.39: Traffic endi chap ustundagi vertikal pill (#trafficBtn) — ON = sariq
+  // v3.43: Traffic chap ustundagi bir xil tugma (.lbtn) — ON = sariq, ON/OFF yozuvi
   function updateTrafficLabel() {
     const b = document.getElementById('trafficBtn');
     if (b) {
-      const lb = b.querySelector('.vp-lb');
-      if (lb) lb.textContent = 'Traffic' + ((trafficOn && (routeDegraded || tileDegraded)) ? ' ⚠' : '');
+      const lb = b.querySelector('.l-st');
+      if (lb) lb.textContent = (trafficOn ? 'ON' : 'OFF') + ((trafficOn && (routeDegraded || tileDegraded)) ? ' ⚠' : '');
       b.classList.toggle('on', trafficOn);
     }
   }
@@ -1196,10 +1190,10 @@
 
   // EZPass tugmasi: ON = pullik (toll) yo'llar ham ruxsat, OFF = faqat tollsiz yo'llar
   // Barcha marshrutlar shu bitta fetchRoute orqali o'tadi (aeroportlar, lokatsiyalar, restroom, zaryadlash)
-  // v3.39: EZPass endi chap ustundagi vertikal pill (#ezpassBtn) — ON = sariq, label o'zgarmaydi
+  // v3.43: EZPass chap ustundagi bir xil tugma (.lbtn) — ON = sariq, ON/OFF yozuvi
   function updateEzpassLabel() {
     const b = document.getElementById('ezpassBtn');
-    if (b) b.classList.toggle('on', ezpassOn);
+    if (b) { b.classList.toggle('on', ezpassOn); const st = b.querySelector('.l-st'); if (st) st.textContent = ezpassOn ? 'ON' : 'OFF'; }
   }
 
   function toggleEzpass() {
@@ -2471,7 +2465,7 @@
   const BASE_LIGHT = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}';
   const BASE_DARK = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}';
   let baseTileLayer = null;
-  function updateThemeUI(){const b=document.getElementById('themeBtn');if(b){b.classList.toggle('on',!!settings.darkmap);const tst=b.querySelector('.mc-state');if(tst)tst.textContent=settings.darkmap?'ON':'OFF'}}
+  function updateThemeUI(){const b=document.getElementById('themeBtn');if(b){b.classList.toggle('on',!!settings.darkmap);const tst=b.querySelector('.l-st');if(tst)tst.textContent=settings.darkmap?'ON':'OFF'}}
   function applyBaseTheme(){if(baseTileLayer){try{baseTileLayer.setUrl(settings.darkmap?BASE_DARK:BASE_LIGHT)}catch(e){}}updateThemeUI()}
   function toggleTheme(){settings.darkmap=!settings.darkmap;saveSettings();applyBaseTheme();showToast(settings.darkmap?'Tungi xarita yoqildi':'Kunduzgi xarita yoqildi')}
 
@@ -2515,7 +2509,7 @@
   }
   function updateMtimeUI() {
     const b = document.getElementById('timeBtn');
-    if (b) { b.classList.toggle('on', !!settings.mtime); const bst = b.querySelector('.mc-state'); if (bst) bst.textContent = settings.mtime ? 'ON' : 'OFF'; }
+    if (b) { b.classList.toggle('on', !!settings.mtime); const bst = b.querySelector('.l-st'); if (bst) bst.textContent = settings.mtime ? 'ON' : 'OFF'; }
     const panel = document.getElementById('timePanel');
     if (panel) panel.style.display = settings.mtime ? 'block' : 'none';
     if (!settings.mtime) { const dr = document.getElementById('mapDayRow'); if (dr) dr.style.display = 'none'; }

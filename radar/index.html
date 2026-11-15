@@ -25,14 +25,23 @@
 <link rel="stylesheet" href="vendor/leaflet.css">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { height: 100%; background: #0B0F14; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; overflow: hidden; }
-  #map { position: absolute; inset: 0; background: #E8E8E8; }
+  /* To'liq ekran (v3.32): iOS Safari toolbar ochilib-yopilganda 100% / 100vh
+     layout viewport balandligida qolib ketadi — pastda xarita + qora bo'shliq
+     qoladi (skrinshotdagi kabi). 100dvh + fixed joylashuv vizual viewportga
+     yopishadi, xarita va panellar ekran chetiga tegadi. */
+  html { height: -webkit-fill-available; }
+  html, body { height: 100%; height: 100vh; height: 100dvh; background: #0B0F14; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; overflow: hidden; }
+  body { min-height: 100vh; min-height: 100dvh; }
+  #map { position: fixed; inset: 0; background: #E8E8E8; }
   .leaflet-container { background: #E8E8E8; }
   .leaflet-control-attribution { background: rgba(255,255,255,0.75); font-size: 9px; }
+  /* Attribution pastki ETA paneli tagida qolib ketmasin — kartalar + recenter
+     tugmasi ustiga ko'tariladi (--eta-h ni JS o'lchab qo'yadi). */
+  .leaflet-bottom.leaflet-right { bottom: calc(var(--eta-h, 320px) + 56px); }
 
   /* Yuklanish ekrani */
   #loader {
-    position: absolute; inset: 0; background: #121212; z-index: 2000;
+    position: fixed; inset: 0; background: #121212; z-index: 2000;
     display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 14px;
   }
   .spinner {
@@ -45,7 +54,7 @@
 
   /* Yuqori panel — suzuvchi shisha bar */
   #topbar {
-    position: absolute; top: calc(env(safe-area-inset-top) + 10px); left: 12px; right: 12px; z-index: 1000;
+    position: fixed; top: calc(env(safe-area-inset-top) + 10px); left: 12px; right: 12px; z-index: 1000;
     display: flex; flex-direction: column; gap: 8px; pointer-events: none;
   }
   #header {
@@ -126,7 +135,7 @@
 
   /* O'ng tomondagi markazlash tugmasi (pastda, kartalar ustida) */
   #sideBtns {
-    position: absolute; right: 12px; bottom: 335px; z-index: 1000;
+    position: fixed; right: 12px; bottom: 335px; z-index: 1000;
     display: flex; flex-direction: column; gap: 10px;
   }
   .side-btn {
@@ -141,7 +150,7 @@
 
   /* Pastki ETA kartalar */
   #etaSection {
-    position: absolute; bottom: 0; left: 0; right: 0; z-index: 1000;
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
     padding: 30px 12px calc(env(safe-area-inset-bottom) + 12px); pointer-events: none;
     background: linear-gradient(to top, rgba(0,0,0,0.88) 58%, rgba(0,0,0,0));
   }
@@ -600,7 +609,7 @@
   <div id="header">
     <button id="menuBtn" aria-label="Menyu">☰</button>
     <div class="head-title">
-      <div class="title-row"><span id="title">TLC RADAR</span><span id="ver">v3.31</span></div>
+      <div class="title-row"><span id="title">TLC RADAR</span><span id="ver">v3.32</span></div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
     </div>
     <button id="pointsBtn" title="TLC Pro ballar">⭐ <span id="pointsNum">--</span>.0</button>
@@ -681,7 +690,7 @@
   <div class="drawer-foot">
     <div class="drawer-foot-card">
       <div class="drawer-foot-name">NYC TLC Driver</div>
-      <div class="drawer-foot-ver" id="drawerVer">v3.31</div>
+      <div class="drawer-foot-ver" id="drawerVer">v3.32</div>
     </div>
   </div>
 </aside>
@@ -702,7 +711,7 @@
     <div class="set-row"><span class="set-label">☀️ Kunduzgi yorqin rejim</span><button class="set-toggle on" id="setBright" role="switch" aria-checked="true">ON</button></div>
     <div class="set-row"><span class="set-label">🔋 Batareya tejash</span><button class="set-toggle" id="setBattery" role="switch" aria-checked="false">OFF</button></div>
     <button id="settingsRefresh" class="wx-btn" style="width:100%;margin-top:12px">🔄 Yangilash</button>
-    <p class="points-foot">Versiya: <span id="settingsVer">v3.31</span></p>
+    <p class="points-foot">Versiya: <span id="settingsVer">v3.32</span></p>
   </div>
 </div>
 
@@ -936,9 +945,9 @@
     lastQuotaPaint = now;
     const left = googleLeft(); // Versiya suffiksi = Google kunlik limitdan qolgani (masalan v3.26.200 = 200 ta qoldi)
     const dv = document.getElementById('drawerVer');
-    if (dv) dv.textContent = 'v3.31.' + left;
+    if (dv) dv.textContent = 'v3.32.' + left;
     const sv = document.getElementById('settingsVer');
-    if (sv) sv.textContent = 'v3.31.' + left;
+    if (sv) sv.textContent = 'v3.32.' + left;
     checkStale();
   }
 
@@ -2515,6 +2524,31 @@
   window.addEventListener('offline', syncOnline);
   window.addEventListener('online', syncOnline);
   if (!navigator.onLine) { const b0 = document.getElementById('offlineBar'); if (b0) b0.classList.add('show'); }
+
+  // To'liq ekran (v3.32): Safari toolbar / safe-area o'zgarganda xarita o'lchamini
+  // yangilash va recenter tugmasi + toast'ni ETA paneli balandligiga moslash.
+  // ETA kartalar balandligi o'zgarsa ResizeObserver o'zi qayta hisoblaydi.
+  function layoutFullscreen() {
+    try {
+      var eta = document.getElementById('etaSection');
+      var h = eta ? eta.offsetHeight : 320;
+      document.documentElement.style.setProperty('--eta-h', h + 'px');
+      var side = document.getElementById('sideBtns');
+      if (side) side.style.bottom = (h + 12) + 'px';
+      var toast = document.getElementById('toast');
+      if (toast) toast.style.bottom = (h + 68) + 'px';
+      if (typeof map !== 'undefined' && map) map.invalidateSize();
+    } catch (e) {}
+  }
+  window.addEventListener('resize', layoutFullscreen);
+  window.addEventListener('orientationchange', layoutFullscreen);
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', layoutFullscreen);
+  (function () {
+    var eta = document.getElementById('etaSection');
+    if (eta && 'ResizeObserver' in window) new ResizeObserver(layoutFullscreen).observe(eta);
+  })();
+  layoutFullscreen();
+  setTimeout(layoutFullscreen, 500);
 
   startGps();
 

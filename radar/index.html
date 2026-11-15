@@ -491,6 +491,9 @@
   #hotelMenu .location-option, #restroomMenu .location-option, #teslaMenu .location-option, #cruiseList .location-option { padding: 6px 8px; margin: 3px 0; background: rgba(17,24,39,0.30); border: 1.5px solid rgba(255,255,255,0.5); border-radius: 12px; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
   #hotelMenu .loc-name, #restroomMenu .loc-name, #teslaMenu .loc-name, #cruiseList .loc-name { font-size: 15px; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
   #hotelMenu .loc-badge, #restroomMenu .loc-badge, #teslaMenu .loc-badge, #cruiseList .loc-badge { width: 38px; height: 38px; background: rgba(28,28,30,0.55); }
+  /* v3.40: Cruise qatoridagi ⓘ — mi/min bilan bir xil aylana; bosilsa terminal haqida ma'lumot */
+  #cruiseList .loc-badge.info { cursor: pointer; }
+  #cruiseList .loc-badge.info .v { font-size: 19px; font-style: italic; font-family: Georgia, 'Times New Roman', serif; }
   #hotelMenu .loc-badge .v, #restroomMenu .loc-badge .v, #teslaMenu .loc-badge .v, #cruiseList .loc-badge .v { font-size: 14px; color: #fff; }
   #hotelMenu .loc-badge .u, #restroomMenu .loc-badge .u, #teslaMenu .loc-badge .u, #cruiseList .loc-badge .u { font-size: 9px; color: #D1D5DB; }
 
@@ -663,7 +666,7 @@
 <div id="topbar">
   <div id="header">
     <div class="head-title">
-      <div class="title-row"><span id="title">TLC RADAR</span><span id="ver">v3.39</span></div>
+      <div class="title-row"><span id="title">TLC RADAR</span><span id="ver">v3.40</span></div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
     </div>
     <button id="pointsBtn" title="TLC Pro ballar">⭐ <span id="pointsNum">--</span>.0</button>
@@ -760,7 +763,7 @@
   <div class="drawer-foot">
     <div class="drawer-foot-card">
       <div class="drawer-foot-name">NYC TLC Driver</div>
-      <div class="drawer-foot-ver" id="drawerVer">v3.39</div>
+      <div class="drawer-foot-ver" id="drawerVer">v3.40</div>
     </div>
   </div>
 </aside>
@@ -781,7 +784,7 @@
     <div class="set-row"><span class="set-label">☀️ Kunduzgi yorqin rejim</span><button class="set-toggle on" id="setBright" role="switch" aria-checked="true">ON</button></div>
     <div class="set-row"><span class="set-label">🔋 Batareya tejash</span><button class="set-toggle" id="setBattery" role="switch" aria-checked="false">OFF</button></div>
     <button id="settingsRefresh" class="wx-btn" style="width:100%;margin-top:12px">🔄 Yangilash</button>
-    <p class="points-foot">Versiya: <span id="settingsVer">v3.39</span></p>
+    <p class="points-foot">Versiya: <span id="settingsVer">v3.40</span></p>
   </div>
 </div>
 
@@ -1041,9 +1044,9 @@
     lastQuotaPaint = now;
     const left = googleLeft(); // Versiya suffiksi = Google kunlik limitdan qolgani (masalan v3.26.200 = 200 ta qoldi)
     const dv = document.getElementById('drawerVer');
-    if (dv) dv.textContent = 'v3.39.' + left;
+    if (dv) dv.textContent = 'v3.40.' + left;
     const sv = document.getElementById('settingsVer');
-    if (sv) sv.textContent = 'v3.39.' + left;
+    if (sv) sv.textContent = 'v3.40.' + left;
     checkStale();
   }
 
@@ -1245,6 +1248,15 @@
   // --- Navigatsiyani ochish (marker yoki doira bosilganda) ---
   function openNavigation(airport) {
     window.location.href = `https://www.google.com/maps/dir/?api=1&destination=${airport.lat},${airport.lon}&dir_action=navigate`;
+  }
+
+  // v3.40: Cruise qatoridagi ⓘ — yangi oynada shu terminaldagi kruizlarning kelish
+  // jadvali (CruiseMapper, New York porti — Manhattan + Brooklyn bitta jadvalda).
+  // Qatorning o'zi bosilsa navigatsiya ochiladi, ⓘ esa jadval sahifasini ochadi.
+  function openTerminalInfo(t) {
+    const now = new Date();
+    const ym = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+    window.open(`https://www.cruisemapper.com/ports/new-york-port-98?month=${ym}#schedule`, '_blank', 'noopener');
   }
 
   // --- Google (avval) / TomTom orqali marshrut (TRAFFIC tugmasiga qarab: on = tirbandlik bilan, off = trafficsiz) ---
@@ -1734,8 +1746,11 @@
       btn.title = t.name;
       btn.innerHTML = `<span class="loc-main"><span class="loc-name">${esc(t.name)}</span><span class="loc-addr">Cruise terminal</span></span>` +
         `<span class="loc-badges"><span class="loc-badge"><span class="v">${info ? info.dist : '--'}</span><span class="u">mi</span></span>` +
-        `<span class="loc-badge min"><span class="v">${info ? info.mins : '--'}</span><span class="u">min</span></span></span>`;
+        `<span class="loc-badge min"><span class="v">${info ? info.mins : '--'}</span><span class="u">min</span></span>` +
+        `<span class="loc-badge info" role="button" aria-label="${esc(t.name)} haqida ma'lumot"><span class="v">i</span></span></span>`;
       btn.addEventListener('click', () => openNavigation(t));
+      const infoBtn = btn.querySelector('.loc-badge.info');
+      if (infoBtn) infoBtn.addEventListener('click', e => { e.stopPropagation(); openTerminalInfo(t); });
       rows.appendChild(btn);
     });
   }

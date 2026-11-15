@@ -167,11 +167,13 @@
   #autoStatus { font-size: 11px; font-weight: 700; color: #22D3EE; text-shadow: 0 1px 4px rgba(0,0,0,0.6); }
   #autoStatus.stale { color: #FBBF24; }
   #etaCards { display: flex; gap: 10px; pointer-events: auto; }
+  /* v3.35: ixcham kartalar — logo (eta-ico), GO tugmasi va yo'l (eta-road) qatori
+     olib tashlandi; kartada faqat kod + daqiqa + mil. "+" reyslar tugmasi qoldi. */
   .etaCard {
     position: relative; flex: 1; min-width: 0;
     background: rgba(17,24,39,0.93); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
     border: 1.5px solid #888; border-radius: 16px;
-    padding: 9px 5px 8px; text-align: center; cursor: pointer;
+    padding: 7px 5px 6px; text-align: center; cursor: pointer;
     box-shadow: 0 6px 16px rgba(0,0,0,0.45); user-select: none;
     -webkit-tap-highlight-color: transparent;
   }
@@ -181,20 +183,18 @@
     border-width: 2px;
     box-shadow: 0 0 18px color-mix(in srgb, var(--c) 55%, transparent), 0 6px 16px rgba(0,0,0,0.45);
   }
-  .eta-ico {
-    width: 32px; height: 32px; border-radius: 50%; margin: 0 auto 4px;
-    border: 2px solid #888; display: flex; align-items: center; justify-content: center; font-size: 15px;
-  }
   .eta-code { font-size: 13px; font-weight: 900; letter-spacing: 0.4px; }
-  .eta-min { color: #fff; font-size: 21px; font-weight: 900; line-height: 1.15; }
+  .eta-min { color: #fff; font-size: 19px; font-weight: 900; line-height: 1.15; }
   .eta-min-u { font-size: 11px; font-weight: 600; color: #9CA3AF; margin-left: 2px; }
-  .eta-mi { color: #9CA3AF; font-size: 11px; font-weight: 600; margin: 1px 0 6px; }
-  .eta-road { color: #C7CEDA; font-size: 10px; font-weight: 700; margin: -5px 0 7px; min-height: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .eta-go {
-    width: 100%; border-radius: 12px; padding: 6px 0;
-    font-size: 12px; font-weight: 900; letter-spacing: 1px; cursor: pointer;
+  .eta-mi { color: #9CA3AF; font-size: 11px; font-weight: 600; margin: 1px 0 2px; }
+
+  /* v3.35: Cruise ro'yxati — ETA kartalar o'rniga chiqadi (TLC Pro dagi panel kabi) */
+  #cruiseList { display: none; pointer-events: auto; }
+  #cruiseHead {
+    display: flex; align-items: baseline; justify-content: space-between;
+    padding: 0 4px 8px;
   }
-  .eta-go:active { transform: scale(0.96); }
+  #cruiseTitle { font-size: 12px; font-weight: 800; letter-spacing: 1.2px; color: #E5E7EB; text-shadow: 0 1px 4px rgba(0,0,0,0.6); }
 
   /* Aeroport markeri (pin) */
   .airport-marker {
@@ -366,6 +366,13 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.6); cursor: pointer;
   }
+  /* Cruise metkasi (v3.35, TLC Pro dagi 🚢 kabi) */
+  .cruise-marker {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(255,255,255,0.95); border: 2px solid #06B6D4;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.6); cursor: pointer;
+  }
   /* Foydalanuvchi nuqtasi (pulsatsiyalanuvchi halo) */
   .user-dot {
     position: relative; width: 20px; height: 20px; border-radius: 50%;
@@ -438,11 +445,11 @@
   .loc-badge .v { color: #fff; font-size: 11px; font-weight: 800; line-height: 1; }
   .loc-badge .u { color: #8E8E93; font-size: 8px; font-weight: 600; margin-top: 1px; }
   /* Location + Restroom oynalari: 70% shaffof, har qator ramkada — nom/masofa/vaqt aniq, orqada map ko'rinadi */
-  #locMenu .location-option, #restroomMenu .location-option, #teslaMenu .location-option, #tochkaMenu .location-option { padding: 6px 8px; margin: 3px 0; background: rgba(17,24,39,0.30); border: 1.5px solid rgba(255,255,255,0.5); border-radius: 12px; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
-  #locMenu .loc-name, #restroomMenu .loc-name, #teslaMenu .loc-name, #tochkaMenu .loc-name { font-size: 15px; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
-  #locMenu .loc-badge, #restroomMenu .loc-badge, #teslaMenu .loc-badge, #tochkaMenu .loc-badge { width: 38px; height: 38px; background: rgba(28,28,30,0.55); }
-  #locMenu .loc-badge .v, #restroomMenu .loc-badge .v, #teslaMenu .loc-badge .v, #tochkaMenu .loc-badge .v { font-size: 14px; color: #fff; }
-  #locMenu .loc-badge .u, #restroomMenu .loc-badge .u, #tochkaMenu .loc-badge .u { font-size: 9px; color: #D1D5DB; }
+  #locMenu .location-option, #restroomMenu .location-option, #teslaMenu .location-option, #tochkaMenu .location-option, #cruiseList .location-option { padding: 6px 8px; margin: 3px 0; background: rgba(17,24,39,0.30); border: 1.5px solid rgba(255,255,255,0.5); border-radius: 12px; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+  #locMenu .loc-name, #restroomMenu .loc-name, #teslaMenu .loc-name, #tochkaMenu .loc-name, #cruiseList .loc-name { font-size: 15px; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+  #locMenu .loc-badge, #restroomMenu .loc-badge, #teslaMenu .loc-badge, #tochkaMenu .loc-badge, #cruiseList .loc-badge { width: 38px; height: 38px; background: rgba(28,28,30,0.55); }
+  #locMenu .loc-badge .v, #restroomMenu .loc-badge .v, #teslaMenu .loc-badge .v, #tochkaMenu .loc-badge .v, #cruiseList .loc-badge .v { font-size: 14px; color: #fff; }
+  #locMenu .loc-badge .u, #restroomMenu .loc-badge .u, #tochkaMenu .loc-badge .u, #cruiseList .loc-badge .u { font-size: 9px; color: #D1D5DB; }
 
 
   /* Tochka markeri: qizil doira, ichida mehmonxonlar soni */
@@ -473,7 +480,7 @@
   /* Kunduzgi yorqin rejim: quyoshda yuqori kontrast */
   body.day-bright .leaflet-tile-pane { filter: brightness(1.06) contrast(1.15) saturate(1.12); }
   body.day-bright #locMenu .location-option, body.day-bright #restroomMenu .location-option,
-  body.day-bright #teslaMenu .location-option, body.day-bright #tochkaMenu .location-option {
+  body.day-bright #teslaMenu .location-option, body.day-bright #tochkaMenu .location-option, body.day-bright #cruiseList .location-option {
     background: rgba(10,14,24,0.62); border-color: rgba(255,255,255,0.85);
   }
   body.day-bright .etaCard { box-shadow: 0 2px 14px rgba(0,0,0,0.45); }
@@ -613,7 +620,7 @@
 <div id="topbar">
   <div id="header">
     <div class="head-title">
-      <div class="title-row"><span id="title">TLC RADAR</span><span id="ver">v3.34</span></div>
+      <div class="title-row"><span id="title">TLC RADAR</span><span id="ver">v3.35</span></div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
     </div>
     <button id="pointsBtn" title="TLC Pro ballar">⭐ <span id="pointsNum">--</span>.0</button>
@@ -641,9 +648,14 @@
     <span id="autoStatus">● Auto Updating</span>
   </div>
   <div id="etaCards"></div>
+  <div id="cruiseList">
+    <div id="cruiseHead"><span id="cruiseTitle">🚢 CRUISE TERMINALS</span></div>
+    <div id="cruiseRows"></div>
+  </div>
   <div id="statusStrip">
     <button class="strip-pill" id="menuBtn" aria-label="Menyu"><span class="tab-ic">☰</span></button>
     <button class="strip-pill active" id="stripTraffic"><span class="tab-ic">🚦</span><span class="tab-lb">Traffic</span></button>
+    <button class="strip-pill" id="stripCruise" aria-label="Cruise"><span class="tab-ic">🚢</span><span class="tab-lb">Cruise</span></button>
     <button class="strip-pill" id="stripLocations"><span class="tab-ic">📍</span><span class="tab-lb">Location</span></button>
     <button class="strip-pill" id="stripRestrooms"><span class="tab-ic">🚻</span><span class="tab-lb">Restrooms</span></button>
     <button class="strip-pill" id="stripHotspots" aria-label="Tesla"><span class="tab-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#CC0000" d="m12 5.362l2.475-3.026s4.245.09 8.471 2.054c-1.082 1.636-3.231 2.438-3.231 2.438c-.146-1.439-1.154-1.79-4.354-1.79L12 24L8.619 5.034c-3.18 0-4.188.354-4.335 1.792c0 0-2.146-.795-3.229-2.43C5.28 2.431 9.525 2.34 9.525 2.34zl-.004.002H12zm0-3.899c3.415-.03 7.326.528 11.328 2.28c.535-.968.672-1.395.672-1.395C19.625.612 15.528.015 12 0C8.472.015 4.375.61 0 2.349c0 0 .195.525.672 1.396C4.674 1.989 8.585 1.435 12 1.46z"/></svg></span><span class="tab-lb">Tesla</span></button>
@@ -695,7 +707,7 @@
   <div class="drawer-foot">
     <div class="drawer-foot-card">
       <div class="drawer-foot-name">NYC TLC Driver</div>
-      <div class="drawer-foot-ver" id="drawerVer">v3.34</div>
+      <div class="drawer-foot-ver" id="drawerVer">v3.35</div>
     </div>
   </div>
 </aside>
@@ -716,7 +728,7 @@
     <div class="set-row"><span class="set-label">☀️ Kunduzgi yorqin rejim</span><button class="set-toggle on" id="setBright" role="switch" aria-checked="true">ON</button></div>
     <div class="set-row"><span class="set-label">🔋 Batareya tejash</span><button class="set-toggle" id="setBattery" role="switch" aria-checked="false">OFF</button></div>
     <button id="settingsRefresh" class="wx-btn" style="width:100%;margin-top:12px">🔄 Yangilash</button>
-    <p class="points-foot">Versiya: <span id="settingsVer">v3.34</span></p>
+    <p class="points-foot">Versiya: <span id="settingsVer">v3.35</span></p>
   </div>
 </div>
 
@@ -795,6 +807,17 @@
   // Uy — pastda aeroportlar qatorida 4-karta bo'lib chiqadi (LOCATIONS menyusida emas).
   const HOME = { id: 'home', name: 'Go Home', code: 'HOME', lat: 40.5985, lon: -73.9965, color: '#0EA5E9' };
   const ROUTE_TARGETS = AIRPORTS.concat([HOME]);
+
+  // Cruise terminallar (v3.35, TLC Pro dagi CRUISE2 — bir xil koordinatalar va funksiya)
+  const CRUISE_COLOR = '#06B6D4';
+  const CRUISE_TERMINALS = [
+    { id: 'cruise1', name: 'Manhattan Cruise Terminal (Pier 88/90)', lat: 40.7672, lon: -73.9985, color: CRUISE_COLOR },
+    { id: 'cruise2', name: 'Brooklyn Cruise Terminal (Red Hook)', lat: 40.6827, lon: -74.0132, color: CRUISE_COLOR },
+  ];
+  let cruiseOn = false;
+  let cruiseLayer = null;
+  const cruiseInfo = {};
+  let cruiseSeq = 0, lastCruiseFetch = 0;
 
   // Ob-havo (Open-Meteo, kalitsiz)
   const WX_CACHE_TTL = 30 * 60 * 1000; // 30 daqiqa
@@ -950,9 +973,9 @@
     lastQuotaPaint = now;
     const left = googleLeft(); // Versiya suffiksi = Google kunlik limitdan qolgani (masalan v3.26.200 = 200 ta qoldi)
     const dv = document.getElementById('drawerVer');
-    if (dv) dv.textContent = 'v3.34.' + left;
+    if (dv) dv.textContent = 'v3.35.' + left;
     const sv = document.getElementById('settingsVer');
-    if (sv) sv.textContent = 'v3.34.' + left;
+    if (sv) sv.textContent = 'v3.35.' + left;
     checkStale();
   }
 
@@ -1488,6 +1511,7 @@
         if (rm && rm.classList.contains('open')) { rm.classList.remove('open'); document.getElementById('stripRestrooms').classList.remove('active'); syncRestroomMarkers(false); restoreSavedView(); }
         const tm = document.getElementById('teslaMenu');
         if (tm && tm.classList.contains('open')) { tm.classList.remove('open'); document.getElementById('stripHotspots').classList.remove('active'); syncChargerMarkers(false); restoreSavedView(); }
+        if (cruiseOn) closeCruise();
         placeMenuUnderButton(menu, toggle);
         if (map) savedView = { center: map.getCenter(), zoom: map.getZoom() };
         zoomToLocations();
@@ -1513,6 +1537,7 @@
         if (lm && lm.classList.contains('open')) { lm.classList.remove('open'); document.getElementById('stripLocations').classList.remove('active'); restoreSavedView(); }
         const tm = document.getElementById('teslaMenu');
         if (tm && tm.classList.contains('open')) { tm.classList.remove('open'); document.getElementById('stripHotspots').classList.remove('active'); syncChargerMarkers(false); restoreSavedView(); }
+        if (cruiseOn) closeCruise();
         placeMenuUnderButton(menu, toggle);
         restroomVisibleCount = 5;
         if (map) savedView = { center: map.getCenter(), zoom: map.getZoom() };
@@ -1618,6 +1643,7 @@
         if (lm && lm.classList.contains('open')) { lm.classList.remove('open'); document.getElementById('stripLocations').classList.remove('active'); restoreSavedView(); }
         const rm = document.getElementById('restroomMenu');
         if (rm && rm.classList.contains('open')) { rm.classList.remove('open'); document.getElementById('stripRestrooms').classList.remove('active'); syncRestroomMarkers(false); restoreSavedView(); }
+        if (cruiseOn) closeCruise();
         placeMenuUnderButton(menu, toggle);
         if (map) savedView = { center: map.getCenter(), zoom: map.getZoom() };
         renderChargerMenu();
@@ -1625,6 +1651,138 @@
         loadChargerMenu();
       }
       else { syncChargerMarkers(false); restoreSavedView(); }
+    });
+  }
+
+  // --- Cruise (v3.35, TLC Pro dagi CRUISE qatlami — bir xil funksiya) ---
+  // Strip'dagi 🚢 pill: ON = terminallar + ro'yxat + marshrut chiziqlari, OFF = ETA kartalar qaytadi.
+  // GPS xaritani hech qachon tortmaydi (v10.58/v3.32 qoidasi) — fit faqat pill bosilganda bir marta.
+  function sortedCruiseList() {
+    const list = CRUISE_TERMINALS.slice();
+    list.sort((a, b) => {
+      const ia = cruiseInfo[a.id], ib = cruiseInfo[b.id];
+      if (ia && ib) return parseFloat(ia.dist) - parseFloat(ib.dist);
+      if (ia) return -1;
+      if (ib) return 1;
+      if (userLat === null) return 0;
+      return straightMiles(userLat, userLon, a.lat, a.lon) - straightMiles(userLat, userLon, b.lat, b.lon);
+    });
+    return list;
+  }
+
+  function renderCruiseList() {
+    const rows = document.getElementById('cruiseRows');
+    if (!rows) return;
+    rows.innerHTML = '';
+    sortedCruiseList().forEach(t => {
+      const info = cruiseInfo[t.id];
+      const btn = document.createElement('button');
+      btn.className = 'location-option';
+      btn.title = t.name;
+      btn.innerHTML = `<span class="loc-main"><span class="loc-name">${esc(t.name)}</span><span class="loc-addr">Cruise terminal</span></span>` +
+        `<span class="loc-badges"><span class="loc-badge"><span class="v">${info ? info.dist : '--'}</span><span class="u">mi</span></span>` +
+        `<span class="loc-badge min"><span class="v">${info ? info.mins : '--'}</span><span class="u">min</span></span></span>`;
+      btn.addEventListener('click', () => openNavigation(t));
+      rows.appendChild(btn);
+    });
+  }
+
+  function syncCruiseMarkers(show) {
+    if (!map) return;
+    if (!show) {
+      if (cruiseLayer) { map.removeLayer(cruiseLayer); cruiseLayer = null; }
+      return;
+    }
+    if (!cruiseLayer) cruiseLayer = L.layerGroup().addTo(map);
+    cruiseLayer.clearLayers();
+    CRUISE_TERMINALS.forEach(t => {
+      const icon = L.divIcon({ className: '', html: '<div class="cruise-marker">🚢</div>', iconSize: [28, 28], iconAnchor: [14, 14] });
+      const m = L.marker([t.lat, t.lon], { icon: icon });
+      m.bindTooltip('<b>' + esc(t.name) + '</b>', { direction: 'top', offset: [0, -14] });
+      m.on('click', () => openNavigation(t));
+      cruiseLayer.addLayer(m);
+    });
+  }
+
+  function clearCruiseRoutes() {
+    if (!map) return;
+    CRUISE_TERMINALS.forEach(t => {
+      if (routeLines[t.id]) { map.removeLayer(routeLines[t.id]); delete routeLines[t.id]; }
+    });
+  }
+
+  // TomTom (aeroportlar kabi Google emas — kvota tejaladi; ishlamasa OSRM zaxira)
+  async function refreshCruiseRoutes(force) {
+    if (userLat === null) return;
+    if (!force && Date.now() - lastCruiseFetch < 120000) return;
+    const seq = ++cruiseSeq;
+    lastCruiseFetch = Date.now();
+    await Promise.all(CRUISE_TERMINALS.map(async t => {
+      const res = await fetchRoute(userLat, userLon, t);
+      if (seq !== cruiseSeq) return;
+      if (res) {
+        cruiseInfo[t.id] = { dist: res.distanceMiles, mins: res.durationMins };
+        if (routeLines[t.id]) routeLines[t.id].setLatLngs(res.points);
+        else routeLines[t.id] = L.polyline(res.points, { color: t.color, weight: 6 }).addTo(map);
+        if (cruiseOn) renderCruiseList();
+      }
+    }));
+  }
+
+  // Cruise yoqilganda xarita terminallar + foydalanuvchi pinini sig'diradi (bir marta)
+  function zoomToCruise() {
+    if (!map) return;
+    const pts = CRUISE_TERMINALS.map(t => [t.lat, t.lon]);
+    if (userLat !== null) pts.push([userLat, userLon]);
+    map.fitBounds(L.latLngBounds(pts), { paddingTopLeft: [30, 130], paddingBottomRight: [30, 320] });
+  }
+
+  function setCruiseVisible(on) {
+    const list = document.getElementById('cruiseList');
+    const cards = document.getElementById('etaCards');
+    const head = document.getElementById('etaHead');
+    const pill = document.getElementById('stripCruise');
+    cruiseOn = on;
+    if (pill) pill.classList.toggle('active', on);
+    if (list) list.style.display = on ? 'block' : 'none';
+    if (cards) cards.style.display = on ? 'none' : 'flex';
+    if (head) head.style.display = on ? 'none' : 'flex';
+    syncCruiseMarkers(on);
+    if (on) {
+      renderCruiseList();
+      if (userLat !== null) refreshCruiseRoutes(true);
+    } else {
+      clearCruiseRoutes();
+    }
+    layoutFullscreen();
+  }
+
+  function closeCruise() {
+    if (!cruiseOn) return;
+    setCruiseVisible(false);
+    restoreSavedView();
+  }
+
+  function initCruiseMenu() {
+    const toggle = document.getElementById('stripCruise');
+    if (!toggle) return;
+    toggle.addEventListener('click', () => {
+      const turningOn = !cruiseOn;
+      if (turningOn) {
+        // Boshqa floating menyularni yopish (ular ham bir-birini yopadi)
+        const lm = document.getElementById('locMenu');
+        if (lm && lm.classList.contains('open')) { lm.classList.remove('open'); document.getElementById('stripLocations').classList.remove('active'); syncLocationMarkers(false); restoreSavedView(); }
+        const rm = document.getElementById('restroomMenu');
+        if (rm && rm.classList.contains('open')) { rm.classList.remove('open'); document.getElementById('stripRestrooms').classList.remove('active'); syncRestroomMarkers(false); restoreSavedView(); }
+        const tm = document.getElementById('teslaMenu');
+        if (tm && tm.classList.contains('open')) { tm.classList.remove('open'); document.getElementById('stripHotspots').classList.remove('active'); syncChargerMarkers(false); restoreSavedView(); }
+        if (map) savedView = { center: map.getCenter(), zoom: map.getZoom() };
+        setCruiseVisible(true);
+        zoomToCruise();
+      } else {
+        setCruiseVisible(false);
+        restoreSavedView();
+      }
     });
   }
 
@@ -1825,6 +1983,8 @@
     if (force || nowL - lastLocFetch > locInterval || (locMoved > 500 && nowL - lastLocFetch > 60000)) {
       refreshLocationRoutes();
     }
+    // Cruise ochiq bo'lsa uning marshrutlari ham yangilanadi (2 daqiqada ko'pi bilan 1 marta)
+    if (cruiseOn) refreshCruiseRoutes(false);
     const rmEl = document.getElementById('restroomMenu');
     if (rmEl && rmEl.classList.contains('open')) maybeRefreshRestrooms();
   }
@@ -1838,6 +1998,7 @@
     lastLocFetch = 0;
     lastRstFetch = 0;
     refreshRoutes(true);
+    if (cruiseOn) refreshCruiseRoutes(true);
     const tmEl = document.getElementById('teslaMenu');
     if (tmEl && tmEl.classList.contains('open')) loadChargerMenu();
     const lcEl2 = document.getElementById('locMenu');
@@ -1860,8 +2021,6 @@
     const dl = document.getElementById('dist-' + airport.id);
     if (el) el.textContent = (typeof info.mins === 'number') ? info.mins : '—';
     if (dl) dl.textContent = (info.dist && info.dist !== '--') ? info.dist + ' mi' : '—';
-    const rd = document.getElementById('road-' + airport.id);
-    if (rd) rd.textContent = (!trafficOn && info.road) ? 'via ' + info.road : '';
   }
 
   // Eng yaqin (eng kam daqiqali) kartani ajratib ko'rsatish
@@ -1930,9 +2089,10 @@
     document.getElementById('pointsModal').classList.add('open');
   }
 
+  // v3.35: ixcham kartalar — logo (eta-ico), GO tugmasi va yo'l qatori olib tashlandi;
+  // kartada faqat kod + daqiqa + mil; "+" reyslar tugmasi qoldi; karta bosilsa navigatsiya ochiladi.
   function buildCards() {
     const wrap = document.getElementById('etaCards');
-    const icons = { '1': '🛫', '2': '✈️', '3': '🛬', 'home': '🏠' };
     ROUTE_TARGETS.forEach(a => {
       const card = document.createElement('div');
       card.className = 'etaCard';
@@ -1940,14 +2100,10 @@
       card.style.setProperty('--c', a.color);
       card.style.borderColor = a.color;
       card.innerHTML = `
-        <div class="eta-ico" style="border-color:${a.color};color:${a.color};background:${hexA(a.color, 0.14)}">${icons[a.id] || '✈️'}</div>
         <div class="eta-code" style="color:${a.color}">${a.code}</div>
         <div class="eta-min"><span id="time-${a.id}">—</span><span class="eta-min-u">min</span></div>
-        <div class="eta-mi" id="dist-${a.id}">—</div>
-        <div class="eta-road" id="road-${a.id}"></div>
-        <button class="eta-go" style="background:${hexA(a.color, 0.22)};color:${a.color};border-color:${hexA(a.color, 0.55)}">GO</button>`;
+        <div class="eta-mi" id="dist-${a.id}">—</div>`;
       card.addEventListener('click', () => openNavigation(a));
-      card.querySelector('.eta-go').addEventListener('click', e => { e.stopPropagation(); openNavigation(a); });
       if (a.id !== 'home') {
         const fb = document.createElement('button');
         fb.className = 'flightsBtn';
@@ -2305,6 +2461,7 @@
   initLocMenu();
   initRestroomMenu();
   initTeslaMenu();
+  initCruiseMenu();
   applyDayMode();
   setInterval(applyDayMode, 60000);
   loadCameras();

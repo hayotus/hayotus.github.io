@@ -153,6 +153,35 @@
   .mc-state { font-size: 8px; font-weight: 800; line-height: 1.2; color: #555; }
   .mc-btn.on .mc-state { color: #0a7d33; }
 
+  /* Vaqt paneli (v3.37, TLC Pro dagi mapTimeBar + mapDayRow — bir xil ikki qatorli
+     tuzilish; Radar'da #etaSection ustida suzuvchi panel, o'ng ustunni to'smaydi) */
+  #timePanel {
+    display: none; position: fixed; left: 12px; right: 66px; bottom: calc(var(--eta-h) + 12px);
+    z-index: 1000; pointer-events: auto;
+  }
+  #mapTimeBar {
+    display: flex; flex-direction: column; gap: 6px; padding: 8px 12px;
+    background: rgba(17,24,39,0.93); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(255,255,255,0.5); border-radius: 14px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.45);
+  }
+  .mtb-top { font-size: 15px; font-weight: 700; color: #fff; }
+  .mtb-row { display: flex; align-items: center; gap: 8px; }
+  #mapDayBtn { margin-left: auto; }
+  .mtb-row input[type=range] { flex: 1 1 auto; width: 100%; min-width: 0; accent-color: #f03b20; }
+  #mapTimeVal { font-size: 15px; font-weight: 800; color: #fff; }
+  #mapTimeNow { color: #9CA3AF; font-size: 13px; }
+  #mapDayRow { display: none; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  #mapDayRow .chip {
+    background: rgba(17,24,39,0.93); border: 1.5px solid rgba(255,255,255,0.5); color: #E5E7EB;
+    border-radius: 20px; padding: 6px 12px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit;
+  }
+  #mapDayRow .chip.on { color: #111827; background: #F5B301; border-color: #F5B301; }
+  #mapDayBtn.chip {
+    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.4); color: #fff;
+    border-radius: 20px; padding: 6px 12px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap;
+  }
+
   /* Pastki ETA kartalar */
   /* v3.34: pastki oq menyu ekran chetiga tegsin — tagidagi qora bo'shliq
      #etaSection ning pastki paddingi edi (desktopda 12px, iPhone'da
@@ -617,7 +646,7 @@
 <div id="topbar">
   <div id="header">
     <div class="head-title">
-      <div class="title-row"><span id="title">TLC RADAR</span><span id="ver">v3.36</span></div>
+      <div class="title-row"><span id="title">TLC RADAR</span><span id="ver">v3.37</span></div>
       <div id="traffic">DEMAND: STEADY 🚗</div>
     </div>
     <button id="pointsBtn" title="TLC Pro ballar">⭐ <span id="pointsNum">--</span>.0</button>
@@ -626,6 +655,7 @@
 </div>
 
 <div id="sideBtns">
+  <a href="#" id="timeBtn" class="mc-btn" title="Vaqt" aria-label="Vaqt"><span class="mc-ic">🕐</span><span class="mc-state">OFF</span></a>
   <button class="side-btn" id="recenter" aria-label="Markazlash"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0284C7" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="1.6" fill="#0284C7" stroke="none"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/></svg></button>
   <div id="speedBadge">
     <span class="num" id="speedNum">0</span>
@@ -633,6 +663,11 @@
     <div class="warn">LIMIT 30!</div>
   </div>
   <a href="#" id="themeBtn" class="mc-btn" title="Tungi xarita" aria-label="Tungi xarita"><span class="mc-ic">🌙</span><span class="mc-state">OFF</span></a>
+</div>
+
+<div id="timePanel">
+  <div id="mapTimeBar"><div class="mtb-top">🕐 <b id="mapTimeVal">--:--</b><span id="mapTimeNow"></span></div><div class="mtb-row"><input type="range" id="mapTimeSlider" min="0" max="1440" step="1" value="0"><button class="chip" id="mapDayBtn">📅</button></div></div>
+  <div id="mapDayRow"><button class="chip" data-mday="0">Mo</button><button class="chip" data-mday="1">Tu</button><button class="chip" data-mday="2">We</button><button class="chip" data-mday="3">Th</button><button class="chip" data-mday="4">Fr</button><button class="chip" data-mday="5">Sa</button><button class="chip" data-mday="6">Su</button></div>
 </div>
 
 <div id="restroomMenu"></div>
@@ -705,7 +740,7 @@
   <div class="drawer-foot">
     <div class="drawer-foot-card">
       <div class="drawer-foot-name">NYC TLC Driver</div>
-      <div class="drawer-foot-ver" id="drawerVer">v3.36</div>
+      <div class="drawer-foot-ver" id="drawerVer">v3.37</div>
     </div>
   </div>
 </aside>
@@ -726,7 +761,7 @@
     <div class="set-row"><span class="set-label">☀️ Kunduzgi yorqin rejim</span><button class="set-toggle on" id="setBright" role="switch" aria-checked="true">ON</button></div>
     <div class="set-row"><span class="set-label">🔋 Batareya tejash</span><button class="set-toggle" id="setBattery" role="switch" aria-checked="false">OFF</button></div>
     <button id="settingsRefresh" class="wx-btn" style="width:100%;margin-top:12px">🔄 Yangilash</button>
-    <p class="points-foot">Versiya: <span id="settingsVer">v3.36</span></p>
+    <p class="points-foot">Versiya: <span id="settingsVer">v3.37</span></p>
   </div>
 </div>
 
@@ -902,10 +937,10 @@
 
   // Sozlamalar (localStorage da saqlanadi)
   const SETTINGS_KEY = 'radarSettingsV1';
-  let settings = { traffic: true, speedWarn: true, autoUpdate: true, ezpass: true, cameras: true, voice: false, brightAuto: true, batterySaver: false, darkmap: false };
+  let settings = { traffic: true, speedWarn: true, autoUpdate: true, ezpass: true, cameras: true, voice: false, brightAuto: true, batterySaver: false, darkmap: false, mtime: false };
   try {
     const savedSet = JSON.parse(localStorage.getItem(SETTINGS_KEY) || 'null');
-    if (savedSet) settings = { traffic: true, speedWarn: true, autoUpdate: true, ezpass: true, cameras: true, voice: false, brightAuto: true, batterySaver: false, darkmap: false, ...savedSet };
+    if (savedSet) settings = { traffic: true, speedWarn: true, autoUpdate: true, ezpass: true, cameras: true, voice: false, brightAuto: true, batterySaver: false, darkmap: false, mtime: false, ...savedSet };
   } catch (e) {}
   function saveSettings() {
     try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch (e) {}
@@ -978,9 +1013,9 @@
     lastQuotaPaint = now;
     const left = googleLeft(); // Versiya suffiksi = Google kunlik limitdan qolgani (masalan v3.26.200 = 200 ta qoldi)
     const dv = document.getElementById('drawerVer');
-    if (dv) dv.textContent = 'v3.36.' + left;
+    if (dv) dv.textContent = 'v3.37.' + left;
     const sv = document.getElementById('settingsVer');
-    if (sv) sv.textContent = 'v3.36.' + left;
+    if (sv) sv.textContent = 'v3.37.' + left;
     checkStale();
   }
 
@@ -1037,7 +1072,8 @@
   }
 
   // Google DirectionsService orqali tirbandlikni hisobga olgan ETA (duration_in_traffic)
-  async function fetchRouteGoogle(uLat, uLon, airport) {
+  // v3.37: dep — tanlangan vaqt (Date) yoki null (= hozir, avvalgi xatti-harakat)
+  async function fetchRouteGoogle(uLat, uLon, airport, dep) {
     if (!GOOGLE_KEY || googleDisabled || googleLeft() <= 0) return null;
     const ok = await loadGoogleMaps();
     if (!ok || !window.google || !window.google.maps) return null;
@@ -1054,7 +1090,11 @@
           travelMode: google.maps.TravelMode.DRIVING
         };
         if (!ezpassOn) req.avoidTolls = true;
-        if (trafficOn) {
+        if (dep) {
+          // v3.37: Vaqt paneli yoqilgan bo'lsa — tanlangan kelajak vaqt (traffic OFF bo'lsa ham,
+          // aks holda tanlangan vaqt hech qanday ta'sir qilmaydi)
+          req.drivingOptions = { departureTime: dep, trafficModel: google.maps.TrafficModel.BEST_GUESS };
+        } else if (trafficOn) {
           req.drivingOptions = { departureTime: new Date(), trafficModel: google.maps.TrafficModel.BEST_GUESS };
         }
         svc.route(req, (res, status) => {
@@ -1183,13 +1223,14 @@
 
   // --- Google (avval) / TomTom orqali marshrut (TRAFFIC tugmasiga qarab: on = tirbandlik bilan, off = trafficsiz) ---
   // useGoogle=true faqat aeroport kartalar uchun (lokatsiya/restroom TomTom'da qoladi — kvota tejaladi)
-  async function fetchRoute(uLat, uLon, airport, useGoogle) {
+  async function fetchRoute(uLat, uLon, airport, useGoogle, dep) {
     if (useGoogle && GOOGLE_KEY && !googleDisabled) {
-      const gKey = airport.id + (trafficOn ? ':t' : ':f') + (ezpassOn ? ':ez' : ':free') + '@' + uLat.toFixed(3) + ',' + uLon.toFixed(3);
+      // v3.37: tanlangan vaqt kesh kalitida — aks holda "hozir" natijasi tanlangan vaqtga qaytariladi
+      const gKey = airport.id + (trafficOn ? ':t' : ':f') + (ezpassOn ? ':ez' : ':free') + (dep ? ':d' + Math.floor(dep.getTime() / 60000) : '') + '@' + uLat.toFixed(3) + ',' + uLon.toFixed(3);
       const cached = googleCache[gKey];
       if (cached && Date.now() - cached.ts < GOOGLE_CACHE_TTL) return cached.data;
       if (googleLeft() > 0) {
-        const g = await fetchRouteGoogle(uLat, uLon, airport);
+        const g = await fetchRouteGoogle(uLat, uLon, airport, dep);
         if (g) { googleCache[gKey] = { data: g, ts: Date.now() }; return g; }
       }
     }
@@ -1896,8 +1937,10 @@
     lastRouteFetch = Date.now();
     lastFetchLat = userLat; lastFetchLon = userLon;
     let sawFallback = false, anyOk = false;
+    // v3.37: Vaqt paneli yoqilgan bo'lsa barcha aeroportlar bitta tanlangan vaqt bilan hisoblanadi
+    const dep = settings.mtime ? nextDeparture() : null;
     for (const airport of ROUTE_TARGETS) {
-      const res = await fetchRoute(userLat, userLon, airport, true);
+      const res = await fetchRoute(userLat, userLon, airport, true, dep);
       if (seq !== routeSeq) return;
       if (res) {
         anyOk = true;
@@ -2298,6 +2341,71 @@
   function applyBaseTheme(){if(baseTileLayer){try{baseTileLayer.setUrl(settings.darkmap?BASE_DARK:BASE_LIGHT)}catch(e){}}updateThemeUI()}
   function toggleTheme(){settings.darkmap=!settings.darkmap;saveSettings();applyBaseTheme();showToast(settings.darkmap?'Tungi xarita yoqildi':'Kunduzgi xarita yoqildi')}
 
+  // --- 🕐 Vaqt tugmasi (v3.37, TLC Pro dagi btnMtime — bir xil ko'rinish va xatti-harakat) ---
+  // TLC Pro da bu panel heatmap vaqtini boshqaradi; Radar'da heatmap yo'q, shuning uchun
+  // tanlangan vaqt aeroport ETA larining Google departureTime'i bo'ladi (nextDeparture).
+  const DAYLBL = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+  let mapSelMin = null, mapSelDay = null;
+  function todayIdx() { return (new Date().getDay() + 6) % 7; } // Mo=0 .. Su=6
+  // Tanlangan kun+vaqt (TLC Pro heatSel dagi kabi: 1440 = ertasi kun 00:00)
+  function timeSel() {
+    const n = new Date();
+    const mins = (mapSelMin == null) ? (n.getHours() * 60 + n.getMinutes()) : mapSelMin;
+    const day = (mapSelDay == null ? todayIdx() : mapSelDay);
+    return { day: (day + (mins >= 1440 ? 1 : 0)) % 7, hour: Math.floor(mins / 60) % 24, mins };
+  }
+  // Tanlangan kun+vaqtning keyingi kelishi (qat'iy kelajakda): bugun shu kun va soat hali
+  // oldinda bo'lsa bugun, aks holda keyingi kelish. Hech narsa tanlanmagan bo'lsa — hozir.
+  function nextDeparture() {
+    if (mapSelMin == null && mapSelDay == null) return new Date();
+    const sel = timeSel();
+    const now = new Date();
+    const diff = (sel.day - todayIdx() + 7) % 7;
+    const cand = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diff, sel.hour, sel.mins % 60, 0, 0);
+    if (cand <= now) cand.setDate(cand.getDate() + 7);
+    return cand;
+  }
+  function syncMapTimeUI() {
+    const sl = document.getElementById('mapTimeSlider'); if (!sl) return;
+    const n = new Date();
+    const mins = (mapSelMin == null) ? (n.getHours() * 60 + n.getMinutes()) : mapSelMin;
+    sl.value = String(mins);
+    const val = document.getElementById('mapTimeVal');
+    if (val) val.textContent = String(Math.floor(mins / 60)).padStart(2, '0') + ':' + String(mins % 60).padStart(2, '0');
+    const sel = timeSel();
+    const nw = document.getElementById('mapTimeNow');
+    if (nw) nw.textContent = (mapSelMin == null && mapSelDay == null) ? ' · Hozir' : '';
+    const db = document.getElementById('mapDayBtn');
+    if (db) db.textContent = '📅 ' + DAYLBL[sel.day];
+    document.querySelectorAll('#mapDayRow .chip').forEach(c => c.classList.toggle('on', +c.dataset.mday === sel.day));
+  }
+  function updateMtimeUI() {
+    const b = document.getElementById('timeBtn');
+    if (b) { b.classList.toggle('on', !!settings.mtime); const bst = b.querySelector('.mc-state'); if (bst) bst.textContent = settings.mtime ? 'ON' : 'OFF'; }
+    const panel = document.getElementById('timePanel');
+    if (panel) panel.style.display = settings.mtime ? 'block' : 'none';
+    if (!settings.mtime) { const dr = document.getElementById('mapDayRow'); if (dr) dr.style.display = 'none'; }
+  }
+  function toggleMtime() {
+    settings.mtime = !settings.mtime; saveSettings(); updateMtimeUI();
+    if (!settings.mtime) { mapSelMin = null; mapSelDay = null; }
+    syncMapTimeUI();
+    refreshRoutes(true); // OFF = hozirgi vaqt bilan, ON = tanlangan vaqt bilan qayta hisoblash
+    showToast(settings.mtime ? 'Vaqt paneli ochildi' : 'Vaqt paneli yopildi');
+  }
+  let mtimeRefreshT = null;
+  function applyMapMinutes(v) {
+    mapSelMin = parseInt(v, 10) || 0;
+    syncMapTimeUI();
+    // Slayder sudralayotganda har bir tikda so'rov yubormaslik uchun — 800 ms kutib, bitta yangilash
+    if (mtimeRefreshT) clearTimeout(mtimeRefreshT);
+    mtimeRefreshT = setTimeout(() => { mtimeRefreshT = null; refreshRoutes(true); }, 800);
+  }
+  function applyMapDay(d) {
+    mapSelDay = (+d === todayIdx()) ? null : +d;
+    syncMapTimeUI(); refreshRoutes(true);
+  }
+
   function initMap() {
     map = L.map('map', { zoomControl: false, attributionControl: false, maxZoom: 18, minZoom: 10 });
     baseTileLayer = L.tileLayer(settings.darkmap ? BASE_DARK : BASE_LIGHT, {
@@ -2334,6 +2442,12 @@
     });
     document.getElementById('themeBtn').addEventListener('click', e => { e.preventDefault(); toggleTheme(); });
     updateThemeUI();
+    // 🕐 Vaqt tugmasi (v3.37): TLC Pro dagi btnMtime kabi
+    document.getElementById('timeBtn').addEventListener('click', e => { e.preventDefault(); toggleMtime(); });
+    updateMtimeUI(); syncMapTimeUI();
+    { const mts = document.getElementById('mapTimeSlider'); if (mts) { mts.addEventListener('input', e => applyMapMinutes(e.target.value)); mts.addEventListener('change', () => { if (mtimeRefreshT) { clearTimeout(mtimeRefreshT); mtimeRefreshT = null; } refreshRoutes(true); }); } }
+    { const db = document.getElementById('mapDayBtn'); if (db) db.addEventListener('click', () => { const r = document.getElementById('mapDayRow'); if (r) r.style.display = (r.style.display === 'none' || !r.style.display) ? 'flex' : 'none'; }); }
+    document.querySelectorAll('#mapDayRow .chip').forEach(c => c.addEventListener('click', () => applyMapDay(c.dataset.mday)));
     document.getElementById('stripTraffic').addEventListener('click', toggleTraffic);
     document.getElementById('stripEzpass').addEventListener('click', toggleEzpass);
     document.getElementById('stripWx').addEventListener('click', () => {

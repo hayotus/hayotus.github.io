@@ -62,9 +62,13 @@
   /* v3.46: Ballar tugmasi pastki strip'dan chap ustunning eng tepasiga ko'chdi —
      .lbtn uslubida: oq fon, yulduz sariq (kulrang emas), tagida ball soni;
      bonusda sariq fon. */
+  /* v3.47: bonusdagi fon 25% shaffof edi (rgba 0.25) — xarita ko'rinib, son
+     o'qilmasdi. Endi HAR ikki holatda ham fon to'liq qattiq (solid): oddiyda
+     oq, bonusda sariq #F5B301; son kattaroq (10px) va qora qalin — 5 ham, 1 ham
+     doim aniq ko'rinadi. */
   #leftBtns #pointsBtn .l-ic { filter: none; opacity: 1; }
-  #leftBtns #pointsBtn .l-st { color: #111827; }
-  #leftBtns #pointsBtn.bonus { background: rgba(255,214,10,0.25); }
+  #leftBtns #pointsBtn .l-st { color: #111827; font-size: 10px; }
+  #leftBtns #pointsBtn.bonus { background: #F5B301; border-color: #F5B301; }
   /* v3.33: tezlik tepadan recenter tagiga ko'chdi — #sideBtns ustuni ichida */
   #speedBadge {
     flex: none; width: 56px; background: rgba(0,0,0,0.55); border: 1px solid rgba(255,255,255,0.25); border-radius: 14px;
@@ -723,7 +727,7 @@
   <div class="drawer-foot">
     <div class="drawer-foot-card">
       <div class="drawer-foot-name">NYC TLC Driver</div>
-      <div class="drawer-foot-ver" id="drawerVer">v3.46</div>
+      <div class="drawer-foot-ver" id="drawerVer">v3.47</div>
     </div>
   </div>
 </aside>
@@ -744,7 +748,7 @@
     <div class="set-row"><span class="set-label">☀️ Kunduzgi yorqin rejim</span><button class="set-toggle on" id="setBright" role="switch" aria-checked="true">ON</button></div>
     <div class="set-row"><span class="set-label">🔋 Batareya tejash</span><button class="set-toggle" id="setBattery" role="switch" aria-checked="false">OFF</button></div>
     <button id="settingsRefresh" class="wx-btn" style="width:100%;margin-top:12px">🔄 Yangilash</button>
-    <p class="points-foot">Versiya: <span id="settingsVer">v3.46</span></p>
+    <p class="points-foot">Versiya: <span id="settingsVer">v3.47</span></p>
   </div>
 </div>
 
@@ -1004,9 +1008,9 @@
     lastQuotaPaint = now;
     const left = googleLeft(); // Versiya suffiksi = Google kunlik limitdan qolgani (masalan v3.26.200 = 200 ta qoldi)
     const dv = document.getElementById('drawerVer');
-    if (dv) dv.textContent = 'v3.46.' + left;
+    if (dv) dv.textContent = 'v3.47.' + left;
     const sv = document.getElementById('settingsVer');
-    if (sv) sv.textContent = 'v3.46.' + left;
+    if (sv) sv.textContent = 'v3.47.' + left;
     checkStale();
   }
 

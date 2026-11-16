@@ -49,28 +49,14 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   #loader p { color: #8E8E93; font-size: 14px; text-align: center; padding: 0 24px; }
 
-  /* Yuqori panel — suzuvchi shisha bar */
-  #topbar {
-    position: fixed; top: calc(env(safe-area-inset-top) + 10px); left: 12px; right: 12px; z-index: 1000;
-    display: flex; flex-direction: column; gap: 8px; pointer-events: none;
-  }
-  #header {
-    background: rgba(31,41,55,0.92); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.09); border-radius: 22px;
-    padding: 10px 12px; display: flex; align-items: center; gap: 10px;
-    pointer-events: auto; box-shadow: 0 8px 24px rgba(0,0,0,0.35);
-  }
   /* v3.43: ☰ menyu tugmasi endi pastki strip'dagi boshqa pill'lar kabi —
      icon + "Menyu" yozuvi (avval faqat icon, 44px edi). */
-  .head-title { flex: 1; min-width: 0; }
-  .title-row { display: flex; align-items: center; gap: 7px; }
-  #title { font-size: 16px; font-weight: 900; color: #fff; letter-spacing: 0.6px; white-space: nowrap; }
-  #ver {
-    display: inline-block; font-size: 10px; font-weight: 800; color: #FBBF24;
-    background: rgba(245,158,11,0.18); border: 1px solid rgba(245,158,11,0.55);
-    border-radius: 9px; padding: 2px 7px; flex: none;
-  }
-  #traffic { font-size: 11px; font-weight: 800; color: #34D399; margin-top: 3px; letter-spacing: 0.3px; }
+  /* v3.45: tepa menyu (topbar) olib tashlandi; ob-havo tugmasi chap ustunning
+     eng tepasiga ko'chdi — .lbtn uslubida: oq fon, icon rangli, tagida harorat;
+     ob-havo oynasi ochiq paytda sariq bo'ladi. */
+  #leftBtns #stripWx .l-ic { filter: none; opacity: 1; }
+  #leftBtns #stripWx .l-st { color: #111827; }
+  #leftBtns #stripWx.active { background: #F5B301; border-color: #F5B301; }
   /* v3.44: Ballar tugmasi endi pastki strip'da (Tesladan keyin) — pill ko'rinishida:
      yulduz sariq (kulrang emas), ball soni qora qalin yozuvda, bonusda sariq fon. */
   #statusStrip #pointsBtn .tab-ic { filter: none; opacity: 1; }
@@ -112,10 +98,6 @@
   }
   .strip-pill.active .tab-ic { filter: none; opacity: 1; }
   .strip-pill.active .tab-lb { color: #111827; font-weight: 800; }
-  /* Weather tugmasi header'da (points yonida) */
-  #header #stripWx { flex: none; flex-direction: row; align-items: center; gap: 5px; background: rgba(18,18,18,0.88); border: 1px solid rgba(255,255,255,0.35); border-radius: 16px; padding: 6px 10px; }
-  #header #stripWx .tab-ic { filter: none; opacity: 1; font-size: 15px; }
-  #header #stripWx .tab-lb { font-size: 11px; font-weight: 700; color: #fff; }
   /* UberPro havolasi (strip'da, weather o'rnida) */
   .uberpro-pill { text-decoration: none; }
   .uberpro-pill .tab-ic { filter: none; opacity: 1; }
@@ -267,8 +249,6 @@
     background: #1C1C1E; color: #fff; font-size: 14px; cursor: pointer;
   }
   #pointsState { font-size: 14px; font-weight: 800; margin-bottom: 6px; }
-  .head-title { min-width: 0; }
-  #title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .points-big {
     width: 92px; height: 92px; border-radius: 50%;
     border: 3px solid #888; margin: 4px auto 12px;
@@ -649,17 +629,8 @@
   <p>Rideshare GPS &amp; Aeroportlar radar yuklanmoqda...</p>
 </div>
 
-<div id="topbar">
-  <div id="header">
-    <div class="head-title">
-      <div class="title-row"><span id="title">TLC RADAR</span><span id="ver">v3.44</span></div>
-      <div id="traffic">DEMAND: STEADY 🚗</div>
-    </div>
-    <button class="strip-pill" id="stripWx"><span class="tab-ic">🌙</span><span class="tab-lb">—°F</span></button>
-  </div>
-</div>
-
 <div id="leftBtns">
+  <button class="lbtn" id="stripWx" title="Ob-havo" aria-label="Ob-havo"><span class="l-ic">🌙</span><span class="l-st">—°F</span></button>
   <a href="#" id="timeBtn" class="lbtn" title="Vaqt" aria-label="Vaqt"><span class="l-ic">🕐</span><span class="l-st">OFF</span></a>
   <a href="#" id="themeBtn" class="lbtn" title="Tungi xarita" aria-label="Tungi xarita"><span class="l-ic">🌙</span><span class="l-st">OFF</span></a>
   <button class="lbtn on" id="trafficBtn" title="Traffic" aria-label="Traffic"><span class="l-ic">🚦</span><span class="l-st">ON</span></button>
@@ -749,7 +720,7 @@
   <div class="drawer-foot">
     <div class="drawer-foot-card">
       <div class="drawer-foot-name">NYC TLC Driver</div>
-      <div class="drawer-foot-ver" id="drawerVer">v3.44</div>
+      <div class="drawer-foot-ver" id="drawerVer">v3.45</div>
     </div>
   </div>
 </aside>
@@ -770,7 +741,7 @@
     <div class="set-row"><span class="set-label">☀️ Kunduzgi yorqin rejim</span><button class="set-toggle on" id="setBright" role="switch" aria-checked="true">ON</button></div>
     <div class="set-row"><span class="set-label">🔋 Batareya tejash</span><button class="set-toggle" id="setBattery" role="switch" aria-checked="false">OFF</button></div>
     <button id="settingsRefresh" class="wx-btn" style="width:100%;margin-top:12px">🔄 Yangilash</button>
-    <p class="points-foot">Versiya: <span id="settingsVer">v3.44</span></p>
+    <p class="points-foot">Versiya: <span id="settingsVer">v3.45</span></p>
   </div>
 </div>
 
@@ -1030,9 +1001,9 @@
     lastQuotaPaint = now;
     const left = googleLeft(); // Versiya suffiksi = Google kunlik limitdan qolgani (masalan v3.26.200 = 200 ta qoldi)
     const dv = document.getElementById('drawerVer');
-    if (dv) dv.textContent = 'v3.44.' + left;
+    if (dv) dv.textContent = 'v3.45.' + left;
     const sv = document.getElementById('settingsVer');
-    if (sv) sv.textContent = 'v3.44.' + left;
+    if (sv) sv.textContent = 'v3.45.' + left;
     checkStale();
   }
 
@@ -1228,7 +1199,8 @@
     if ((hour >= 16 && hour <= 20) || (hour >= 6 && hour <= 9)) text = 'DEMAND: HIGH 🔥';
     else if (hour >= 21 || hour <= 5) text = 'DEMAND: NIGHT 🌙';
     else text = 'DEMAND: STEADY 🚗';
-    document.getElementById('traffic').textContent = text;
+    const tr = document.getElementById('traffic');
+    if (tr) tr.textContent = text; // v3.45: tepa menyu olib tashlandi — element bo'lmasa xato bermasin
   }
 
   // --- Navigatsiyani ochish (marker yoki doira bosilganda) ---
@@ -2273,14 +2245,14 @@
     return data;
   }
 
-  // Status strip'dagi harorat pill'ini yangilash
+  // Chap ustundagi ob-havo tugmasini yangilash (icon + harorat)
   function updateStripWx(tempF) {
     const el = document.getElementById('stripWx');
     if (!el) return;
     const h = new Date().getHours();
     const ico = (h >= 6 && h < 20) ? '☀️' : '🌙';
-    const ic = el.querySelector('.tab-ic');
-    const lb = el.querySelector('.tab-lb');
+    const ic = el.querySelector('.l-ic');
+    const lb = el.querySelector('.l-st');
     if (ic) ic.textContent = ico;
     if (lb) lb.textContent = Math.round(tempF) + '°F';
   }

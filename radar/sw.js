@@ -1,8 +1,8 @@
 // NYC Airport Radar — service worker (v3.48)
 // Sayt qobig'ini keshlaydi: ilova tez ochiladi, oflayn ham qobiq ko'rinadi.
 // Jonli ma'lumotlar (TomTom, AirLabs) har doim tarmoqdan olinadi.
-const CACHE = 'nyc-radar-v3.50';
-const TILE_CACHE = 'nyc-radar-tiles-v3.50';
+const CACHE = 'nyc-radar-v3.51';
+const TILE_CACHE = 'nyc-radar-tiles-v3.51';
 const CORE = ['./', 'index.html', 'manifest.json', 'icon.svg', 'icon-180.png', 'icon-512.png', 'icon-192.png', 'icon-512-maskable.png', 'offline.html', 'vendor/leaflet.css', 'vendor/leaflet.js'];
 const TILE_ORIGINS = ['server.arcgisonline.com', 'api.tomtom.com'];
 const TILE_MAX = 200; // keshlanadigan plitkalar soni chegarasi

@@ -75,6 +75,8 @@ CABINS = {
 
 MONTHS = ["January", "February", "March", "April", "May", "June", "July",
           "August", "September", "October", "November", "December"]
+# v3.48: oy nomi noto'g'ri bo'lsa ValueError o'rniga o'tkazib yuboriladi (AUD-32)
+MONTHS_IDX = {name: i + 1 for i, name in enumerate(MONTHS)}
 
 
 def clean(t):
@@ -83,10 +85,18 @@ def clean(t):
     return re.sub(r"\s+", " ", t).strip()
 
 
-def fetch(url):
-    req = urllib.request.Request(url, headers=UA)
-    with urllib.request.urlopen(req, timeout=30) as r:
-        return r.read().decode("utf-8", "ignore")
+def fetch(url, retries=2):
+    # v3.48: tarmoq xatosida 2 marta qayta urinish (AUD-07)
+    last = None
+    for attempt in range(retries + 1):
+        try:
+            req = urllib.request.Request(url, headers=UA)
+            with urllib.request.urlopen(req, timeout=30) as r:
+                return r.read().decode("utf-8", "ignore")
+        except Exception as e:
+            last = e
+            print(f"fetch failed (attempt {attempt + 1}/{retries + 1}): {url}: {e}")
+    raise last
 
 
 def ship_cabins(ship_url):
@@ -122,8 +132,13 @@ def parse_month(ym, today):
         dm = re.match(r"(\d+)\s+(\w+),\s*(\d{4})", day)
         if not dm:
             continue
-        d = date(int(dm.group(3)), MONTHS.index(dm.group(2)) + 1,
-                 int(dm.group(1)))
+        mo = MONTHS_IDX.get(dm.group(2))
+        if mo is None:
+            continue  # kutilmagan oy nomi — qator o'tkazib yuboriladi
+        try:
+            d = date(int(dm.group(3)), mo, int(dm.group(1)))
+        except ValueError:
+            continue  # noto'g'ri sana (masalan, 31 Feb) — qator o'tkazib yuboriladi
         if d < today:
             continue
         ship = norm_ship(clean(cells[1]))
@@ -166,7 +181,13 @@ def main():
            "cruise1": [], "cruise2": []}
     unknown = []
     for ym in months:
-        for r in parse_month(ym, today):
+        # v3.48: bitta oy yiqilsa ham qolgan oylar ishlanadi (AUD-07)
+        try:
+            month_rows = parse_month(ym, today)
+        except Exception as e:
+            print(f"parse_month {ym} failed, skipping: {e}")
+            continue
+        for r in month_rows:
             term = LINE_TERMINAL.get(r["line"])
             row = {"d": r["d"], "ship": r["ship"], "arr": r["arr"],
                    "dep": r["dep"]}
@@ -193,6 +214,22 @@ def main():
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     out_path = os.environ.get("CRUISE_OUT",
                               os.path.join(root, "radar", "cruise-schedule.json"))
+    # v3.48: bo'sh yoki keskin kamaygan jadval eski yaxshi faylni ezmasin (AUD-07)
+    total = len(out["cruise1"]) + len(out["cruise2"])
+    if total == 0:
+        print("ERROR: no cruise rows parsed — refusing to overwrite the schedule")
+        raise SystemExit(1)
+    if os.path.exists(out_path):
+        try:
+            prev = json.load(open(out_path, encoding="utf-8"))
+            prev_total = len(prev.get("cruise1", [])) + len(prev.get("cruise2", []))
+            if prev_total > 0 and total < prev_total * 0.5:
+                print(f"ERROR: parsed {total} rows vs previous {prev_total} — refusing to overwrite")
+                raise SystemExit(1)
+        except SystemExit:
+            raise
+        except Exception as e:
+            print(f"warning: could not read previous schedule ({e}) — continuing")
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=2)

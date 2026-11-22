@@ -1,0 +1,289 @@
+{
+ "meta": {
+  "source": "OpenStreetMap (Photon/Nominatim), 2026-11-21",
+  "count": 56,
+  "note": "New York shahri (5 borough) masjidlari. Faqat nomli joylar."
+ },
+ "mosques": [
+  {
+   "name": "Ahmadiyya Mosque",
+   "lat": 40.8759864,
+   "lon": -73.8673264
+  },
+  {
+   "name": "Al - Mustafa Islamic Center",
+   "lat": 40.642458,
+   "lon": -74.001884
+  },
+  {
+   "name": "Al-Iman Mosque",
+   "lat": 40.7684402,
+   "lon": -73.9116636
+  },
+  {
+   "name": "Albanian American Islamic Center of Queens",
+   "lat": 40.70203,
+   "lon": -73.877289
+  },
+  {
+   "name": "Albanian Islamic Cultural Center",
+   "lat": 40.634703,
+   "lon": -74.086129
+  },
+  {
+   "name": "Arafa Islamic Center",
+   "lat": 40.712922,
+   "lon": -73.781303
+  },
+  {
+   "name": "Assafa Islamic Center",
+   "lat": 40.720154,
+   "lon": -73.99069
+  },
+  {
+   "name": "Astoria Islamic Center",
+   "lat": 40.772042,
+   "lon": -73.926325
+  },
+  {
+   "name": "Baitush Sharf Jame Masjid & Islamic Center",
+   "lat": 40.678494,
+   "lon": -73.962695
+  },
+  {
+   "name": "Bakhit Islamic Center",
+   "lat": 40.630493,
+   "lon": -74.021954
+  },
+  {
+   "name": "Bay Ridge Islamic Center",
+   "lat": 40.618142,
+   "lon": -74.029287
+  },
+  {
+   "name": "Beit El-Maqdis Islamic Center",
+   "lat": 40.636864,
+   "lon": -74.015717
+  },
+  {
+   "name": "Brooklyn Islamic Center",
+   "lat": 40.645498,
+   "lon": -73.972469
+  },
+  {
+   "name": "Fatih Mosque",
+   "lat": 40.6353757,
+   "lon": -74.0091126
+  },
+  {
+   "name": "Fultoli Islamic Center",
+   "lat": 40.715239,
+   "lon": -73.807924
+  },
+  {
+   "name": "Futa Islamic Center, Inc.",
+   "lat": 40.827998,
+   "lon": -73.906867
+  },
+  {
+   "name": "Greenpoint Islamic Center",
+   "lat": 40.725338,
+   "lon": -73.950519
+  },
+  {
+   "name": "Ibaadu'rrahman Central Mosque",
+   "lat": 40.6930569,
+   "lon": -73.9710254
+  },
+  {
+   "name": "Islamic Center at NYU",
+   "lat": 40.730071,
+   "lon": -73.998032
+  },
+  {
+   "name": "Islamic Center of Jackson Heights",
+   "lat": 40.746407,
+   "lon": -73.894078
+  },
+  {
+   "name": "Islamic Cultural Center of New York",
+   "lat": 40.785467,
+   "lon": -73.948571
+  },
+  {
+   "name": "Masjid Abou Bakr",
+   "lat": 40.628053,
+   "lon": -73.976141
+  },
+  {
+   "name": "Masjid Ahlul Qur'aan Wa Sunnah",
+   "lat": 40.668893,
+   "lon": -73.814242
+  },
+  {
+   "name": "Masjid Al Imam Al Albani",
+   "lat": 40.671086,
+   "lon": -73.991135
+  },
+  {
+   "name": "Masjid Al Jama",
+   "lat": 40.688787,
+   "lon": -73.841978
+  },
+  {
+   "name": "Masjid al Taufiq",
+   "lat": 40.746885,
+   "lon": -73.879318
+  },
+  {
+   "name": "Masjid Al-Aman",
+   "lat": 40.678158,
+   "lon": -73.863713
+  },
+  {
+   "name": "Masjid Al-Ansar",
+   "lat": 40.683911,
+   "lon": -73.783417
+  },
+  {
+   "name": "Masjid Al-Hamdililah",
+   "lat": 40.677198,
+   "lon": -73.790727
+  },
+  {
+   "name": "Masjid al-Hikmah",
+   "lat": 40.758351,
+   "lon": -73.910329
+  },
+  {
+   "name": "Masjid Al-Ihsan",
+   "lat": 40.639805,
+   "lon": -74.077605
+  },
+  {
+   "name": "Masjid Al-Ikhlas",
+   "lat": 40.768163,
+   "lon": -73.928054
+  },
+  {
+   "name": "Masjid Al-Wadood",
+   "lat": 40.609677,
+   "lon": -74.147402
+  },
+  {
+   "name": "Masjid Alfalah",
+   "lat": 40.747227,
+   "lon": -73.863885
+  },
+  {
+   "name": "Masjid Ar-Rahman",
+   "lat": 40.745891,
+   "lon": -73.987927
+  },
+  {
+   "name": "Masjid At-Taqea",
+   "lat": 40.680534,
+   "lon": -73.953543
+  },
+  {
+   "name": "Masjid Dar-ul Furqan",
+   "lat": 40.750395,
+   "lon": -73.894038
+  },
+  {
+   "name": "Masjid Eesa ibn Maryam",
+   "lat": 40.713174,
+   "lon": -73.769541
+  },
+  {
+   "name": "Masjid El-ijsan",
+   "lat": 40.676867,
+   "lon": -73.930094
+  },
+  {
+   "name": "Masjid Ibrahim",
+   "lat": 40.597356,
+   "lon": -73.972888
+  },
+  {
+   "name": "Masjid Malcolm Shabazz",
+   "lat": 40.8019891,
+   "lon": -73.9501962
+  },
+  {
+   "name": "Masjid Manhattan",
+   "lat": 40.708192,
+   "lon": -74.005071
+  },
+  {
+   "name": "Masjid Mission Center",
+   "lat": 40.710892,
+   "lon": -73.787579
+  },
+  {
+   "name": "Masjid Nur Al Islam",
+   "lat": 40.641719,
+   "lon": -73.982382
+  },
+  {
+   "name": "Masjid Quba",
+   "lat": 40.810632,
+   "lon": -73.910156
+  },
+  {
+   "name": "Masjid Salam",
+   "lat": 40.818681,
+   "lon": -73.899751
+  },
+  {
+   "name": "Masjid Ul Kawthar",
+   "lat": 40.673537,
+   "lon": -73.950018
+  },
+  {
+   "name": "Masjid Umm-al-qura",
+   "lat": 40.641923,
+   "lon": -73.969765
+  },
+  {
+   "name": "Masjid Zawiyat Sof'watful Islam",
+   "lat": 40.683964,
+   "lon": -73.956033
+  },
+  {
+   "name": "Masjid-Al-Ihsaan",
+   "lat": 40.683021,
+   "lon": -73.964048
+  },
+  {
+   "name": "Mimar Sinan Mosque",
+   "lat": 40.7464954,
+   "lon": -73.9186805
+  },
+  {
+   "name": "Mosque of American Mohammedan Society",
+   "lat": 40.7119444,
+   "lon": -73.9466667
+  },
+  {
+   "name": "North Bronx Islamic Center",
+   "lat": 40.875057,
+   "lon": -73.880159
+  },
+  {
+   "name": "Rockaway Islamic Center",
+   "lat": 40.592742,
+   "lon": -73.78399
+  },
+  {
+   "name": "South Brooklyn Islamic Center",
+   "lat": 40.630495,
+   "lon": -74.028351
+  },
+  {
+   "name": "Togolese Islamic Center",
+   "lat": 40.82866,
+   "lon": -73.892202
+  }
+ ]
+}

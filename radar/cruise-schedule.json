@@ -1,21 +1,7 @@
 {
-  "updated": "2026-11-16",
+  "updated": "2026-11-23",
   "source": "CruiseMapper + official schedule",
   "cruise1": [
-    {
-      "d": "2026-11-21",
-      "ship": "Norwegian Bliss",
-      "arr": "07:00",
-      "dep": "16:00",
-      "cabins": 2069
-    },
-    {
-      "d": "2026-11-22",
-      "ship": "Volendam",
-      "arr": "07:00",
-      "dep": "17:00",
-      "cabins": 716
-    },
     {
       "d": "2026-11-29",
       "ship": "Norwegian Bliss",
@@ -81,14 +67,6 @@
     }
   ],
   "cruise2": [
-    {
-      "d": "2026-11-17",
-      "ship": "Queen Mary 2",
-      "arr": "",
-      "dep": "",
-      "depDay": true,
-      "cabins": 1363
-    },
     {
       "d": "2026-11-28",
       "ship": "Queen Mary 2",
